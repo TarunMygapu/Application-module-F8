@@ -2,6 +2,7 @@ import React from "react";
 import styles from "./CollegeOverviewAcademicInfo.module.css";
 
 const CollegeOverviewAcademicInfo = ({ data }) => {
+  console.log("🚀 ~ CollegeOverviewAcademicInfo ~ data:", data)
   return (
     <div className={styles.wrapper}>
       {/* Title + line */}
@@ -12,34 +13,67 @@ const CollegeOverviewAcademicInfo = ({ data }) => {
 
       {/* Content grid */}
       <div className={styles.infoGrid}>
+        {data?.hallTicketNo && (
+          <div className={styles.infoItem}>
+            <span className={styles.label}>10th Hall Ticket Number</span>
+            <span className={styles.value}>{data.hallTicketNo}</span>
+          </div>
+        )}
+
+        {data?.preHallTicketNo && (
+          <div className={styles.infoItem}>
+            <span className={styles.label}>Inter 1st Year Hall Ticket Number</span>
+            <span className={styles.value}>{data.preHallTicketNo}</span>
+          </div>
+        )}
+
+        {/* If neither exists */}
+        {!data?.preHallTicketNo && !data?.hallTicketNo && (
+          <div className={styles.infoItem}>
+            <span className={styles.label}>Hall Ticket Number</span>
+            <span className={styles.value}>-</span>
+          </div>
+        )}
+
         <div className={styles.infoItem}>
-          <span className={styles.label}>Hall Ticket Number</span>
-          <span className={styles.value}>{data?.hallTicketNo || '-'}</span>
+          <span className={styles.label}>{data?.preSchoolStateName
+            ? "School State"
+            : data?.preCollegeStateName
+              ? "College State"
+              : "State"}</span>
+          <span className={styles.value}>{data?.preSchoolStateName || data?.preCollegeStateName || '-'}</span>
         </div>
 
         <div className={styles.infoItem}>
-          <span className={styles.label}>School State</span>
-          <span className={styles.value}>{data?.preSchoolStateName || '-'}</span>
+          <span className={styles.label}>{data?.preSchoolDistrictName
+            ? "School District"
+            : data?.preCollegeDistrictName
+              ? "College District"
+              : "District"}</span>
+          <span className={styles.value}>{data?.preSchoolDistrictName || data?.preCollegeDistrictName || '-'}</span>
         </div>
 
         <div className={styles.infoItem}>
-          <span className={styles.label}>School District</span>
-          <span className={styles.value}>{data?.preSchoolDistrictName || '-'}</span>
+          <span className={styles.label}>{data?.preSchoolTypeName
+            ? "School Type"
+            : data?.preCollegeTypeName
+              ? "College Type"
+              : "Type"}</span>
+          <span className={styles.value}>{data?.schoolTypeName || data?.preSchoolTypeName || data?.preCollegeTypeName || '-'}</span>
         </div>
 
         <div className={styles.infoItem}>
-          <span className={styles.label}>School Type</span>
-          <span className={styles.value}>{'-'}</span>
-        </div>
-
-        <div className={styles.infoItem}>
-          <span className={styles.label}>School Name</span>
-          <span className={styles.value}>{data?.preSchoolName || '-'}</span>
+          <span className={styles.label}>{data?.preSchoolName
+            ? "School Name"
+            : data?.preCollegeName
+              ? "College Name"
+              : "Name"}</span>
+          <span className={styles.value}>{data?.preSchoolName || data?.preCollegeName || '-'}</span>
         </div>
 
         <div className={styles.infoItem}>
           <span className={styles.label}>Score App No</span>
-          <span className={styles.value}>{data?.studAdmsNo || '-'}</span>
+          <span className={styles.value}>{data?.scoreAppNo || '-'}</span>
         </div>
 
         <div className={styles.infoItem}>

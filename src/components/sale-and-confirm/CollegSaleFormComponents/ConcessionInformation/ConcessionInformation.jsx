@@ -1,37 +1,37 @@
 import React, { useMemo, useEffect } from "react";
 import { useFormikContext } from "formik";
 import styles from "./ConcessionInformation.module.css";
- 
+
 import { useGetEmployeesForSale, useGetConcessionReasons } from "../../../../queries/saleApis/clgSaleApis";
 import { useConcessionTypes } from "./hooks/useCollegeConcessionTypes";
- 
+
 import {
   concessionInformationFields,
   concessionInformationFieldsLayout,
 } from "./concessionInformtionFields";
- 
+
 import { renderField } from "../../../../utils/renderField";
-import {toTitleCase} from "../../../../utils/toTitleCase";
- 
+import { toTitleCase } from "../../../../utils/toTitleCase";
+
 const ConcessionInformation = () => {
   const formik = useFormikContext();
   const { values, setFieldValue, setFieldTouched, setFieldError, errors, touched, submitCount, handleBlur } = formik;
- 
+
   /* -------------------------
       API: Get Employees
   ------------------------- */
   const { data: employeesRaw = [] } = useGetEmployeesForSale();
- 
+
   /* -------------------------
       API: Get Concession Types
   ------------------------- */
   const { getConcessionTypeIdByLabel } = useConcessionTypes();
- 
+
   /* -------------------------
       API: Get Concession Reasons
   ------------------------- */
   const { data: concessionReasonsRaw = [] } = useGetConcessionReasons();
- 
+
   // Create name-to-ID map for concession reasons
   const concessionReasonNameToId = useMemo(() => {
     const map = new Map();
@@ -46,7 +46,7 @@ const ConcessionInformation = () => {
     }
     return map;
   }, [concessionReasonsRaw]);
- 
+
   // Concession reason options for dropdown
   const concessionReasonOptions = useMemo(() => {
     if (Array.isArray(concessionReasonsRaw)) {
@@ -56,7 +56,7 @@ const ConcessionInformation = () => {
     }
     return [];
   }, [concessionReasonsRaw]);
- 
+
   /* -------------------------
       Dropdown options
   ------------------------- */
@@ -64,7 +64,7 @@ const ConcessionInformation = () => {
     () => employeesRaw.map((e) => toTitleCase(e?.name ?? "")), // adjust key if needed
     [employeesRaw]
   );
- 
+
   // Create name-to-ID map for employees (for authorizedBy and referredBy)
   const employeeNameToId = useMemo(() => {
     const map = new Map();
@@ -79,28 +79,28 @@ const ConcessionInformation = () => {
     }
     return map;
   }, [employeesRaw]);
- 
+
   /* -------------------------
       Handle 1st Year Concession Change - Store amount and type ID
   ------------------------- */
   const handleFirstYearConcessionChange = (e) => {
     const { name, value } = e.target;
-   
+
     // Remove any non-digit characters (allow only numbers)
     const digitsOnly = value.replace(/\D/g, "");
-   
+
     // Get the "1st year" concession type ID
     const firstYearTypeId = getConcessionTypeIdByLabel("1st year");
-   
+
     // Mark field as touched FIRST so error can display immediately
     setFieldTouched(name, true, false);
-   
+
     // Update the form data with the concession amount and trigger validation
     setFieldValue(name, digitsOnly, true); // true = shouldValidate, triggers validation immediately
-   
+
     // Validate field to show errors below the field (no alert)
     formik.validateField(name);
-   
+
     // Validate dependent fields (description, referredBy, authorizedBy, concessionReason)
     // when concession amount is entered
     if (digitsOnly && digitsOnly !== "0") {
@@ -109,32 +109,32 @@ const ConcessionInformation = () => {
       setFieldTouched("referredBy", true, false);
       setFieldTouched("authorizedBy", true, false);
       setFieldTouched("concessionReason", true, false);
-     
+
       // Validate dependent fields
       formik.validateField("description");
       formik.validateField("referredBy");
       formik.validateField("authorizedBy");
       formik.validateField("concessionReason");
     }
-   
+
     // Also store the concession type ID separately
     if (firstYearTypeId !== undefined) {
       setFieldValue("firstYearConcessionTypeId", firstYearTypeId);
     }
   };
- 
+
   /* -------------------------
       Handle 2nd Year Concession Change - Store amount and type ID
   ------------------------- */
   const handleSecondYearConcessionChange = (e) => {
     const { name, value } = e.target;
-   
+
     // Remove any non-digit characters (allow only numbers)
     const digitsOnly = value.replace(/\D/g, "");
-   
+
     // Get the "2nd year" concession type ID
     const secondYearTypeId = getConcessionTypeIdByLabel("2nd year");
-   
+
     // Clear error if value is valid (not empty and not causing validation error)
     if (digitsOnly && errors[name]) {
       // Check if the value is valid by validating it
@@ -145,11 +145,11 @@ const ConcessionInformation = () => {
         }
       });
     }
-   
+
     // Update the form data with the concession amount and mark as touched
     setFieldValue(name, digitsOnly, false); // false = don't validate immediately, we'll validate manually
     setFieldTouched(name, true, false); // Mark field as touched
-   
+
     // Validate dependent fields (description, referredBy, authorizedBy, concessionReason)
     // when concession amount is entered
     if (digitsOnly && digitsOnly !== "0") {
@@ -158,26 +158,26 @@ const ConcessionInformation = () => {
       setFieldTouched("referredBy", true, false);
       setFieldTouched("authorizedBy", true, false);
       setFieldTouched("concessionReason", true, false);
-     
+
       // Validate dependent fields
       formik.validateField("description");
       formik.validateField("referredBy");
       formik.validateField("authorizedBy");
       formik.validateField("concessionReason");
     }
-   
+
     // Also store the concession type ID separately
     if (secondYearTypeId !== undefined) {
       setFieldValue("secondYearConcessionTypeId", secondYearTypeId);
     }
   };
- 
+
   /* -------------------------
       Handle Concession Reason Change - Store reason ID
   ------------------------- */
   const handleConcessionReasonChange = (e) => {
     const { name, value } = e.target;
-   
+
     // Clear error when a valid value is selected
     if (value && value !== "Select Concession Reason" && errors[name]) {
       setFieldError(name, undefined);
@@ -187,9 +187,9 @@ const ConcessionInformation = () => {
         }
       });
     }
-   
+
     setFieldValue(name, value);
-   
+
     // Store concessionReasonId when reason is selected
     if (value && concessionReasonNameToId.has(value)) {
       const reasonId = concessionReasonNameToId.get(value);
@@ -198,13 +198,13 @@ const ConcessionInformation = () => {
       setFieldValue("concessionReasonId", null);
     }
   };
- 
+
   /* -------------------------
       Handle Authorized By Change - Store employee ID
   ------------------------- */
   const handleAuthorizedByChange = (e) => {
     const { name, value } = e.target;
-   
+
     // Clear error when a valid value is selected
     if (value && value !== "Select Authorized By" && errors[name]) {
       setFieldError(name, undefined);
@@ -214,24 +214,25 @@ const ConcessionInformation = () => {
         }
       });
     }
-   
+
     setFieldValue(name, value);
-   
+
     // Store employee ID when employee is selected
     if (value && employeeNameToId.has(value)) {
       const employeeId = employeeNameToId.get(value);
+      console.log("Employee ID (Authorized By): ", employeeId);
       setFieldValue("authorizedById", employeeId);
     } else if (!value) {
       setFieldValue("authorizedById", null);
     }
   };
- 
+
   /* -------------------------
       Handle Referred By Change - Store employee ID
   ------------------------- */
   const handleReferredByChange = (e) => {
     const { name, value } = e.target;
-   
+
     // Clear error when a valid value is selected
     if (value && value !== "Select Referred By" && errors[name]) {
       setFieldError(name, undefined);
@@ -241,33 +242,34 @@ const ConcessionInformation = () => {
         }
       });
     }
-   
+
     setFieldValue(name, value);
-   
+
     // Store employee ID when employee is selected
     if (value && employeeNameToId.has(value)) {
       const employeeId = employeeNameToId.get(value);
+      console.log("Employee ID (Referred By): ", employeeId);
       setFieldValue("referredById", employeeId);
     } else if (!value) {
       setFieldValue("referredById", null);
     }
   };
- 
+
   /* -------------------------
       Handle Description Change - Mark as touched and trigger validation
   ------------------------- */
   const handleDescriptionChange = (e) => {
     const { name, value } = e.target;
-   
+
     // Mark field as touched FIRST so error can display immediately
     setFieldTouched(name, true, false);
-   
+
     // Update the form data and trigger validation
     setFieldValue(name, value, true); // true = shouldValidate, triggers validation immediately
-   
+
     // Validate field to show errors below the field
     formik.validateField(name);
-   
+
     // Clear error when a valid value is entered
     if (value && value.trim() !== "" && errors[name]) {
       formik.validateField(name).then(() => {
@@ -277,7 +279,7 @@ const ConcessionInformation = () => {
       });
     }
   };
- 
+
   /* -------------------------
       Sync concession type IDs when values are present but IDs are missing
   ------------------------- */
@@ -289,7 +291,7 @@ const ConcessionInformation = () => {
         setFieldValue("firstYearConcessionTypeId", firstYearTypeId);
       }
     }
-   
+
     // Sync secondYearConcessionTypeId
     if (values.secondYearConcession && (!values.secondYearConcessionTypeId || values.secondYearConcessionTypeId === 0)) {
       const secondYearTypeId = getConcessionTypeIdByLabel("2nd year");
@@ -297,7 +299,7 @@ const ConcessionInformation = () => {
         setFieldValue("secondYearConcessionTypeId", secondYearTypeId);
       }
     }
-   
+
     // Sync concessionReasonId when reason label is present but ID is missing
     if (values.concessionReason && (!values.concessionReasonId || values.concessionReasonId === 0)) {
       // Try exact match first
@@ -317,7 +319,7 @@ const ConcessionInformation = () => {
         }
       }
     }
-   
+
     // Sync authorizedById when authorizedBy label is present but ID is missing
     if (values.authorizedBy && (!values.authorizedById || values.authorizedById === 0)) {
       const authorizedByLabel = toTitleCase(String(values.authorizedBy).trim());
@@ -335,7 +337,7 @@ const ConcessionInformation = () => {
         }
       }
     }
-   
+
     // Sync referredById when referredBy label is present but ID is missing
     if (values.referredBy && (!values.referredById || values.referredById === 0)) {
       const referredByLabel = toTitleCase(String(values.referredBy).trim());
@@ -354,16 +356,16 @@ const ConcessionInformation = () => {
       }
     }
   }, [values.firstYearConcession, values.secondYearConcession, values.firstYearConcessionTypeId, values.secondYearConcessionTypeId, values.concessionReason, values.concessionReasonId, values.authorizedBy, values.authorizedById, values.referredBy, values.referredById, getConcessionTypeIdByLabel, concessionReasonNameToId, employeeNameToId, setFieldValue, concessionReasonsRaw, employeesRaw]);
- 
+
   /* -------------------------
       Build final field map
   ------------------------- */
   const fieldMap = useMemo(() => {
     const map = {};
- 
+
     concessionInformationFields.forEach((f) => {
       map[f.name] = { ...f };
- 
+
       // Replace dropdowns
       if (f.name === "referredBy") map[f.name].options = employeeOptions;
       if (f.name === "authorizedBy") map[f.name].options = employeeOptions;
@@ -372,10 +374,10 @@ const ConcessionInformation = () => {
         map[f.name].type = "select"; // Change from text to select
       }
     });
- 
+
     return map;
   }, [employeeOptions, concessionReasonOptions]);
- 
+
   return (
     <div className={styles.clgAppSaleConcessionInfoWrapper}>
       <div className={styles.clgAppSaleConcessionInfoTop}>
@@ -384,14 +386,14 @@ const ConcessionInformation = () => {
         </p>
         <div className={styles.clgAppSalePersonalInfoSeperationLine}></div>
       </div>
- 
+
       <div className={styles.clgAppSaleConcessionInfoBottom}>
         {concessionInformationFieldsLayout.map((row) => (
           <div key={row.id} className={styles.clgAppSalerow}>
             {row.fields.map((fname) => {
               // Custom onChange handlers for concession amount fields, reason, and employee fields
               let onChangeHandler = (e) => setFieldValue(fname, e.target.value);
-             
+
               if (fname === "firstYearConcession") {
                 onChangeHandler = handleFirstYearConcessionChange;
               } else if (fname === "secondYearConcession") {
@@ -405,21 +407,21 @@ const ConcessionInformation = () => {
               } else if (fname === "description") {
                 onChangeHandler = handleDescriptionChange;
               }
-             
+
               // Check if field is touched or if there's an error (for validation on change)
               const isTouched = touched[fname] || submitCount > 0;
               const hasError = errors[fname];
-             
+
               // Check if field has a valid value (not empty, not placeholder)
               // NOTE: For firstYearConcession and secondYearConcession, don't hide errors based on value
               // because these fields can have values that are still invalid (exceed course fee)
               const isConcessionAmountField = fname === "firstYearConcession" || fname === "secondYearConcession";
               const hasValidValue = !isConcessionAmountField && values[fname] &&
-                                   values[fname] !== "" &&
-                                   values[fname] !== "Select Referred By" &&
-                                   values[fname] !== "Select Authorized By" &&
-                                   values[fname] !== "Select Concession Reason";
-             
+                values[fname] !== "" &&
+                values[fname] !== "Select Referred By" &&
+                values[fname] !== "Select Authorized By" &&
+                values[fname] !== "Select Concession Reason";
+
               // Show error if field is touched/submitted OR if there are validation errors present
               // This ensures errors show even if touched state hasn't updated yet after setTouched() call
               // IMPORTANT: For concession amount fields, show error immediately if error exists and field has value (real-time validation)
@@ -432,7 +434,7 @@ const ConcessionInformation = () => {
               const fieldError = isConcessionAmountField
                 ? (hasError && values[fname] ? hasError : null) // Show error immediately if exists and field has value
                 : (hasError && !hasValidValue ? hasError : null);
-             
+
               return (
                 <div key={fname} className={styles.clgAppSaleFieldCell}>
                   {renderField(fname, fieldMap, {
@@ -450,5 +452,5 @@ const ConcessionInformation = () => {
     </div>
   );
 };
- 
+
 export default ConcessionInformation;

@@ -107,7 +107,7 @@ export default function useOrientationFormState({ academicYear, onDataChange, ov
     setCourseStartDate("");
     setCourseEndDate("");
     setCourseFee("");
-    
+
     // Notify parent immediately with cleared values
     onDataChange?.({
       cityId: cityId,
@@ -294,7 +294,7 @@ export default function useOrientationFormState({ academicYear, onDataChange, ov
     if (!overviewData) return;
     // Only auto-populate if orientation is selected (to prevent repopulation when city changes)
     if (!selectedOrientationId) return;
-    
+
     if ((overviewData.orientationStartDate || overviewData.courseStartDate) && !courseStartDate) {
       setCourseStartDate(overviewData.orientationStartDate || overviewData.courseStartDate);
     }

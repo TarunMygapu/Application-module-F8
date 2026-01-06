@@ -9,9 +9,10 @@ import SideBarContainer from "./containers/SideBar-container/SideBarContainer";
 import ApplicationModuleContainer from "./containers/Application-module-container/ApplicationModuleContainer";
 
 import LoginContainer from "./components/login-components/LoginContainer";
+import { useAuthBootstrap } from "./hooks/useAuthBootstrap";
 
 // --- Redux ---
-import { store, persistor } from "./redux/store"; 
+import { store, persistor } from "./redux/store";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 
@@ -36,16 +37,23 @@ const Masters = () => <div>Masters</div>;
 
 // --- 1. Central Authentication Guard ---
 // 🔑 Checks if the user is logged in (via token in localStorage for this example).
-const AuthGuard = ({ children }) => {
-    // **IMPORTANT**: Use your actual authentication logic (e.g., checking Redux state or cookie)
-    const isAuthenticated = localStorage.getItem('authToken') !== null; 
+// const AuthGuard = ({ children }) => {
+//   // **IMPORTANT**: Use your actual authentication logic (e.g., checking Redux state or cookie)
+//   const isAuthenticated = localStorage.getItem('authToken') !== null;
 
-    if (isAuthenticated) {
-        return children;
-    } else {
-        // Redirect to login if not authenticated
-        return <Navigate to="/login" replace />; 
-    }
+//   if (isAuthenticated) {
+//     return children;
+//   } else {
+//     // Redirect to login if not authenticated
+//     return <Navigate to="/login" replace />;
+//   }
+// };
+const AuthGuard = ({ children }) => {
+  const { loading, authenticated } = useAuthBootstrap();
+
+  if (loading) return null; // or Loader
+
+  return authenticated ? children : <Navigate to="/login" replace />;
 };
 
 // Create the QueryClient instance
@@ -65,114 +73,114 @@ function AppWrapper() {
         <Routes>
           {/* Default path inside scopes */}
           {/* <Route path="/" element={<Navigate to="dashboard" replace />} />  */}
-          
+
           {/* 🔑 Protected Routes using PermissionGuard */}
-          <Route 
-            path="dashboard" 
+          <Route
+            path="dashboard"
             element={
               <PermissionGuard permissionKey="VIEW_DASHBOARD">
                 <Dashboard />
               </PermissionGuard>
-            } 
+            }
           />
-          <Route 
-            path="students" 
+          <Route
+            path="students"
             element={
               <PermissionGuard permissionKey="VIEW_STUDENTS">
                 <Students />
               </PermissionGuard>
-            } 
+            }
           />
-          <Route 
-            path="/application/*" 
+          <Route
+            path="/application/*"
             element={
               // Assuming 'APPLICATION_STATUS' covers the entire application module
               <PermissionGuard permissionKey="APPLICATION_STATUS">
                 <ApplicationModuleContainer />
               </PermissionGuard>
-            } 
+            }
           />
-          <Route 
-            path="/employee" 
+          <Route
+            path="/employee"
             element={
               <PermissionGuard permissionKey="VIEW_EMPLOYEE">
                 <Employee />
               </PermissionGuard>
-            } 
+            }
           />
-          <Route 
-            path="/fleet" 
+          <Route
+            path="/fleet"
             element={
               <PermissionGuard permissionKey="ACCESS_FLEET">
                 <Fleet />
               </PermissionGuard>
-            } 
+            }
           />
-          <Route 
-            path="/warehouse" 
+          <Route
+            path="/warehouse"
             element={
               <PermissionGuard permissionKey="ACCESS_WAREHOUSE">
                 <Warehouse />
               </PermissionGuard>
-            } 
+            }
           />
-          <Route 
-            path="/sms" 
+          <Route
+            path="/sms"
             element={
               <PermissionGuard permissionKey="ACCESS_SMS">
                 <Sms />
               </PermissionGuard>
-            } 
+            }
           />
-          <Route 
-            path="/question-bank" 
+          <Route
+            path="/question-bank"
             element={
               <PermissionGuard permissionKey="ACCESS_QUESTION_BANK">
                 <QuestionBank />
               </PermissionGuard>
-            } 
+            }
           />
-          <Route 
-            path="/assets-management" 
+          <Route
+            path="/assets-management"
             element={
               <PermissionGuard permissionKey="ACCESS_ASSETS">
                 <AssetsManagement />
               </PermissionGuard>
-            } 
+            }
           />
-          <Route 
-            path="/payments-service" 
+          <Route
+            path="/payments-service"
             element={
               <PermissionGuard permissionKey="ACCESS_PAYMENTS">
                 <PaymentsService />
               </PermissionGuard>
-            } 
+            }
           />
-          <Route 
-            path="/cctv" 
+          <Route
+            path="/cctv"
             element={
               <PermissionGuard permissionKey="ACCESS_CCTV">
                 <Cctv />
               </PermissionGuard>
-            } 
+            }
           />
-          <Route 
-            path="/hrms" 
+          <Route
+            path="/hrms"
             element={
               <PermissionGuard permissionKey="ACCESS_HRMS">
                 <Hrms />
               </PermissionGuard>
-            } 
+            }
           />
-          <Route 
-            path="/masters" 
+          <Route
+            path="/masters"
             element={
               <PermissionGuard permissionKey="ACCESS_MASTERS">
                 <Masters />
               </PermissionGuard>
-            } 
+            }
           />
-          
+
           {/* Fallback for paths inside /scopes/* that don't match */}
           {/* PermissionGuard will handle redirecting users without permission from the current route to /scopes/dashboard */}
           <Route path="*" element={<Navigate to="/scopes" replace />} />
@@ -194,16 +202,16 @@ function App() {
                 {/* Public Routes */}
                 <Route path="/" element={<Navigate to="/login" replace />} />
                 <Route path="/login/*" element={<LoginContainer />} />
-                
+
                 {/* Protected Routes: Check Authentication first */}
-                <Route 
-                  path="/scopes/*" 
+                <Route
+                  path="/scopes/*"
                   element={
                     // 🔑 Wrap AppWrapper with AuthGuard
                     <AuthGuard>
                       <AppWrapper />
                     </AuthGuard>
-                  } 
+                  }
                 />
 
                 {/* Global Fallback for 404 / Unknown path */}

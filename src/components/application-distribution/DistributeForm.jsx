@@ -8,15 +8,22 @@ import styles from "./DistributeForm.module.css";
 import rightarrow from "../../assets/application-distribution/rightarrow";
 import RangeInputBox from "../../widgets/Range/RangeInputBox";
 import { handlePostSubmit } from "../../queries/application-distribution/distributionpostqueries";
-import { updateZone, updateDgm,updateCampus,} from "../../queries/application-distribution/distibutionupdatequeries";
+import {
+  updateZone,
+  updateDgm,
+  updateCampus,
+} from "../../queries/application-distribution/distibutionupdatequeries";
 import CurrentDate from "../../widgets/DateWidgets/CurrentDate/CurrentDate";
 import { fieldLayouts, getFieldsForType } from "./fieldConfigs";
 import { getCurrentDate } from "../../utils/getCurrentDate";
-import { AutoCalcAppTo, ValuesBridge, BackendPatcher} from "./distributionFormikComponents";
+import {
+  AutoCalcAppTo,
+  ValuesBridge,
+  BackendPatcher,
+} from "./distributionFormikComponents";
 import { buildInitialValues } from "./buildInitialValuesForDistribution";
 
 import Popup from "../../widgets/PopupWidgets/Popup";
-
 
 const normalizeOptions = (options) =>
   Array.isArray(options) ? options.filter((v) => v != null).map(String) : [];
@@ -42,7 +49,7 @@ const extractApiError = (err) => {
   if (data && typeof data === "object") {
     try {
       return JSON.stringify(data);
-    } catch (_) {}
+    } catch (_) { }
   }
 
   // fallback to normal Error.message
@@ -76,7 +83,8 @@ const DistributeForm = ({
   const category = localStorage.getItem("category");
   const [showPopup, setShowPopup] = useState(false);
   const [pendingValues, setPendingValues] = useState(null);
- 
+  const [apiLoading, setApiLoading] = useState(false);
+
   const [formError, setFormError] = useState(null);
   console.log("Form Type:", formType);
   const fieldsForType = useMemo(() => getFieldsForType(formType), [formType]);
@@ -100,11 +108,11 @@ const DistributeForm = ({
   // const handleSubmit = async () => {
   //   if (!pendingValues) return;
   //   setFormError(null);
- 
+
   //   try {
   //     const values = { ...pendingValues };
   //     console.log("Values: ", values);
- 
+
   //     // Force middleware app-from if used
   //     if (
   //       appNoFormMode === "middleware" &&
@@ -113,7 +121,7 @@ const DistributeForm = ({
   //     ) {
   //       values.applicationNoFrom = String(middlewareAppNoFrom);
   //     }
- 
+
   //     // light guards (Yup still validates)
   //     if (!values.academicYearId) {
   //       throw new Error("Please select a valid Academic Year.");
@@ -121,28 +129,28 @@ const DistributeForm = ({
   //     if (!values.issuedToEmpId && !values.issuedToId) {
   //       throw new Error("Please select a valid employee for 'Issued To'.");
   //     }
- 
+
   //     const t = String(formType || "")
   //       .trim()
   //       .toLowerCase();
- 
+
   //     if (isUpdate) {
   //       if (editId === undefined || editId === null) {
   //         throw new Error("Missing editId for update call.");
   //       }
- 
+
   //       let resp;
   //       if (t === "zone") resp = await updateZone(editId, values,employeeId);
   //       else if (t === "dgm") resp = await updateDgm(editId, values,employeeId);
   //       else if (t === "campus") resp = await updateCampus(editId, values,employeeId,category);
   //       else throw new Error(`Unknown formType "${formType}" for update.`);
- 
+
   //       onSubmit?.({ ...values, id: editId, _mode: "update" });
   //       setIsInsertClicked?.(false);
   //       setCallTable?.(true);
   //       return resp;
   //     }
- 
+
   //     // console.log("Form Values Before sending to middleware: ", formValues);
   //     // Create flow
   //     const resp = await handlePostSubmit({
@@ -151,7 +159,7 @@ const DistributeForm = ({
   //       employeeId: employeeId,
   //       category: category,
   //     });
- 
+
   //     onSubmit?.({ ...values, _mode: "create" });
   //     setIsInsertClicked?.(true);
   //     setCallTable(true);
@@ -165,49 +173,49 @@ const DistributeForm = ({
   //     return null;
   //   }
   // };
- 
+
   const callSubmitApi = async () => {
     if (!pendingValues) return;
- 
+
     console.log("🟡 CONFIRMED — Proceeding with API call...");
     console.log("🚀 API CALL TRIGGERED with values:", pendingValues);
- 
+
     try {
       const values = pendingValues;
       let resp;
- 
+
       if (isUpdate) {
         const t = formType.toLowerCase();
- 
+
         console.log(`🔄 UPDATE API -> Type: ${t}, ID: ${editId}`);
- 
+
         if (t === "zone") resp = await updateZone(editId, values, employeeId);
         else if (t === "dgm")
           resp = await updateDgm(editId, values, employeeId);
         else if (t === "campus")
           resp = await updateCampus(editId, values, employeeId, category);
- 
+
         console.log("✅ API SUCCESS — Update Response:", resp);
- 
+
         onSubmit?.({ ...values, id: editId, _mode: "update" });
         setIsInsertClicked?.(false);
       } else {
         console.log("🆕 CREATE API CALL INITIATED...");
- 
+
         resp = await handlePostSubmit({
           formValues: values,
           formType: formType.toLowerCase(),
           employeeId,
           category,
         });
- 
+
         console.log("✅ API SUCCESS — Create Response:", resp);
- 
+
         onSubmit?.({ ...values, _mode: "create" });
         setIsInsertClicked?.(true);
         setCallTable?.(true);
       }
- 
+
       console.log("🎉 FORM SUBMISSION SUCCESS — Closing popup...");
       setShowPopup(false);
       return resp;
@@ -217,13 +225,14 @@ const DistributeForm = ({
       setShowPopup(false);
     }
   };
- 
+
   const beforeSubmit = (values) => {
     console.log("🔥 BEFORE POPUP — Form Values:", values);
+    setFormError(null); // 🔥 clear previous API error
     setPendingValues(values);
     setShowPopup(true); // show confirmation popup
   };
- 
+
   const renderField = (name, values, setFieldValue, touched, errors) => {
     const cfg = fieldMap[name];
     if (!cfg) return null;
@@ -247,7 +256,11 @@ const DistributeForm = ({
     const rawOptions = dynamicOptions ? dynamicOptions[cfg.name] : cfg.options;
     const options = normalizeOptions(rawOptions);
     if (hasDropdownConfig) {
-      const dropdownDisabled = !!cfg.disabled || options.length === 0;
+      const isLockedonUpdate =
+        isUpdate &&
+        (cfg.name === "applicationSeries" || cfg.name === "applicationFee");
+      const dropdownDisabled =
+        !!cfg.disabled || isLockedonUpdate || options.length === 0;
       const searchResults =
         searchOptions && searchOptions[cfg.name]
           ? searchOptions[cfg.name]
@@ -264,11 +277,11 @@ const DistributeForm = ({
             onChange={(e) => {
               const val = e.target.value;
               setFieldValue(cfg.name, val);
- 
+
               if (cfg.name === "applicationFee") {
                 onApplicationFeeSelect?.(Number(val));
               }
- 
+
               if (cfg.name === "applicationSeries") {
                 const found = applicationSeriesList?.find(
                   (s) => s.displaySeries === val
@@ -300,10 +313,10 @@ const DistributeForm = ({
     }
     const handleChange = isAppFrom
       ? (e) => {
-          if (appNoFormMode === "middleware") return;
-          const onlyDigits = e.target.value.replace(/\D/g, "");
-          setFieldValue(cfg.name, onlyDigits);
-        }
+        if (appNoFormMode === "middleware") return;
+        const onlyDigits = e.target.value.replace(/\D/g, "");
+        setFieldValue(cfg.name, onlyDigits);
+      }
       : (e) => setFieldValue(cfg.name, e.target.value);
     return (
       <>
@@ -338,9 +351,13 @@ const DistributeForm = ({
         initialValues={formInitialValues}
         validationSchema={validationSchema}
         validationContext={{ formType }}
-        onSubmit={(values) => {
-          console.log("📝 FORMIK SUBMIT TRIGGERED — Raw Values:", values);
-          beforeSubmit(values);
+        onSubmit={async (values, formikHelpers) => {
+          const errors = await formikHelpers.validateForm();
+          if (Object.keys(errors).length > 0) {
+            console.log("❌ Validation errors — popup blocked:", errors);
+            return; // ⛔ DO NOT OPEN POPUP
+          }
+          beforeSubmit(values); // ✅ open popup only if valid
         }}
         enableReinitialize={false}
       >
@@ -385,5 +402,5 @@ const DistributeForm = ({
     </>
   );
 };
- 
+
 export default DistributeForm;

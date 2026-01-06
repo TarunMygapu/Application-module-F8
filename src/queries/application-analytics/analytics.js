@@ -11,7 +11,7 @@
 //   console.log("💰 API CALL: getAllAmounts", { empId, academicYearId });
 //   const url = `${DISTRIBUTION_GETS}/getallamounts/${empId}/${academicYearId}`;
 //   console.log("💰 API URL:", url);
- 
+
 //   try {
 //     const { data } = await axios.get(url);
 //     console.log("💰 API RESPONSE: getAllAmounts data:", data);
@@ -79,9 +79,9 @@
 //     console.log("📊 API RESPONSE: response.data type:", typeof response.data);
 //     console.log("📊 API RESPONSE: Is response.data an array?", Array.isArray(response.data));
 //     console.log("📊 API RESPONSE: response.data keys:", response.data ? Object.keys(response.data) : "null");
-   
+
 //     const data = response.data;
-   
+
 //     // Log the structure in detail
 //     if (data && typeof data === 'object') {
 //       console.log("📊 API RESPONSE: data.metricCards:", data.metricCards);
@@ -91,7 +91,7 @@
 //         console.log("📊 API RESPONSE: First card:", data.metricCards[0]);
 //       }
 //     }
-   
+
 //     return data;
 //   } catch (error) {
 //     console.error("📊 API ERROR: getMetricsForAdmin failed", error);
@@ -152,35 +152,35 @@
 // const buildFlexibleGraphUrl = (zoneId, campusId, amount) => {
 //   const baseUrl = "http://localhost:8080/api/analytics/flexible-graph";
 //   const params = new URLSearchParams();
- 
+
 //   // Add parameters only if they exist and are valid (not null, undefined, or empty)
 //   // Only pass the parameter that's actually selected (zoneId OR campusId, not both)
- 
+
 //   // Validate and convert parameters - ensure they're not null/undefined/empty
 //   // Note: amount can be 0, which is a valid value
 //   const hasZoneId = zoneId != null && zoneId !== "" && zoneId !== undefined;
 //   const hasCampusId = campusId != null && campusId !== "" && campusId !== undefined;
 //   const hasAmount = amount != null && amount !== "" && amount !== undefined; // Allow 0 as valid amount
- 
+
 //   // Only add zoneId if we have it AND don't have campusId
 //   if (hasZoneId && !hasCampusId) {
 //     params.append("zoneId", String(zoneId));
 //   }
- 
+
 //   // Only add campusId if we have it (prioritize campusId if both exist)
 //   if (hasCampusId) {
 //     params.append("campusId", String(campusId));
 //   }
- 
+
 //   // Add amount if we have it
 //   if (hasAmount) {
 //     params.append("amount", String(amount));
 //   }
- 
+
 //   // Build final URL
 //   const queryString = params.toString();
 //   const finalUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl;
- 
+
 //   console.log("🔗 Built URL:", finalUrl);
 //   console.log("🔗 Parameters:", { zoneId, campusId, amount, hasZoneId, hasCampusId, hasAmount });
 //   return finalUrl;
@@ -195,11 +195,11 @@
 //     amount,
 //     amountType: typeof amount
 //   });
- 
+
 //   const url = buildFlexibleGraphUrl(zoneId, campusId, amount);
 //   console.log("🟣 API URL:", url);
 //   console.log("🟣 Final URL being called:", url);
- 
+
 //   try {
 //     const { data } = await axios.get(url);
 //     console.log("🟣 API RESPONSE: getFlexibleGraph data:", data);
@@ -322,7 +322,7 @@
 //     (zoneId != null && zoneId !== "" && zoneId !== undefined) ||
 //     (campusId != null && campusId !== "" && campusId !== undefined) ||
 //     (amount != null && amount !== "" && amount !== undefined); // Allow 0 as valid amount
- 
+
 //   return useQuery({
 //     queryKey: ["Get Flexible Graph", zoneId, campusId, amount],
 //     queryFn: () => getFlexibleGraph(zoneId, campusId, amount),
@@ -350,11 +350,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
- 
+
 const ANALYTICS_GET_ADMIN = "http://localhost:8080/api/applications";
 const DISTRIBUTION_GETS = "http://localhost:8080/distribution/gets";
-const DISTRIBUTION      = "http://localhost:8080/api/dashboard/CO";
- 
+const DISTRIBUTION = "http://localhost:8080/api/dashboard/CO";
+
 // ----------------------
 // 💰 Amount APIs
 // ----------------------
@@ -363,7 +363,7 @@ const getAllAmounts = async (empId, academicYearId) => {
 
   const url = `${DISTRIBUTION_GETS}/getallamounts/${empId}/${academicYearId}`;
   console.log("💰 API URL:", url);
- 
+
   try {
     const { data } = await axios.get(url);
     console.log("💰 API RESPONSE: getAllAmounts data:", data);
@@ -374,19 +374,19 @@ const getAllAmounts = async (empId, academicYearId) => {
     throw error;
   }
 };
- 
+
 // ----------------------
 // 📊 Admin APIs
 // ----------------------
 
 const getAllZones = async (category) =>
   (await axios.get(`http://localhost:8080/api/analytics/zones?category=${category}`)).data;
- 
+
 const getAllDgms = async (category) =>
   (await axios.get(`http://localhost:8080/api/analytics/dgm-employees?category=${category}`)).data;
- 
+
 const getAllCampuses = async (category) =>
-  (await axios.get(`http://localhost:8080/api/analytics/campuses?category=${category}`)).data; 
+  (await axios.get(`http://localhost:8080/api/analytics/campuses?category=${category}`)).data;
 // ----------------------
 // 🧾 Zonal Accountant & DGM APIs
 // ----------------------
@@ -397,15 +397,15 @@ const getDgmsForZonalAccountant = async (empId, category) => {
   );
   return data;
 };
- 
-const getCampusesForZonalAccountant = async (empId,category) => {
+
+const getCampusesForZonalAccountant = async (empId, category) => {
   if (!empId) return [];
   const { data } = await axios.get(
     `${DISTRIBUTION_GETS}/campusesforzonal_accountant_with_category/${empId}?category=${category}`
   );
   return data;
 };
- 
+
 const getCampusesByDgmEmpId = async (empId, category) => {
   if (!empId) return [];
   const { data } = await axios.get(
@@ -413,7 +413,7 @@ const getCampusesByDgmEmpId = async (empId, category) => {
   );
   return data;
 };
- 
+
 // ----------------------
 // 📊 Metrics APIs
 // ----------------------
@@ -431,9 +431,9 @@ const getMetricsForAdmin = async (employeeId) => {
     console.log("📊 API RESPONSE: response.data type:", typeof response.data);
     console.log("📊 API RESPONSE: Is response.data an array?", Array.isArray(response.data));
     console.log("📊 API RESPONSE: response.data keys:", response.data ? Object.keys(response.data) : "null");
-   
+
     const data = response.data;
-   
+
     // Log the structure in detail
     if (data && typeof data === 'object') {
       console.log("📊 API RESPONSE: data.metricCards:", data.metricCards);
@@ -443,7 +443,7 @@ const getMetricsForAdmin = async (employeeId) => {
         console.log("📊 API RESPONSE: First card:", data.metricCards[0]);
       }
     }
-   
+
     return data;
   } catch (error) {
     console.error("📊 API ERROR: getMetricsForAdmin failed", error);
@@ -451,13 +451,13 @@ const getMetricsForAdmin = async (employeeId) => {
     throw error;
   }
 };
- 
+
 const getMetricsForEmployee = async (empId) => {
   if (!empId) return null;
   const { data } = await axios.get(`http://localhost:8080/api/analytics/${empId}`);
   return data;
 };
- 
+
 // ----------------------
 // 📈 Graph Data APIs (for Accordions)
 // ----------------------
@@ -466,20 +466,24 @@ const getGraphDataForAdmin = async (employeeId) => {
     console.warn("⚠️ getGraphDataForAdmin: employeeId is required");
     return null;
   }
+  // ✅ CRITICAL: This endpoint (cards_graph) is ONLY for ADMIN users
+  // This function should NEVER be called for DGM, Zonal Accountant, Cashier, Principal, etc.
   const url = `http://localhost:8080/api/analytics/cards_graph?employeeId=${employeeId}`;
-  console.log("📈 API CALL: getGraphDataForAdmin", { employeeId, url });
+  console.log("📈 API CALL: getGraphDataForAdmin (CARDS_GRAPH - ADMIN ONLY)", { employeeId, url });
+  console.warn("⚠️ If you see this log for a non-admin user, there's a security issue!");
   const { data } = await axios.get(url);
   console.log("📈 API RESPONSE: getGraphDataForAdmin data:", data);
   return data;
 };
- 
+
 const getGraphDataForEmployee = async (empId) => {
   if (!empId) {
     console.warn("⚠️ getGraphDataForEmployee: empId is required");
     return null;
   }
-  // ✅ Use the same cards_graph endpoint as admin to get consistent data structure
-  const url = `http://localhost:8080/api/analytics/cards_graph?employeeId=${empId}`;
+  // ✅ Use the employee-specific endpoint (NOT cards_graph - that's only for admin)
+  // This endpoint returns: { role, designationName, entityName, entityId, graphData: { yearlyData: [...] }, metricsData }
+  const url = `http://localhost:8080/api/analytics/${empId}`;
   console.log("📈 API CALL: getGraphDataForEmployee", { empId, url });
   try {
     const { data } = await axios.get(url);
@@ -490,7 +494,7 @@ const getGraphDataForEmployee = async (empId) => {
     throw error;
   }
 };
- 
+
 // ----------------------
 // 📊 Analytics for Selected Zone/Campus/DGM
 // ----------------------
@@ -508,7 +512,7 @@ const getAnalyticsForDgm = async (empId) => {
   console.log("🟢 API RESPONSE: getAnalyticsForDgm data:", data);
   return data;
 };
- 
+
 const getAnalyticsForCampus = async (campusId) => {
   console.log("🟢 API CALL: getAnalyticsForCampus with campusId:", campusId);
   if (!campusId) return null;
@@ -516,31 +520,35 @@ const getAnalyticsForCampus = async (campusId) => {
   console.log("🟢 API RESPONSE: getAnalyticsForCampus data:", data);
   return data;
 };
- 
+
 // ----------------------
 // 📊 Flexible Graph API (supports zoneId, campusId, amount - all optional)
 // ----------------------
-const buildFlexibleGraphUrl = (zoneId, campusIds, amount) => {
+const buildFlexibleGraphUrl = (zoneId, campusIds, campusId, amount) => {
   const baseUrl = "http://localhost:8080/api/analytics/flexible-graph";
   const params = new URLSearchParams();
 
-  // 1. Handle Campus IDs (Can be a single value or an array)
+  // 1. Handle Campus IDs (Plural - for DGMs or multiple selection)
   if (campusIds != null && campusIds !== "") {
-    // Convert to array if it's a single value, then loop
     const idList = Array.isArray(campusIds) ? campusIds : [campusIds];
-    
     idList.forEach(id => {
       if (id != null && id !== "") {
-        params.append("campusIds", String(id)); // API expects 'campusIds' key
+        params.append("campusIds", String(id));
       }
     });
-  } 
-  // 2. Handle Zone ID (Only if no Campus IDs are present)
-  else if (zoneId != null && zoneId !== "") {
+  }
+
+  // 2. Handle Campus ID (Singular - for individual campus selection)
+  if (campusId != null && campusId !== "") {
+    params.append("campusId", String(campusId));
+  }
+
+  // 3. Handle Zone ID (Only if no Campus IDs are present)
+  if (!campusIds && !campusId && zoneId != null && zoneId !== "") {
     params.append("zoneId", String(zoneId));
   }
 
-  // 3. Handle Amount
+  // 4. Handle Amount
   if (amount != null && amount !== "") {
     params.append("amount", String(amount));
   }
@@ -551,21 +559,18 @@ const buildFlexibleGraphUrl = (zoneId, campusIds, amount) => {
   console.log("🔗 Final URL:", finalUrl);
   return finalUrl;
 };
- 
-const getFlexibleGraph = async (zoneId, campusIds, amount) => {
+
+const getFlexibleGraph = async (zoneId, campusIds, campusId, amount) => {
   console.log("🟣 API CALL: getFlexibleGraph with:", {
     zoneId,
-    zoneIdType: typeof zoneId,
     campusIds,
-    campusIdsType: typeof campusIds,
-    amount,
-    amountType: typeof amount
+    campusId,
+    amount
   });
- 
-  const url = buildFlexibleGraphUrl(zoneId, campusIds, amount);
+
+  const url = buildFlexibleGraphUrl(zoneId, campusIds, campusId, amount);
   console.log("🟣 API URL:", url);
-  console.log("🟣 Final URL being called:", url);
- 
+
   try {
     const { data } = await axios.get(url);
     console.log("🟣 API RESPONSE: getFlexibleGraph data:", data);
@@ -577,28 +582,28 @@ const getFlexibleGraph = async (zoneId, campusIds, amount) => {
     throw error;
   }
 };
- 
+
 // ----------------------
 // ⚙️ React Query Hooks (accept options)
 // ----------------------
- 
+
 // ✅ Admin
-export const useGetAllZones = (category,options = {}) =>
+export const useGetAllZones = (category, options = {}) =>
   useQuery({
     queryKey: ["Get All Zones"],
     queryFn: () => getAllZones(category),
     enabled: !!category && (options.enabled ?? true),
     ...options,
   });
- 
-export const useGetAllDgms = (category,options = {}) =>
+
+export const useGetAllDgms = (category, options = {}) =>
   useQuery({
     queryKey: ["Get All DGMs"],
     queryFn: () => getAllDgms(category),
     enabled: !!category && (options.enabled ?? true),
     ...options,
   });
- 
+
 export const useGetAllCampuses = (category, options = {}) =>
   useQuery({
     queryKey: ["Get All Campuses"],
@@ -606,32 +611,32 @@ export const useGetAllCampuses = (category, options = {}) =>
     enabled: !!category && (options.enabled ?? true),
     ...options,
   });
- 
+
 // ✅ Zonal Accountant & DGM
-export const useGetDgmsForZonalAccountant = (empId,category,options = {}) =>
+export const useGetDgmsForZonalAccountant = (empId, category, options = {}) =>
   useQuery({
     queryKey: ["Get DGMs for Zonal Accountant", empId],
     queryFn: () => getDgmsForZonalAccountant(empId, category),
     enabled: !!empId && (options.enabled ?? true),
     ...options,
   });
- 
-export const useGetCampuesForZonalAccountant = (empId,category,options = {}) =>
+
+export const useGetCampuesForZonalAccountant = (empId, category, options = {}) =>
   useQuery({
     queryKey: ["Get Campuses for Zonal Accountant", empId],
-    queryFn: () => getCampusesForZonalAccountant(empId,category),
+    queryFn: () => getCampusesForZonalAccountant(empId, category),
     enabled: !!empId && (options.enabled ?? true),
     ...options,
   });
- 
-export const useGetCampuesForDgmEmpId = (empId,category,options = {}) =>
+
+export const useGetCampuesForDgmEmpId = (empId, category, options = {}) =>
   useQuery({
     queryKey: ["Get Campuses for DGM", empId],
-    queryFn: () => getCampusesByDgmEmpId(empId,category),
+    queryFn: () => getCampusesByDgmEmpId(empId, category),
     enabled: !!empId && (options.enabled ?? true),
     ...options,
   });
- 
+
 // ✅ Metrics
 export const useGetMetricsForAdmin = (employeeId, options = {}) =>
   useQuery({
@@ -640,7 +645,7 @@ export const useGetMetricsForAdmin = (employeeId, options = {}) =>
     enabled: !!employeeId && (options.enabled ?? true),
     ...options,
   });
- 
+
 export const useGetMetricsForEmployee = (empId, options = {}) =>
   useQuery({
     queryKey: ["Get Metrics for Employee", empId],
@@ -648,16 +653,37 @@ export const useGetMetricsForEmployee = (empId, options = {}) =>
     enabled: !!empId && (options.enabled ?? true),
     ...options,
   });
- 
+
 // ✅ Graph Data (for Accordions)
-export const useGetGraphDataForAdmin = (employeeId, options = {}) =>
-  useQuery({
+export const useGetGraphDataForAdmin = (employeeId, options = {}) => {
+  // ✅ CRITICAL: This query should ONLY be enabled for ADMIN users
+  // If enabled is false, the query function should NEVER execute
+  const isEnabled = !!employeeId && (options.enabled ?? true);
+
+  // ✅ Log if query is enabled (for debugging)
+  if (isEnabled) {
+    console.log("🔒 Admin Query Hook: ENABLED (should only be true for ADMIN users)", {
+      employeeId,
+      enabled: isEnabled,
+      optionsEnabled: options.enabled
+    });
+  }
+
+  return useQuery({
     queryKey: ["Get Graph Data for Admin", employeeId],
-    queryFn: () => getGraphDataForAdmin(employeeId),
-    enabled: !!employeeId && (options.enabled ?? true),
+    queryFn: () => {
+      // ✅ Final safety check - log if this function is called
+      console.log("🔒 Admin Query Function EXECUTING (cards_graph) - This should ONLY happen for ADMIN users!", {
+        employeeId,
+        enabled: isEnabled
+      });
+      return getGraphDataForAdmin(employeeId);
+    },
+    enabled: isEnabled,
     ...options,
   });
- 
+};
+
 export const useGetGraphDataForEmployee = (empId, options = {}) =>
   useQuery({
     queryKey: ["Get Graph Data for Employee", empId],
@@ -665,7 +691,7 @@ export const useGetGraphDataForEmployee = (empId, options = {}) =>
     enabled: !!empId && (options.enabled ?? true),
     ...options,
   });
- 
+
 // ✅ Analytics for Selected Zone/Campus/DGM
 export const useGetAnalyticsForZone = (zoneId, options = {}) =>
   useQuery({
@@ -674,7 +700,7 @@ export const useGetAnalyticsForZone = (zoneId, options = {}) =>
     enabled: !!zoneId && (options.enabled ?? true),
     ...options,
   });
- 
+
 export const useGetAnalyticsForCampus = (campusId, options = {}) =>
   useQuery({
     queryKey: ["Get Analytics for Campus", campusId],
@@ -682,7 +708,7 @@ export const useGetAnalyticsForCampus = (campusId, options = {}) =>
     enabled: !!campusId && (options.enabled ?? true),
     ...options,
   });
- 
+
 // ✅ Analytics for a selected DGM (by employee id)
 export const useGetAnalyticsForDgm = (empId, options = {}) =>
   useQuery({
@@ -691,24 +717,25 @@ export const useGetAnalyticsForDgm = (empId, options = {}) =>
     enabled: !!empId && (options.enabled ?? true),
     ...options,
   });
- 
+
 // ✅ Flexible Graph (supports zoneId, campusId, amount - all optional)
-export const useGetFlexibleGraph = (zoneId, campusId, amount, options = {}) => {
+export const useGetFlexibleGraph = (zoneId, campusIds, campusId, amount, options = {}) => {
   // Validate that at least one parameter is provided
   // Note: amount can be 0, which is a valid value
   const hasValidParams =
     (zoneId != null && zoneId !== "" && zoneId !== undefined) ||
+    (campusIds != null && campusIds !== "" && campusIds !== undefined) ||
     (campusId != null && campusId !== "" && campusId !== undefined) ||
     (amount != null && amount !== "" && amount !== undefined); // Allow 0 as valid amount
- 
+
   return useQuery({
-    queryKey: ["Get Flexible Graph", zoneId, campusId, amount],
-    queryFn: () => getFlexibleGraph(zoneId, campusId, amount),
+    queryKey: ["Get Flexible Graph", zoneId, campusIds, campusId, amount],
+    queryFn: () => getFlexibleGraph(zoneId, campusIds, campusId, amount),
     enabled: hasValidParams && (options.enabled ?? true),
     ...options,
   });
 };
- 
+
 // ✅ Get All Amounts (for Application Price filter)
 export const useGetAllAmounts = (empId, academicYearId = 26, options = {}) =>
   useQuery({

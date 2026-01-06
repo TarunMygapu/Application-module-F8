@@ -82,11 +82,11 @@
 //   const visibleRateData = useMemo(() => {
 //     return allRateData.filter((item) => {
 //       const key = item.permissionKey;
-     
+
 //       if (key === "DISTRIBUTE_ZONE") return canViewZone;
 //       if (key === "DISTRIBUTE_DGM") return canViewDGM;
 //       if (key === "DISTRIBUTE_CAMPUS") return canViewCampus;
-     
+
 //       return false;
 //     });
 //   }, [canViewZone, canViewDGM, canViewCampus]);
@@ -133,12 +133,13 @@ const ZoneRateContainer = ({ activeTab = "Zone" }) => {
   // ✅ State to hold API data
   const [allRateData, setAllRateData] = useState([]);
   const category = localStorage.getItem("campusCategory");
+  const empId = localStorage.getItem("empId");
 
   // ✅ Fetch data from backend using axios (replaces static object)
   useEffect(() => {
     const fetchRateData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8080/api/performance/top_drop_rate?campusCategory=${category}`);
+        const response = await axios.get(`http://localhost:8080/api/performance/top_drop_rate?campusCategory=${category}&empId=${empId}`);
         console.log("Top Drop Rate API Response:", response.data);
 
         let data = [];

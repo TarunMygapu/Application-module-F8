@@ -4,25 +4,25 @@ import styles from "./UserInfoComponent.module.css";
 import { useDispatch } from "react-redux";
 import { logout } from "../../slices/authorizationSlice";
 import { persistor } from "../../redux/store";
- 
-import {formatName} from "../../utils/formatName"
+
+import { formatName } from "../../utils/formatName"
 import { useNavigate } from "react-router-dom";
 const UserInfoComponent = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
- 
+
   const employeeName = localStorage.getItem("empName");
   const designation = localStorage.getItem("designation");
- 
+
   const formattedDesignation = formatName(designation);
- 
+
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
- 
- 
+
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -32,18 +32,18 @@ const UserInfoComponent = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
- 
+
   const handleLogout = async () => {
     try {
       // 1. Dispatch logout action to clear Redux state
       dispatch(logout());
-     
+
       // 2. Purge Redux persist store to remove persisted data
       await persistor.purge();
-     
+
       // 3. Clear all localStorage items
       localStorage.clear();
-     
+
       // 4. Redirect to login page
       // window.location.href = "/login";
       navigate("/login");
@@ -55,9 +55,9 @@ const UserInfoComponent = () => {
       // window.location.href = "/login";
     }
   }
- 
- 
- 
+
+
+
   return (
     <div className={styles.user_info} ref={dropdownRef}>
       {/* Bell Icon */}
@@ -82,7 +82,7 @@ const UserInfoComponent = () => {
           />
         </svg>
       </button>
- 
+
       {/* Profile Info */}
       <div className={styles.userinfo} onClick={toggleDropdown}>
         <img src={profileimg} alt="Profile" className={styles.profile_img} />
@@ -107,7 +107,7 @@ const UserInfoComponent = () => {
           />
         </svg>
       </div>
- 
+
       {/* Dropdown */}
       {dropdownOpen && (
         <div className={styles.dropdown}>
@@ -164,7 +164,6 @@ const UserInfoComponent = () => {
     </div>
   );
 };
- 
+
 export default UserInfoComponent;
- 
- 
+

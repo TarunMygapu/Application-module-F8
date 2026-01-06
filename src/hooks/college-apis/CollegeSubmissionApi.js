@@ -21,14 +21,14 @@ export const submitCollegeApplicationConfirmation = async (payload) => {
     const fullUrl = `${BASE_URL}${endpoint}`;
     console.log('🌐 Submitting to:', fullUrl);
     console.log('📦 Payload size:', JSON.stringify(payload).length, 'bytes');
-    
+
     const response = await apiClient.post(endpoint, payload);
     console.log('✅ Response received:', response.status, response.statusText);
     return response.data;
   } catch (error) {
     console.error('❌ Error submitting college application confirmation:', error);
     console.error('📡 Request URL:', `${BASE_URL}/student_fast_sale/college-confirmation`);
-    
+
     // Log detailed error information
     if (error.response) {
       console.error('📊 Server Error Response:', {
@@ -37,14 +37,14 @@ export const submitCollegeApplicationConfirmation = async (payload) => {
         data: error.response.data,
         headers: error.response.headers
       });
-      
+
       if (error.response.status === 500) {
         console.error('⚠️ 500 Internal Server Error - Backend processing failed:');
         console.error('   Check backend server logs for detailed error message');
         console.error('   Backend error details:', error.response.data);
       }
     }
-    
+
     throw error;
   }
 };
@@ -62,7 +62,7 @@ export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentD
   // Helper function to convert value to number or return 0
   const toNumber = (value) => {
     if (value === null || value === undefined || value === '') return 0;
-    
+
     // If value is a string in "name - id" format, extract the ID
     if (typeof value === 'string' && value.includes(' - ')) {
       const parts = value.split(' - ');
@@ -74,7 +74,7 @@ export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentD
         }
       }
     }
-    
+
     const num = Number(value);
     return isNaN(num) ? 0 : num;
   };
@@ -109,7 +109,7 @@ export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentD
 
   // Map concessions array
   const concessions = [];
-  
+
   // Log all form data before processing
   console.log('🔍 ===== COLLEGE FORM DATA BEFORE MAPPING =====');
   console.log('Full formData object:', formData);
@@ -122,12 +122,12 @@ export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentD
   console.log('  - referredBy:', formData.referredBy, 'Type:', typeof formData.referredBy);
   console.log('  - description:', formData.description);
   console.log('===============================================');
-  
+
   // First Year Concession - Only add if reasonId is provided (required by database)
   if (formData.firstYearConcession && formData.firstYearConcessionTypeId) {
     console.log('✅ First Year Concession found - checking reasonId...');
     console.log('  - Raw concessionReason value:', formData.concessionReason, 'Type:', typeof formData.concessionReason);
-    
+
     // Extract reasonId - handle both ID format and "name - id" format
     let reasonId = 0;
     if (formData.concessionReason) {
@@ -145,32 +145,32 @@ export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentD
         console.log('  - Converted directly to number:', reasonId);
       }
     }
-    
+
     console.log('  - Final reasonId:', reasonId, 'from:', formData.concessionReason);
-    
+
     if (reasonId > 0) { // Only add if reasonId is valid (not 0 or null)
       // Extract authorizedBy and referredBy IDs (handle "name - id" format)
       const authorizedById = toNumber(formData.authorizedBy);
       const referredById = toNumber(formData.referredBy);
-      
+
       // Get pro concession fields if "Concession Written on Application" is checked
-      const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount 
-        ? toNumber(formData.concessionAmount) 
+      const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount
+        ? toNumber(formData.concessionAmount)
         : 0;
       // Use proConcessionReasonId if available (ID from dropdown), otherwise try to extract from reason field
       // proConcessionReason should be the ID as string (per swagger type: "string")
-      const proConcessionReason = formData.concessionWrittenOnApplication && formData.proConcessionReasonId 
-        ? String(formData.proConcessionReasonId) 
-        : (formData.concessionWrittenOnApplication && formData.reason 
-          ? String(toNumber(formData.reason)) 
+      const proConcessionReason = formData.concessionWrittenOnApplication && formData.proConcessionReasonId
+        ? String(formData.proConcessionReasonId)
+        : (formData.concessionWrittenOnApplication && formData.reason
+          ? String(toNumber(formData.reason))
           : "");
       // Use proConcessionGivenById if available, otherwise extract from concessionReferredBy
-      const proConcessionGivenBy = formData.concessionWrittenOnApplication && formData.proConcessionGivenById 
-        ? toNumber(formData.proConcessionGivenById) 
-        : (formData.concessionWrittenOnApplication && formData.concessionReferredBy 
-          ? toNumber(formData.concessionReferredBy) 
+      const proConcessionGivenBy = formData.concessionWrittenOnApplication && formData.proConcessionGivenById
+        ? toNumber(formData.proConcessionGivenById)
+        : (formData.concessionWrittenOnApplication && formData.concessionReferredBy
+          ? toNumber(formData.concessionReferredBy)
           : 0);
-      
+
       const concession = {
         concessionTypeId: toNumber(formData.firstYearConcessionTypeId),
         concessionAmount: toNumber(formData.firstYearConcession),
@@ -201,7 +201,7 @@ export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentD
   if (formData.secondYearConcession && formData.secondYearConcessionTypeId) {
     console.log('✅ Second Year Concession found - checking reasonId...');
     console.log('  - Raw concessionReason value:', formData.concessionReason, 'Type:', typeof formData.concessionReason);
-    
+
     // Extract reasonId - handle both ID format and "name - id" format
     let reasonId = 0;
     if (formData.concessionReason) {
@@ -219,32 +219,32 @@ export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentD
         console.log('  - Converted directly to number:', reasonId);
       }
     }
-    
+
     console.log('  - Final reasonId:', reasonId, 'from:', formData.concessionReason);
-    
+
     if (reasonId > 0) { // Only add if reasonId is valid (not 0 or null)
       // Extract authorizedBy and referredBy IDs (handle "name - id" format)
       const authorizedById = toNumber(formData.authorizedBy);
       const referredById = toNumber(formData.referredBy);
-      
+
       // Get pro concession fields if "Concession Written on Application" is checked
-      const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount 
-        ? toNumber(formData.concessionAmount) 
+      const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount
+        ? toNumber(formData.concessionAmount)
         : 0;
       // Use proConcessionReasonId if available (ID from dropdown), otherwise try to extract from reason field
       // proConcessionReason should be the ID as string (per swagger type: "string")
-      const proConcessionReason = formData.concessionWrittenOnApplication && formData.proConcessionReasonId 
-        ? String(formData.proConcessionReasonId) 
-        : (formData.concessionWrittenOnApplication && formData.reason 
-          ? String(toNumber(formData.reason)) 
+      const proConcessionReason = formData.concessionWrittenOnApplication && formData.proConcessionReasonId
+        ? String(formData.proConcessionReasonId)
+        : (formData.concessionWrittenOnApplication && formData.reason
+          ? String(toNumber(formData.reason))
           : "");
       // Use proConcessionGivenById if available, otherwise extract from concessionReferredBy
-      const proConcessionGivenBy = formData.concessionWrittenOnApplication && formData.proConcessionGivenById 
-        ? toNumber(formData.proConcessionGivenById) 
-        : (formData.concessionWrittenOnApplication && formData.concessionReferredBy 
-          ? toNumber(formData.concessionReferredBy) 
+      const proConcessionGivenBy = formData.concessionWrittenOnApplication && formData.proConcessionGivenById
+        ? toNumber(formData.proConcessionGivenById)
+        : (formData.concessionWrittenOnApplication && formData.concessionReferredBy
+          ? toNumber(formData.concessionReferredBy)
           : 0);
-      
+
       const concession = {
         concessionTypeId: toNumber(formData.secondYearConcessionTypeId),
         concessionAmount: toNumber(formData.secondYearConcession),
@@ -270,7 +270,7 @@ export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentD
     console.log('   - Has amount?', !!formData.secondYearConcession);
     console.log('   - Has typeId?', !!formData.secondYearConcessionTypeId);
   }
-  
+
   // Log final concession mapping details
   console.log('🔍 ===== CONCESSION MAPPING SUMMARY =====');
   console.log('  - Total Concessions Created:', concessions.length);
@@ -317,7 +317,7 @@ export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentD
     concessions: concessions, // Always include concessions array (even if empty)
     paymentDetails: paymentDetails
   };
-  
+
   // Final payload validation
   console.log('🔍 ===== FINAL PAYLOAD VALIDATION =====');
   console.log('  - concessions array length:', payload.concessions.length);
@@ -346,14 +346,14 @@ export const submitCollegeFastSale = async (payload) => {
     console.log('🌐 Submitting College Fast Sale to:', fullUrl);
     console.log('📦 Payload size:', JSON.stringify(payload).length, 'bytes');
     console.log('📋 Payload:', JSON.stringify(payload, null, 2));
-    
+
     const response = await apiClient.post(endpoint, payload);
     console.log('✅ College Fast Sale Response received:', response.status, response.statusText);
     return response.data;
   } catch (error) {
     console.error('❌ Error submitting college fast sale:', error);
     console.error('📡 Request URL:', `${BASE_URL}/student_fast_sale/fast-sale`);
-    
+
     // Log detailed error information
     if (error.response) {
       console.error('📊 Server Error Response:', {
@@ -363,7 +363,7 @@ export const submitCollegeFastSale = async (payload) => {
         headers: error.response.headers
       });
     }
-    
+
     throw error;
   }
 };
@@ -389,7 +389,7 @@ export const mapCollegeFastSaleToPayload = (formData, paymentData, detailsObject
   console.log('  - fatherMobile:', formData.fatherMobile);
   console.log('  - mobileNumber:', formData.mobileNumber);
   console.log('==============================================================');
-  
+
   // Helper function to convert value to number or return 0
   const toNumber = (value) => {
     if (value === null || value === undefined || value === '') return 0;
@@ -588,7 +588,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
   // Helper function to convert value to number or return 0
   const toNumber = (value) => {
     if (value === null || value === undefined || value === '') return 0;
-    
+
     // If value is a string in "name - id" format, extract the ID
     if (typeof value === 'string' && value.includes(' - ')) {
       const parts = value.split(' - ');
@@ -600,7 +600,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
         }
       }
     }
-    
+
     const num = Number(value);
     return isNaN(num) ? 0 : num;
   };
@@ -643,7 +643,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
     console.log('  - First sibling:', formData.siblings[0]);
   }
   console.log('====================================================');
-  
+
   const siblings = (formData.siblings || []).map(sibling => ({
     fullName: toString(sibling.fullName),
     schoolName: toString(sibling.schoolName),
@@ -651,14 +651,14 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
     relationTypeId: toNumber(sibling.relationTypeId),
     createdBy: 0
   }));
-  
+
   console.log('✅ Mapped siblings array:', siblings);
   console.log('  - Mapped siblings count:', siblings.length);
   console.log('====================================================');
 
   // Map concessions array
   const concessions = [];
-  
+
   // Log concession data for debugging
   console.log('🔍 ===== CONCESSION DATA MAPPING (Complete Sale) =====');
   console.log('  - firstYearConcession:', formData.firstYearConcession);
@@ -670,11 +670,11 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
   console.log('  - referredBy:', formData.referredBy);
   console.log('  - description:', formData.description);
   console.log('====================================================');
-  
+
   // First Year Concession - Add if amount and typeId exist
   if (formData.firstYearConcession && formData.firstYearConcessionTypeId) {
     console.log('✅ First Year Concession found - processing...');
-    
+
     // Prioritize concessionReasonId if it exists, otherwise try to extract from concessionReason
     let reasonId = 0;
     if (formData.concessionReasonId !== null && formData.concessionReasonId !== undefined && formData.concessionReasonId !== "" && formData.concessionReasonId !== 0) {
@@ -696,27 +696,27 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
       console.error('     formData.concessionReasonId:', formData.concessionReasonId);
       console.error('     formData.concessionReason:', formData.concessionReason);
     }
-    
+
     // Only add concession if reasonId is valid (required by database)
     if (reasonId > 0) {
       // Get pro concession fields if "Concession Written on Application" is checked
-      const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount 
-        ? toNumber(formData.concessionAmount) 
+      const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount
+        ? toNumber(formData.concessionAmount)
         : 0;
       // Use proConcessionReasonId if available (ID from dropdown), otherwise try to extract from reason field
       // proConcessionReason should be the ID as string (per swagger type: "string")
-      const proConcessionReason = formData.concessionWrittenOnApplication && formData.proConcessionReasonId 
-        ? String(formData.proConcessionReasonId) 
-        : (formData.concessionWrittenOnApplication && formData.reason 
-          ? String(toNumber(formData.reason)) 
+      const proConcessionReason = formData.concessionWrittenOnApplication && formData.proConcessionReasonId
+        ? String(formData.proConcessionReasonId)
+        : (formData.concessionWrittenOnApplication && formData.reason
+          ? String(toNumber(formData.reason))
           : "");
       // Use proConcessionGivenById if available, otherwise extract from concessionReferredBy
-      const proConcessionGivenBy = formData.concessionWrittenOnApplication && formData.proConcessionGivenById 
-        ? toNumber(formData.proConcessionGivenById) 
-        : (formData.concessionWrittenOnApplication && formData.concessionReferredBy 
-          ? toNumber(formData.concessionReferredBy) 
+      const proConcessionGivenBy = formData.concessionWrittenOnApplication && formData.proConcessionGivenById
+        ? toNumber(formData.proConcessionGivenById)
+        : (formData.concessionWrittenOnApplication && formData.concessionReferredBy
+          ? toNumber(formData.concessionReferredBy)
           : 0);
-      
+
       const concession = {
         concessionTypeId: toNumber(formData.firstYearConcessionTypeId),
         concessionAmount: toNumber(formData.firstYearConcession),
@@ -730,7 +730,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
         proConcessionReason: proConcessionReason,
         proConcessionGivenBy: proConcessionGivenBy
       };
-      
+
       concessions.push(concession);
       console.log('✅ First Year Concession added:', concession);
     } else {
@@ -748,7 +748,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
   // Second Year Concession - Add if amount and typeId exist
   if (formData.secondYearConcession && formData.secondYearConcessionTypeId) {
     console.log('✅ Second Year Concession found - processing...');
-    
+
     // Prioritize concessionReasonId if it exists, otherwise try to extract from concessionReason
     let reasonId = 0;
     if (formData.concessionReasonId !== null && formData.concessionReasonId !== undefined && formData.concessionReasonId !== "" && formData.concessionReasonId !== 0) {
@@ -770,27 +770,27 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
       console.error('     formData.concessionReasonId:', formData.concessionReasonId);
       console.error('     formData.concessionReason:', formData.concessionReason);
     }
-    
+
     // Only add concession if reasonId is valid (required by database)
     if (reasonId > 0) {
       // Get pro concession fields if "Concession Written on Application" is checked
-      const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount 
-        ? toNumber(formData.concessionAmount) 
+      const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount
+        ? toNumber(formData.concessionAmount)
         : 0;
       // Use proConcessionReasonId if available (ID from dropdown), otherwise try to extract from reason field
       // proConcessionReason should be the ID as string (per swagger type: "string")
-      const proConcessionReason = formData.concessionWrittenOnApplication && formData.proConcessionReasonId 
-        ? String(formData.proConcessionReasonId) 
-        : (formData.concessionWrittenOnApplication && formData.reason 
-          ? String(toNumber(formData.reason)) 
+      const proConcessionReason = formData.concessionWrittenOnApplication && formData.proConcessionReasonId
+        ? String(formData.proConcessionReasonId)
+        : (formData.concessionWrittenOnApplication && formData.reason
+          ? String(toNumber(formData.reason))
           : "");
       // Use proConcessionGivenById if available, otherwise extract from concessionReferredBy
-      const proConcessionGivenBy = formData.concessionWrittenOnApplication && formData.proConcessionGivenById 
-        ? toNumber(formData.proConcessionGivenById) 
-        : (formData.concessionWrittenOnApplication && formData.concessionReferredBy 
-          ? toNumber(formData.concessionReferredBy) 
+      const proConcessionGivenBy = formData.concessionWrittenOnApplication && formData.proConcessionGivenById
+        ? toNumber(formData.proConcessionGivenById)
+        : (formData.concessionWrittenOnApplication && formData.concessionReferredBy
+          ? toNumber(formData.concessionReferredBy)
           : 0);
-      
+
       const concession = {
         concessionTypeId: toNumber(formData.secondYearConcessionTypeId),
         concessionAmount: toNumber(formData.secondYearConcession),
@@ -804,7 +804,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
         proConcessionReason: proConcessionReason,
         proConcessionGivenBy: proConcessionGivenBy
       };
-      
+
       concessions.push(concession);
       console.log('✅ Second Year Concession added:', concession);
     } else {
@@ -818,7 +818,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
     console.log('   - Has amount?', !!formData.secondYearConcession, 'Value:', formData.secondYearConcession);
     console.log('   - Has typeId?', !!formData.secondYearConcessionTypeId, 'Value:', formData.secondYearConcessionTypeId);
   }
-  
+
   console.log('📊 Total Concessions:', concessions.length);
   console.log('====================================================');
 
@@ -1122,14 +1122,14 @@ export const submitCollegeApplicationSaleComplete = async (payload) => {
     console.log('  - payload.concessions:', payload.concessions);
     console.log('  - payload.concessions length:', payload.concessions?.length || 0);
     console.log('====================================================');
-    
+
     const response = await apiClient.post(endpoint, payload);
     console.log('✅ Response received:', response.status, response.statusText);
     return response.data;
   } catch (error) {
     console.error('❌ Error submitting college application sale complete:', error);
     console.error('📡 Request URL:', `${BASE_URL}/student_fast_sale/college-application-sale`);
-    
+
     // Log detailed error information
     if (error.response) {
       console.error('📊 Server Error Response:', {
@@ -1138,14 +1138,14 @@ export const submitCollegeApplicationSaleComplete = async (payload) => {
         data: error.response.data,
         headers: error.response.headers
       });
-      
+
       if (error.response.status === 500) {
         console.error('⚠️ 500 Internal Server Error - Backend processing failed:');
         console.error('   Check backend server logs for detailed error message');
         console.error('   Backend error details:', error.response.data);
       }
     }
-    
+
     throw error;
   }
 };
@@ -1194,7 +1194,7 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
 
   // Map concessions array
   const concessions = [];
-  
+
   // Helper function to extract employee ID from formData
   // Handles both ID format (number) and name format (string)
   const getEmployeeId = (employeeValue, employeeIdValue) => {
@@ -1235,11 +1235,11 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
     } else if (formData.concessionReason) {
       reasonId = toNumber(formData.concessionReason);
     }
-    
+
     // Extract employee IDs
     const authorizedById = getEmployeeId(formData.authorizedBy, formData.authorizedById);
     const referredById = getEmployeeId(formData.referredBy, formData.referredById);
-    
+
     console.log('📋 First Year Concession - Employee IDs:', {
       authorizedBy: formData.authorizedBy,
       authorizedById: formData.authorizedById,
@@ -1248,19 +1248,19 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
       referredById: formData.referredById,
       referredByIdFinal: referredById
     });
-    
+
     // Get pro concession fields if "Concession Written on Application" is checked
-    const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount 
-      ? toNumber(formData.concessionAmount) 
+    const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount
+      ? toNumber(formData.concessionAmount)
       : 0;
-    const proConcessionReason = formData.concessionWrittenOnApplication && formData.reason 
-      ? toString(formData.reason) 
+    const proConcessionReason = formData.concessionWrittenOnApplication && formData.reason
+      ? toString(formData.reason)
       : "";
     // Get employee ID from concessionReferredBy (handle "name - id" format or direct ID)
-    const proConcessionGivenBy = formData.concessionWrittenOnApplication && formData.concessionReferredBy 
-      ? toNumber(formData.concessionReferredBy) 
+    const proConcessionGivenBy = formData.concessionWrittenOnApplication && formData.concessionReferredBy
+      ? toNumber(formData.concessionReferredBy)
       : 0;
-    
+
     concessions.push({
       concessionTypeId: toNumber(formData.firstYearConcessionTypeId),
       concessionAmount: toNumber(formData.firstYearConcession),
@@ -1284,11 +1284,11 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
     } else if (formData.concessionReason) {
       reasonId = toNumber(formData.concessionReason);
     }
-    
+
     // Extract employee IDs
     const authorizedById = getEmployeeId(formData.authorizedBy, formData.authorizedById);
     const referredById = getEmployeeId(formData.referredBy, formData.referredById);
-    
+
     console.log('📋 Second Year Concession - Employee IDs:', {
       authorizedBy: formData.authorizedBy,
       authorizedById: formData.authorizedById,
@@ -1297,19 +1297,19 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
       referredById: formData.referredById,
       referredByIdFinal: referredById
     });
-    
+
     // Get pro concession fields if "Concession Written on Application" is checked
-    const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount 
-      ? toNumber(formData.concessionAmount) 
+    const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount
+      ? toNumber(formData.concessionAmount)
       : 0;
-    const proConcessionReason = formData.concessionWrittenOnApplication && formData.reason 
-      ? toString(formData.reason) 
+    const proConcessionReason = formData.concessionWrittenOnApplication && formData.reason
+      ? toString(formData.reason)
       : "";
     // Get employee ID from concessionReferredBy (handle "name - id" format or direct ID)
-    const proConcessionGivenBy = formData.concessionWrittenOnApplication && formData.concessionReferredBy 
-      ? toNumber(formData.concessionReferredBy) 
+    const proConcessionGivenBy = formData.concessionWrittenOnApplication && formData.concessionReferredBy
+      ? toNumber(formData.concessionReferredBy)
       : 0;
-    
+
     concessions.push({
       concessionTypeId: toNumber(formData.secondYearConcessionTypeId),
       concessionAmount: toNumber(formData.secondYearConcession),
@@ -1344,17 +1344,28 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
   const scoreAppNoValue = formData.scoreAppNo || detailsObject?.scoreAppNo || '';
   const studAdmsNoValue = toNumber(
     scoreAppNoValue || // Use scoreAppNo as studAdmsNo (scoreAppNo contains the student admission number)
-    detailsObject?.studAdmsNo || 
-    detailsObject?.stud_adms_no || 
+    detailsObject?.studAdmsNo ||
+    detailsObject?.stud_adms_no ||
     detailsObject?.applicationNo ||
     detailsObject?.application_no ||
     0
   );
-  
+
+  // Debug Hall Ticket Mapping
+  console.log('🔍 ===== HALL TICKET MAPPING DEBUG =====');
+  console.log('  - formData.hallTicketNo:', formData.hallTicketNo);
+  console.log('  - formData.tenthHallTicketNo:', formData.tenthHallTicketNo);
+  console.log('  - formData.interFirstYearHallTicketNo:', formData.interFirstYearHallTicketNo);
+  console.log('  - formData.interHallTicketNo:', formData.interHallTicketNo);
+
+  const calculatedHallTicketNo = toString(formData.hallTicketNo || formData.interHallTicketNo || formData.interFirstYearHallTicketNo || formData.tenthHallTicketNo || '').substring(0, 15);
+  console.log('  - Calculated hallTicketNumber:', calculatedHallTicketNo);
+  console.log('========================================');
+
   const payload = {
     studAdmsNo: studAdmsNoValue, // Use scoreAppNo as studAdmsNo
     createdBy: 0,
-    hallTicketNumber: toString(formData.hallTicketNo || formData.tenthHallTicketNo || formData.interFirstYearHallTicketNo || formData.interHallTicketNo || '').substring(0, 15), // Limit to 15 chars to prevent "value too long" error
+    hallTicketNumber: calculatedHallTicketNo, // Limit to 15 chars
     schoolStateId: toNumber(formData.schoolStateId || 0),
     schoolDistrictId: toNumber(formData.schoolDistrictId || 0),
     schoolName: toString(formData.schoolName || ''),
@@ -1401,11 +1412,11 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
     addressDetails: addressDetails,
     siblings: siblings,
     concessions: concessions,
-    preCollegeName: toString(formData.collegeName || formData.preCollegeName || '').substring(0, 200), // Limit to 200 chars to prevent "value too long" error
+    preCollegeName: toString(formData.collegeName || formData.preCollegeName || '').substring(0, 200), // Limit to 200 chars
     preCollegeTypeId: toNumber(formData.preCollegeTypeId || 0),
     preCollegeStateId: toNumber(formData.preCollegeStateId || 0),
     preCollegeDistrictId: toNumber(formData.preCollegeDistrictId || 0),
-    preHallTicketNo: toString(formData.hallTicketNo || formData.preHallTicketNo || '').substring(0, 15) // Limit to 15 chars to prevent "value too long" error
+    preHallTicketNo: toString(formData.preHallTicketNo || formData.tenthHallTicketNo || '').substring(0, 15) // Use tenthHallTicketNo as preHallTicketNo for Inter 2
   };
 
   // Log for debugging
@@ -1430,14 +1441,14 @@ export const updateCollegeApplicationSale = async (applicationNo, payload) => {
     console.log('🌐 Updating College Application Sale to:', fullUrl);
     console.log('📦 Payload size:', JSON.stringify(payload).length, 'bytes');
     console.log('📋 Payload:', JSON.stringify(payload, null, 2));
-    
+
     const response = await apiClient.put(endpoint, payload);
     console.log('✅ Update Response received:', response.status, response.statusText);
     return response.data;
   } catch (error) {
     console.error('❌ Error updating college application sale:', error);
     console.error('📡 Request URL:', `${BASE_URL}/student_fast_sale/update/${applicationNo}`);
-    
+
     // Log detailed error information
     if (error.response) {
       console.error('📊 Server Error Response:', {
@@ -1446,14 +1457,14 @@ export const updateCollegeApplicationSale = async (applicationNo, payload) => {
         data: error.response.data,
         headers: error.response.headers
       });
-      
+
       if (error.response.status === 500) {
         console.error('⚠️ 500 Internal Server Error - Backend processing failed:');
         console.error('   Check backend server logs for detailed error message');
         console.error('   Backend error details:', error.response.data);
       }
     }
-    
+
     throw error;
   }
 };

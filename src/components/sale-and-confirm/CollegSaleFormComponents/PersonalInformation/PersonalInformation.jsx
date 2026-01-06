@@ -1,16 +1,16 @@
 import React, { useEffect, useMemo } from "react";
 import { useFormikContext } from "formik";
 import styles from "./PersonalInformation.module.css";
- 
+
 import {
   personalInfoFields,
   personalInfoFieldsLayout,
 } from "./personalInformationFields";
- 
+
 import UploadPicture from "../../../../widgets/UploadPicture/UploadPicture";
 import { renderField } from "../../../../utils/renderField";
-import {toTitleCase} from "../../../../utils/toTitleCase";
- 
+import { toTitleCase } from "../../../../utils/toTitleCase";
+
 // API Hooks
 import {
   useGetQuota,
@@ -21,11 +21,11 @@ import {
   useGetReligion,
   useGetBloodGroup,
 } from "../../../../queries/saleApis/clgSaleApis";
- 
+
 const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
   const formik = useFormikContext();
   const { values, setFieldValue, errors, touched, setFieldError, setTouched, validateField } = formik;
- 
+
   // Fetch dropdown data
   const { data: quotaData } = useGetQuota();
   const { data: employeesData } = useGetEmployeesForSale();
@@ -34,7 +34,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
   const { data: casteData } = useGetCaste();
   const { data: religionData } = useGetReligion();
   const { data: bloodGroupData } = useGetBloodGroup();
- 
+
   // Create name-to-ID maps for storing IDs
   const quotaNameToId = useMemo(() => {
     const map = new Map();
@@ -47,7 +47,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
     }
     return map;
   }, [quotaData]);
- 
+
   const admissionTypeNameToId = useMemo(() => {
     const map = new Map();
     if (Array.isArray(admissionData)) {
@@ -62,13 +62,13 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
     }
     return map;
   }, [admissionData]);
- 
+
   const foodTypeNameToId = useMemo(() => {
     const map = new Map();
     if (Array.isArray(foodData)) {
       foodData.forEach((food) => {
-        const name = food.name || food.foodTypeName;
-        const id = food.id || food.foodTypeId;
+        const name = food.name || food.foodTypeName || food.food_type;
+        const id = food.id || food.foodTypeId || food.food_type_id;
         if (name && id) {
           map.set(name, id);
           map.set(toTitleCase(name), id);
@@ -77,7 +77,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
     }
     return map;
   }, [foodData]);
- 
+
   const casteNameToId = useMemo(() => {
     const map = new Map();
     if (Array.isArray(casteData)) {
@@ -89,7 +89,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
     }
     return map;
   }, [casteData]);
- 
+
   const religionNameToId = useMemo(() => {
     const map = new Map();
     if (Array.isArray(religionData)) {
@@ -104,7 +104,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
     }
     return map;
   }, [religionData]);
- 
+
   const bloodGroupNameToId = useMemo(() => {
     const map = new Map();
     if (Array.isArray(bloodGroupData)) {
@@ -116,7 +116,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
     }
     return map;
   }, [bloodGroupData]);
- 
+
   // Create employee name-to-ID map
   const employeeNameToId = useMemo(() => {
     const map = new Map();
@@ -133,21 +133,21 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
     }
     return map;
   }, [employeesData]);
- 
+
   // Build field map with API results - memoized to prevent unnecessary recalculations
   const fieldMap = useMemo(() => {
     return personalInfoFields.reduce((acc, f) => {
       let field = { ...f };
- 
+
       // Disable specific fields in edit mode OR fast sold: firstName, surName, aaparNo, aadharCardNo, dob
       if ((isEditMode || isFastSold) && (f.name === "firstName" || f.name === "surName" || f.name === "aaparNo" || f.name === "aadharCardNo" || f.name === "dob")) {
         field.disabled = true;
         field.readOnly = true;
       }
- 
+
       if (f.name === "quotaAdmissionReferredBy")
         field.options = Array.isArray(quotaData) ? quotaData.map((q) => q.name) : [];
- 
+
       if (f.name === "employeeId") {
         // Format options as "name - id"
         field.options = Array.isArray(employeesData) ? employeesData.map((emp) => {
@@ -156,38 +156,38 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
           return id ? `${name} - ${id}` : name;
         }) : [];
       }
- 
+
       if (f.name === "admissionType")
         field.options = Array.isArray(admissionData) ? admissionData.map((a) => toTitleCase(a.name)) : [];
- 
+
       if (f.name === "foodType")
         field.options = Array.isArray(foodData) ? foodData.map((food) => toTitleCase(food.food_type)) : [];
- 
+
       if (f.name === "caste")
         field.options = Array.isArray(casteData) ? casteData.map((c) => c.name) : [];
- 
+
       if (f.name === "religion")
         field.options = Array.isArray(religionData) ? religionData.map((r) => toTitleCase(r.name)) : [];
- 
+
       if (f.name === "bloodGroup")
         field.options = Array.isArray(bloodGroupData) ? bloodGroupData.map((b) => b.name) : [];
- 
+
       acc[f.name] = field;
       return acc;
     }, {});
   }, [quotaData, employeesData, admissionData, foodData, casteData, religionData, bloodGroupData, isEditMode, isFastSold]);
- 
+
   const isStaff =
     values.quotaAdmissionReferredBy === "Staff children" ||
     values.quotaAdmissionReferredBy === "Staff";
- 
+
   // CLEANUP employeeId if not Staff - use useEffect to prevent infinite loops
   useEffect(() => {
     if (!isStaff && values.employeeId) {
       setFieldValue("employeeId", "");
     }
   }, [isStaff, values.employeeId, setFieldValue]);
- 
+
   // Store genderId when gender changes
   useEffect(() => {
     if (values.gender) {
@@ -206,7 +206,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
       setFieldValue("genderId", null);
     }
   }, [values.gender, setFieldValue]);
- 
+
   // Store quotaId when quotaAdmissionReferredBy changes
   useEffect(() => {
     if (values.quotaAdmissionReferredBy && quotaNameToId.has(values.quotaAdmissionReferredBy)) {
@@ -216,7 +216,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
       setFieldValue("quotaId", null);
     }
   }, [values.quotaAdmissionReferredBy, quotaNameToId, setFieldValue]);
- 
+
   // Store appTypeId when admissionType changes
   useEffect(() => {
     if (values.admissionType) {
@@ -232,8 +232,8 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
       setFieldValue("appTypeId", null);
     }
   }, [values.admissionType, admissionTypeNameToId, setFieldValue]);
- 
- 
+
+
   // Store foodTypeId when foodType changes
   useEffect(() => {
     if (values.foodType) {
@@ -249,7 +249,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
       setFieldValue("foodTypeId", null);
     }
   }, [values.foodType, foodTypeNameToId, setFieldValue]);
- 
+
   // Store casteId when caste changes
   useEffect(() => {
     if (values.caste && casteNameToId.has(values.caste)) {
@@ -259,7 +259,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
       setFieldValue("casteId", null);
     }
   }, [values.caste, casteNameToId, setFieldValue]);
- 
+
   // Store religionId when religion changes
   useEffect(() => {
     if (values.religion) {
@@ -275,7 +275,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
       setFieldValue("religionId", null);
     }
   }, [values.religion, religionNameToId, setFieldValue]);
- 
+
   // Store bloodGroupId when bloodGroup changes
   useEffect(() => {
     if (values.bloodGroup && bloodGroupNameToId.has(values.bloodGroup)) {
@@ -285,22 +285,22 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
       setFieldValue("bloodGroupId", null);
     }
   }, [values.bloodGroup, bloodGroupNameToId, setFieldValue]);
- 
+
   // 🔥 Dynamic layout
   const dynamicLayout = [
     personalInfoFieldsLayout[0], // row1
     personalInfoFieldsLayout[1], // row2
     personalInfoFieldsLayout[2], // row3
- 
+
     isStaff
       ? { id: "row4", fields: ["employeeId", "admissionType", "foodType"] }
       : { id: "row4", fields: ["admissionType", "foodType", "bloodGroup"] },
- 
+
     isStaff
       ? { id: "row5", fields: ["bloodGroup", "caste", "religion"] }
       : { id: "row5", fields: ["caste", "religion", ""] }
   ];
- 
+
   return (
     <div className={styles.clgAppSalePersonalInforWrapper}>
       <div className={styles.clgAppSalePersonalInfoTop}>
@@ -309,7 +309,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
         </p>
         <div className={styles.clgAppSalePersonalInfoSeperationLine}></div>
       </div>
- 
+
       <div className={styles.clgAppSalePersonalInfoBottom}>
         {dynamicLayout.map((row) => (
           <div key={row.id} className={styles.clgAppSalerow}>
@@ -320,7 +320,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
                   disabled: ((isEditMode || isFastSold) && (fname === "firstName" || fname === "surName" || fname === "aaparNo" || fname === "aadharCardNo" || fname === "dob")) ? true : undefined,
                   onChange: ((isEditMode || isFastSold) && (fname === "firstName" || fname === "surName" || fname === "aaparNo" || fname === "aadharCardNo" || fname === "dob")) ? undefined : (e) => {
                     const selectedValue = e.target.value;
-                   
+
                     // IMPORTANT: Prevent clearing quotaAdmissionReferredBy when admissionType changes
                     // and vice versa - only set the value if it's actually changing for THIS field
                     if (fname === "admissionType" && selectedValue === values.admissionType) {
@@ -329,7 +329,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
                     if (fname === "quotaAdmissionReferredBy" && selectedValue === values.quotaAdmissionReferredBy) {
                       return;
                     }
-                   
+
                     // Prevent setting empty value if field already has a value (unless explicitly clearing)
                     if (!selectedValue || selectedValue.trim() === "") {
                       // Only allow clearing if user explicitly selected empty option
@@ -340,15 +340,15 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
                         return; // Don't clear if there's already a value
                       }
                     }
-                   
+
                     // Mark field as touched first
                     setTouched({ ...touched, [fname]: true });
-                   
+
                     // Clear error immediately when a valid value is selected
                     if (selectedValue && selectedValue.trim() !== "") {
                       setFieldError(fname, undefined);
                     }
-                   
+
                     // Handle employeeId - store "name - id" format
                     if (fname === "employeeId") {
                       if (selectedValue.includes(' - ')) {
@@ -374,7 +374,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
                       // Set the value without immediate validation to prevent error from re-appearing
                       setFieldValue(fname, selectedValue, false); // false = don't validate immediately
                     }
-                   
+
                     // Force clear error again after setting value (in case validation ran)
                     if (selectedValue && selectedValue.trim() !== "") {
                       // Clear immediately after setFieldValue
@@ -383,7 +383,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
                           setFieldError(fname, undefined);
                         }
                       }, 0);
-                     
+
                       // Validate after a delay and ensure error stays cleared if value is valid
                       setTimeout(() => {
                         validateField(fname).then((validationError) => {
@@ -404,7 +404,7 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
           </div>
         ))}
       </div>
- 
+
       <div className={styles.clgAppSaleUploadPictureWrapper}>
         <UploadPicture />
         <p className={styles.uploadPictureHint}>Max image size is 300kb</p>
@@ -412,5 +412,5 @@ const PersonalInformation = ({ isEditMode = false, isFastSold = false }) => {
     </div>
   );
 };
- 
+
 export default PersonalInformation;

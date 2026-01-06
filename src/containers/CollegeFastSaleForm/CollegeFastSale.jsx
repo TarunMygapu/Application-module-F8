@@ -76,7 +76,7 @@
 //   const [formValues, setFormValues] = useState(initialValues);
 //   const [applicationDetailsData, setApplicationDetailsData] = useState(null);
 //   const [submissionResponse, setSubmissionResponse] = useState(null);
-  
+
 //   // For college fast sale, use "fast" sale type to show "Finish Fast Sale" button
 //   const saleType = "fast";
 
@@ -100,11 +100,11 @@
 //     });
 //     console.log("========================================================");
 //     console.log("📦 Full Formik Values Object:", formik.values);
-    
+
 //     // Store current form values (make sure we're getting the latest values)
 //     const currentValues = JSON.parse(JSON.stringify(formik.values));
 //     setFormValues(currentValues);
-    
+
 //     // Validate form before opening popup
 //     formik.validateForm().then((errors) => {
 //       if (Object.keys(errors).length === 0) {
@@ -134,13 +134,13 @@
 //     console.log("🎉 Fast Sale submission successful!");
 //     console.log("Response:", response);
 //     console.log("Details:", details);
-    
+
 //     // Store response
 //     setSubmissionResponse(response);
-    
+
 //     // Close payment popup
 //     setShowPaymentPopup(false);
-    
+
 //     // Show success page
 //     setShowSuccessPage(true);
 //   };
@@ -168,7 +168,7 @@
 //             onDataLoaded={(data) => {
 //               console.log("🏫 CollegeFastSale - ApplicationSaleDetails data loaded:", data);
 //               setApplicationDetailsData(data);
-              
+
 //               // Always set IDs if they exist in the API response (for backend submission)
 //               if (data.academicYear) {
 //                 console.log("✅ Setting academicYear in Formik:", data.academicYear);
@@ -180,7 +180,7 @@
 //               } else {
 //                 console.warn("⚠️ academicYearId is null/undefined - check API response");
 //               }
-              
+
 //               if (data.campusName) {
 //                 console.log("✅ Setting campusName in Formik:", data.campusName);
 //                 formik.setFieldValue("campusName", data.campusName);
@@ -191,7 +191,7 @@
 //               } else {
 //                 console.warn("⚠️ campusId is null/undefined - check API response");
 //               }
-              
+
 //               // Orientation City - Auto-populate for Orientation Information
 //               if (data.cityName) {
 //                 console.log("✅ Setting orientationCity in Formik:", data.cityName);
@@ -201,7 +201,7 @@
 //                 console.log("✅ Setting orientationCityId in Formik (for backend):", data.cityId);
 //                 formik.setFieldValue("orientationCityId", data.cityId);
 //               }
-              
+
 //               // Log final Formik values to verify IDs are stored
 //               console.log("📋 Formik values after setting IDs:", {
 //                 academicYear: formik.values.academicYear,
@@ -285,7 +285,7 @@
 // import { Formik, Form } from "formik";
 // import { useLocation, useNavigate } from "react-router-dom";
 // import styles from "../CollegeSaleForm/CollegeSaleForm.module.css";
- 
+
 // import ApplicationSaleDetails from "../../components/sale-and-confirm/CollegSaleFormComponents/ApplicationDetails/ApplicationSaleDetails";
 // import PersonalInformationClgFastSale from "../../components/sale-and-confirm/CollegSaleFormComponents/PersonalInformation/PersonalInformationClgFastSale";
 // import ParentInformationForSchool from "../../components/sale-and-confirm/CollegSaleFormComponents/ParentInformation/ParentInformationForSchool";
@@ -293,14 +293,14 @@
 // import AddressInformation from "../../components/sale-and-confirm/CollegSaleFormComponents/AddressInformation/AddressInformation";
 // import PaymentPopup from "../../widgets/PaymentPopup/whole-payment-popup/PaymentPopup.jsx";
 // import SuccessPage from "../../widgets/sale-done/SuccessPage.jsx";
- 
+
 // import leftArrowBlue from "../../assets/application-status/leftArrowBlueColor";
 // import saleIcon from "../../assets/application-status/applicationSaleicon";
 // import Button from "../../widgets/Button/Button";
 
 // import collegeFastSaleValidationSchema from "./clgFastSaleValidations.js";
 // import schoolSaleValidationSchema from "../SchoolSaleForm/schoolSaleValidations.js";
- 
+
 // // INITIAL VALUES
 // const initialValues = {
 //   firstName: "",
@@ -352,7 +352,7 @@
 //   cityAddress: "", // Alternative field name for address city
 //   gpin: "", // G-pin (Latitude & Longitude)
 // };
- 
+
 // const CollegeFastSale = () => {
 //   const location = useLocation();
 //   const navigate = useNavigate();
@@ -362,10 +362,10 @@
 //   const [formValues, setFormValues] = useState(initialValues);
 //   const [applicationDetailsData, setApplicationDetailsData] = useState(null);
 //   const [submissionResponse, setSubmissionResponse] = useState(null);
- 
+
 //   // For college fast sale, use "fast" sale type to show "Finish Fast Sale" button
 //   const saleType = "fast";
- 
+
 //   const handleApplicationFastSale = (formik) => {
 //     // Log all form values including IDs before submission
 //     console.log("📋 ===== COLLEGE FAST SALE FORM VALUES (Before Submission) =====");
@@ -386,11 +386,11 @@
 //     });
 //     console.log("========================================================");
 //     console.log("📦 Full Formik Values Object:", formik.values);
-   
+
 //     // Store current form values (make sure we're getting the latest values)
 //     const currentValues = JSON.parse(JSON.stringify(formik.values));
 //     setFormValues(currentValues);
-   
+
 //     // Validate form before opening popup
 //     formik.validateForm().then((errors) => {
 //       if (Object.keys(errors).length === 0) {
@@ -406,36 +406,36 @@
 //       }
 //     });
 //   };
- 
+
 //   const handleClosePayment = () => {
 //     setShowPaymentPopup(false);
 //   };
- 
+
 //   const handleBack = () => {
 //     // Navigate back to application status table
 //     navigate('/scopes/application/status');
 //   };
- 
+
 //   const handleSubmissionSuccess = (response, details) => {
 //     console.log("🎉 Fast Sale submission successful!");
 //     console.log("Response:", response);
 //     console.log("Details:", details);
-   
+
 //     // Store response
 //     setSubmissionResponse(response);
-   
+
 //     // Close payment popup
 //     setShowPaymentPopup(false);
-   
+
 //     // Show success page
 //     setShowSuccessPage(true);
 //   };
- 
+
 //   const handleBackFromSuccess = () => {
 //     // Navigate back to application status table from success page
 //     navigate('/scopes/application/status');
 //   };
- 
+
 //   return (
 //     <>
 //     {!showSuccessPage ? (
@@ -455,7 +455,7 @@
 //             onDataLoaded={(data) => {
 //               console.log("🏫 CollegeFastSale - ApplicationSaleDetails data loaded:", data);
 //               setApplicationDetailsData(data);
-             
+
 //               // Always set IDs if they exist in the API response (for backend submission)
 //               if (data.academicYear) {
 //                 console.log("✅ Setting academicYear in Formik:", data.academicYear);
@@ -467,7 +467,7 @@
 //               } else {
 //                 console.warn("⚠️ academicYearId is null/undefined - check API response");
 //               }
-             
+
 //               if (data.campusName) {
 //                 console.log("✅ Setting campusName in Formik:", data.campusName);
 //                 formik.setFieldValue("campusName", data.campusName);
@@ -478,7 +478,7 @@
 //               } else {
 //                 console.warn("⚠️ campusId is null/undefined - check API response");
 //               }
-             
+
 //               // Orientation City - Auto-populate for Orientation Information
 //               if (data.cityName) {
 //                 console.log("✅ Setting orientationCity in Formik:", data.cityName);
@@ -488,7 +488,7 @@
 //                 console.log("✅ Setting orientationCityId in Formik (for backend):", data.cityId);
 //                 formik.setFieldValue("orientationCityId", data.cityId);
 //               }
-             
+
 //               // Log final Formik values to verify IDs are stored
 //               console.log("📋 Formik values after setting IDs:", {
 //                 academicYear: formik.values.academicYear,
@@ -500,7 +500,7 @@
 //               });
 //             }}
 //           />
- 
+
 //           <div className={styles.clgAppFastSaleFormMiddleSection}>
 //             <PersonalInformationClgFastSale />
 //             <ParentInformationForSchool />
@@ -512,7 +512,7 @@
 //             />
 //             <AddressInformation />
 //           </div>
- 
+
 //           <div className={styles.clgAppSaleButtonsWrapper}>
 //             <div className={styles.clgAppSaleButtons}>
 //               <Button
@@ -522,7 +522,7 @@
 //                 type="button"
 //                 onClick={handleBack}
 //               />
- 
+
 //               <Button
 //                 buttonname={"Application Fast Sale"}
 //                 variant={"primary"}
@@ -535,7 +535,7 @@
 //         </Form>
 //       )}
 //     </Formik>
- 
+
 //       {/* Payment Popup */}
 //       {showPaymentPopup && (
 //         <PaymentPopup
@@ -565,13 +565,13 @@
 //     </>
 //   );
 // };
- 
+
 // export default CollegeFastSale;
 import React, { useState } from "react";
 import { Formik, Form } from "formik";
 import { useLocation, useNavigate } from "react-router-dom";
 import styles from "../CollegeSaleForm/CollegeSaleForm.module.css";
- 
+
 import ApplicationSaleDetails from "../../components/sale-and-confirm/CollegSaleFormComponents/ApplicationDetails/ApplicationSaleDetails";
 import PersonalInformationClgFastSale from "../../components/sale-and-confirm/CollegSaleFormComponents/PersonalInformation/PersonalInformationClgFastSale";
 import ParentInformationForSchool from "../../components/sale-and-confirm/CollegSaleFormComponents/ParentInformation/ParentInformationForSchool";
@@ -579,12 +579,12 @@ import OrientationInformation from "../../components/sale-and-confirm/CollegSale
 import AddressInformation from "../../components/sale-and-confirm/CollegSaleFormComponents/AddressInformation/AddressInformation";
 import PaymentPopup from "../../widgets/PaymentPopup/whole-payment-popup/PaymentPopup.jsx";
 import SuccessPage from "../../widgets/sale-done/SuccessPage.jsx";
- 
+
 import leftArrowBlue from "../../assets/application-status/leftArrowBlueColor";
 import saleIcon from "../../assets/application-status/applicationSaleicon";
 import Button from "../../widgets/Button/Button";
 import { clgFastSaleValidationSchema } from "../../components/sale-and-confirm/CollegSaleFormComponents/CollegeActualSaleValidationSchema";
- 
+
 // INITIAL VALUES
 const initialValues = {
   firstName: "",
@@ -636,7 +636,7 @@ const initialValues = {
   cityAddress: "", // Alternative field name for address city
   gpin: "", // G-pin (Latitude & Longitude)
 };
- 
+
 const CollegeFastSale = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -646,10 +646,10 @@ const CollegeFastSale = () => {
   const [formValues, setFormValues] = useState(initialValues);
   const [applicationDetailsData, setApplicationDetailsData] = useState(null);
   const [submissionResponse, setSubmissionResponse] = useState(null);
- 
+
   // For college fast sale, use "fast" sale type to show "Finish Fast Sale" button
   const saleType = "fast";
- 
+
   const handleApplicationFastSale = (formik) => {
     // Log all form values including IDs before submission
     console.log("📋 ===== COLLEGE FAST SALE FORM VALUES (Before Submission) =====");
@@ -670,11 +670,11 @@ const CollegeFastSale = () => {
     });
     console.log("========================================================");
     console.log("📦 Full Formik Values Object:", formik.values);
-   
+
     // Store current form values (make sure we're getting the latest values)
     const currentValues = JSON.parse(JSON.stringify(formik.values));
     setFormValues(currentValues);
-   
+
     // Validate form before opening popup
     formik.validateForm().then((errors) => {
       console.log("🔍 Validation Errors:", errors);
@@ -687,7 +687,7 @@ const CollegeFastSale = () => {
           {}
         );
         formik.setTouched(allFieldsTouched);
-       
+
         // Also scroll to first error field
         const firstErrorField = Object.keys(errors)[0];
         if (firstErrorField) {
@@ -700,169 +700,170 @@ const CollegeFastSale = () => {
       }
     });
   };
- 
+
   const handleClosePayment = () => {
     setShowPaymentPopup(false);
   };
- 
+
   const handleBack = () => {
     // Navigate back to application status table
     navigate('/scopes/application/status');
   };
- 
+
   const handleSubmissionSuccess = (response, details) => {
     console.log("🎉 Fast Sale submission successful!");
     console.log("Response:", response);
     console.log("Details:", details);
-   
+
     // Store response
     setSubmissionResponse(response);
-   
+
     // Close payment popup
     setShowPaymentPopup(false);
-   
+
     // Show success page
     setShowSuccessPage(true);
   };
- 
+
   const handleBackFromSuccess = () => {
     // Navigate back to application status table from success page
     navigate('/scopes/application/status');
   };
- 
+
   return (
     <>
-    {!showSuccessPage ? (
-      <>
-    <Formik
-      initialValues={initialValues}
-      validationSchema={clgFastSaleValidationSchema()}
-      onSubmit={(values) => {
-        console.log("FAST SALE SUBMIT:", values);
-      }}
-      validateOnChange={true}
-      validateOnBlur={true}
-    >
-      {(formik) => (
-        <Form className={styles.clgSalePageWrapper}>
-          <ApplicationSaleDetails
-            saleName={"Fast Sale"}
-            applicationNo={applicationData?.applicationNo}
-            onBack={handleBack}
-            type="college"
-            onDataLoaded={(data) => {
-              console.log("🏫 CollegeFastSale - ApplicationSaleDetails data loaded:", data);
-              console.log("💰 Payment Auto-populate values - appFee:", data.appFee, "amount:", data.amount, "total:", (parseFloat(data.appFee) || 0) + (parseFloat(data.amount) || 0));
-              setApplicationDetailsData(data);
-             
-              // Always set IDs if they exist in the API response (for backend submission)
-              if (data.academicYear) {
-                console.log("✅ Setting academicYear in Formik:", data.academicYear);
-                formik.setFieldValue("academicYear", data.academicYear);
-              }
-              if (data.academicYearId !== null && data.academicYearId !== undefined) {
-                console.log("✅ Setting academicYearId in Formik (for backend):", data.academicYearId);
-                formik.setFieldValue("academicYearId", data.academicYearId);
-              } else {
-                console.warn("⚠️ academicYearId is null/undefined - check API response");
-              }
-             
-              if (data.campusName) {
-                console.log("✅ Setting campusName in Formik:", data.campusName);
-                formik.setFieldValue("campusName", data.campusName);
-              }
-              if (data.campusId !== null && data.campusId !== undefined) {
-                console.log("✅ Setting campusId in Formik (for backend):", data.campusId);
-                formik.setFieldValue("campusId", data.campusId);
-              } else {
-                console.warn("⚠️ campusId is null/undefined - check API response");
-              }
-             
-              // Orientation City - Auto-populate for Orientation Information
-              if (data.cityName) {
-                console.log("✅ Setting orientationCity in Formik:", data.cityName);
-                formik.setFieldValue("orientationCity", data.cityName);
-              }
-              if (data.cityId !== null && data.cityId !== undefined) {
-                console.log("✅ Setting orientationCityId in Formik (for backend):", data.cityId);
-                formik.setFieldValue("orientationCityId", data.cityId);
-              }
-             
-              // Log final Formik values to verify IDs are stored
-              console.log("📋 Formik values after setting IDs:", {
-                academicYear: formik.values.academicYear,
-                academicYearId: formik.values.academicYearId,
-                campusName: formik.values.campusName,
-                campusId: formik.values.campusId,
-                orientationCity: formik.values.orientationCity,
-                orientationCityId: formik.values.orientationCityId
-              });
+      {!showSuccessPage ? (
+        <>
+          <Formik
+            initialValues={initialValues}
+            validationSchema={clgFastSaleValidationSchema()}
+            onSubmit={(values) => {
+              console.log("FAST SALE SUBMIT:", values);
             }}
-          />
- 
-          <div className={styles.clgAppFastSaleFormMiddleSection}>
-            <PersonalInformationClgFastSale />
-            <ParentInformationForSchool />
-            <OrientationInformation
-              initialAcademicYear={applicationDetailsData?.academicYear}
-              initialAcademicYearId={applicationDetailsData?.academicYearId}
-              initialCampusName={applicationDetailsData?.campusName}
-              initialCampusId={applicationDetailsData?.campusId}
+            validateOnChange={true}
+            validateOnBlur={true}
+          >
+            {(formik) => (
+              <Form className={styles.clgSalePageWrapper}>
+                <ApplicationSaleDetails
+                  saleName={"Fast Sale"}
+                  applicationNo={applicationData?.applicationNo}
+                  onBack={handleBack}
+                  type="college"
+                  onDataLoaded={(data) => {
+                    console.log("🏫 CollegeFastSale - ApplicationSaleDetails data loaded:", data);
+                    console.log("💰 Payment Auto-populate values - appFee:", data.appFee, "amount:", data.amount, "total:", (parseFloat(data.appFee) || 0) + (parseFloat(data.amount) || 0));
+                    setApplicationDetailsData(data);
+
+                    // Always set IDs if they exist in the API response (for backend submission)
+                    if (data.academicYear) {
+                      console.log("✅ Setting academicYear in Formik:", data.academicYear);
+                      formik.setFieldValue("academicYear", data.academicYear);
+                    }
+                    if (data.academicYearId !== null && data.academicYearId !== undefined) {
+                      console.log("✅ Setting academicYearId in Formik (for backend):", data.academicYearId);
+                      formik.setFieldValue("academicYearId", data.academicYearId);
+                    } else {
+                      console.warn("⚠️ academicYearId is null/undefined - check API response");
+                    }
+
+                    if (data.campusName) {
+                      console.log("✅ Setting campusName in Formik:", data.campusName);
+                      formik.setFieldValue("campusName", data.campusName);
+                    }
+                    if (data.campusId !== null && data.campusId !== undefined) {
+                      console.log("✅ Setting campusId in Formik (for backend):", data.campusId);
+                      formik.setFieldValue("campusId", data.campusId);
+                    } else {
+                      console.warn("⚠️ campusId is null/undefined - check API response");
+                    }
+
+                    // Orientation City - Auto-populate for Orientation Information
+                    if (data.cityName) {
+                      console.log("✅ Setting orientationCity in Formik:", data.cityName);
+                      formik.setFieldValue("orientationCity", data.cityName);
+                    }
+                    if (data.cityId !== null && data.cityId !== undefined) {
+                      console.log("✅ Setting orientationCityId in Formik (for backend):", data.cityId);
+                      formik.setFieldValue("orientationCityId", data.cityId);
+                    }
+
+                    // Log final Formik values to verify IDs are stored
+                    console.log("📋 Formik values after setting IDs:", {
+                      academicYear: formik.values.academicYear,
+                      academicYearId: formik.values.academicYearId,
+                      campusName: formik.values.campusName,
+                      campusId: formik.values.campusId,
+                      orientationCity: formik.values.orientationCity,
+                      orientationCityId: formik.values.orientationCityId
+                    });
+                  }}
+
+                />
+
+                <div className={styles.clgAppFastSaleFormMiddleSection}>
+                  <PersonalInformationClgFastSale />
+                  <ParentInformationForSchool />
+                  <OrientationInformation
+                    initialAcademicYear={applicationDetailsData?.academicYear}
+                    initialAcademicYearId={applicationDetailsData?.academicYearId}
+                    initialCampusName={applicationDetailsData?.campusName}
+                    initialCampusId={applicationDetailsData?.campusId}
+                  />
+                  <AddressInformation />
+                </div>
+
+                <div className={styles.clgAppSaleButtonsWrapper}>
+                  <div className={styles.clgAppSaleButtons}>
+                    <Button
+                      buttonname={"Back"}
+                      variant={"secondaryWithExtraPadding"}
+                      lefticon={leftArrowBlue}
+                      type="button"
+                      onClick={handleBack}
+                    />
+
+                    <Button
+                      buttonname={"Application Fast Sale"}
+                      variant={"primary"}
+                      type="button"
+                      lefticon={saleIcon}
+                      onClick={() => handleApplicationFastSale(formik)}
+                    />
+                  </div>
+                </div>
+              </Form>
+            )}
+          </Formik>
+
+          {/* Payment Popup */}
+          {showPaymentPopup && (
+            <PaymentPopup
+              onClose={handleClosePayment}
+              title="Complete Application Fast Sale"
+              formData={formValues}
+              collegeFormData={formValues}
+              siblings={[]}
+              detailsObject={applicationData}
+              applicationDetailsData={applicationDetailsData}
+              type="college"
+              saleType={saleType}
+              onSuccess={handleSubmissionSuccess}
             />
-            <AddressInformation />
-          </div>
- 
-          <div className={styles.clgAppSaleButtonsWrapper}>
-            <div className={styles.clgAppSaleButtons}>
-              <Button
-                buttonname={"Back"}
-                variant={"secondaryWithExtraPadding"}
-                lefticon={leftArrowBlue}
-                type="button"
-                onClick={handleBack}
-              />
- 
-              <Button
-                buttonname={"Application Fast Sale"}
-                variant={"primary"}
-                  type="button"
-                lefticon={saleIcon}
-                  onClick={() => handleApplicationFastSale(formik)}
-              />
-            </div>
-          </div>
-        </Form>
-      )}
-    </Formik>
- 
-      {/* Payment Popup */}
-      {showPaymentPopup && (
-        <PaymentPopup
-          onClose={handleClosePayment}
-          title="Complete Application Fast Sale"
-          formData={formValues}
-          collegeFormData={formValues}
-          siblings={[]}
-          detailsObject={applicationData}
-          applicationDetailsData={applicationDetailsData}
-          type="college"
-          saleType={saleType}
-          onSuccess={handleSubmissionSuccess}
+          )}
+        </>
+      ) : (
+        <SuccessPage
+          applicationNo={applicationData?.applicationNo}
+          studentName={formValues?.firstName + " " + formValues?.surName}
+          campus={formValues?.campusName}
+          zone={applicationData?.zone}
+          onBack={handleBackFromSuccess}
+          statusType="sale"
         />
       )}
-      </>
-    ) : (
-      <SuccessPage
-        applicationNo={applicationData?.applicationNo}
-        studentName={formValues?.firstName + " " + formValues?.surName}
-        campus={formValues?.campusName}
-        zone={applicationData?.zone}
-        onBack={handleBackFromSuccess}
-        statusType="sale"
-      />
-    )}
     </>
   );
 };
- 
+
 export default CollegeFastSale;

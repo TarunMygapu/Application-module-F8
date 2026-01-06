@@ -1,21 +1,21 @@
-import React, {useState, useEffect, useMemo, useRef} from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useFormikContext } from "formik";
 import styles from "./AddressInformation.module.css";
- 
+
 import {
   addressInformationFields,
   addressInformationFieldsLayout
 } from "./addressInformationFields";
- 
+
 import { renderField } from "../../../../utils/renderField";
- 
+
 import {
   useGetPincode,
   useGetMandalsByDistrict,
   useGetCityByDistrict,
 } from "../../../../queries/saleApis/clgSaleApis";
-import {toTitleCase} from "../../../../utils/toTitleCase";
- 
+import { toTitleCase } from "../../../../utils/toTitleCase";
+
 const AddressInformation = () => {
   const formik = useFormikContext();
   const { values, setFieldValue, setFieldTouched, setFieldError, errors, touched, submitCount, handleChange, handleBlur } = formik;
@@ -24,12 +24,12 @@ const AddressInformation = () => {
   // Track if validation was manually triggered (Application Sale button clicked)
   const validationTriggeredRef = useRef(false);
   const previousErrorsRef = useRef({});
-  
+
   // Detect when validation is triggered by checking if errors appear
   useEffect(() => {
     const currentErrorKeys = Object.keys(errors);
     const previousErrorKeys = Object.keys(previousErrorsRef.current);
-    
+
     // If errors appeared (especially when form is touched), it means validation was triggered
     if (currentErrorKeys.length > 0 && currentErrorKeys.length !== previousErrorKeys.length) {
       // Check if any fields are touched (which happens when handleProceedToSale sets all fields as touched)
@@ -38,11 +38,11 @@ const AddressInformation = () => {
         validationTriggeredRef.current = true;
       }
     }
-    
+
     // Update previous errors
     previousErrorsRef.current = { ...errors };
   }, [errors, touched]);
- 
+
   /* -------------------------
       API CALL - PINCODE
   ------------------------- */
@@ -50,7 +50,7 @@ const AddressInformation = () => {
   const pincodeString = values.pincode ? String(values.pincode).trim() : "";
   const isValidPincode = pincodeString.length === 6 && /^\d{6}$/.test(pincodeString);
   const { data: pincodeData } = useGetPincode(isValidPincode ? pincodeString : "");
- 
+
   /* -----------------------------------------------------
       HANDLE PINCODE RESPONSE CORRECTLY (IMPORTANT)
   ------------------------------------------------------ */
@@ -58,7 +58,7 @@ const AddressInformation = () => {
     // pincode must be 6 digits + API must have returned data
     const pincodeValue = values.pincode ? String(values.pincode).trim() : "";
     const isPincodeValid = pincodeValue.length === 6 && /^\d{6}$/.test(pincodeValue);
-   
+
     if (isPincodeValid && pincodeData) {
       // Only update if the data is different to avoid unnecessary re-renders
       const currentState = values.state || "";
@@ -73,7 +73,7 @@ const AddressInformation = () => {
       if (newDistrict && newDistrict !== currentDistrict) {
         setFieldValue("district", newDistrict);
       }
-     
+
       // Store IDs if available
       if (pincodeData.stateId && (!values.stateId || values.stateId !== pincodeData.stateId)) {
         setFieldValue("stateId", pincodeData.stateId);
@@ -99,7 +99,7 @@ const AddressInformation = () => {
       }
     }
   }, [pincodeData, values.pincode, values.state, values.district, values.stateId, values.districtId, setFieldValue]);
- 
+
   // Sync selectedDistrictId when districtId is set directly (from auto-population)
   // This is critical to trigger the mandal and city APIs
   useEffect(() => {
@@ -114,7 +114,7 @@ const AddressInformation = () => {
       setSelectedDistrictId(null);
     }
   }, [values.districtId, selectedDistrictId]);
- 
+
   /* -------------------------
       FETCH MANDALS & CITY
   ------------------------- */
@@ -122,7 +122,7 @@ const AddressInformation = () => {
   const effectiveDistrictId = selectedDistrictId || values.districtId;
   const { data: mandalRaw = [], isLoading: mandalLoading, error: mandalError } = useGetMandalsByDistrict(effectiveDistrictId ? Number(effectiveDistrictId) : null);
   const { data: cityRaw = [], isLoading: cityLoading, error: cityError } = useGetCityByDistrict(effectiveDistrictId ? Number(effectiveDistrictId) : null);
- 
+
   /* -------------------------
       OPTIONS
   ------------------------- */
@@ -135,7 +135,7 @@ const AddressInformation = () => {
     },
     [mandalRaw, mandalLoading, mandalError]
   );
- 
+
   const cityOptions = useMemo(
     () => {
       if (cityLoading) return ['Loading cities...'];
@@ -144,7 +144,7 @@ const AddressInformation = () => {
     },
     [cityRaw, cityLoading, cityError]
   );
- 
+
   // Create maps for ID lookup
   const mandalNameToId = useMemo(() => {
     const map = new Map();
@@ -155,7 +155,7 @@ const AddressInformation = () => {
     });
     return map;
   }, [mandalRaw]);
- 
+
   const cityNameToId = useMemo(() => {
     const map = new Map();
     cityRaw.forEach((c) => {
@@ -165,7 +165,7 @@ const AddressInformation = () => {
     });
     return map;
   }, [cityRaw]);
- 
+
   // Force touch and full validation for all required fields on form submit (only once per submit attempt)
   useEffect(() => {
     if (submitCount > 0 && !hasTouchedOnSubmitRef.current) {
@@ -178,14 +178,14 @@ const AddressInformation = () => {
       formik.validateForm();
     }
   }, [submitCount, formik, setFieldTouched, values.city, touched.city, errors.city]); // Added dependencies for re-trigger if needed
- 
+
   // Reset the ref when submitCount resets (e.g., on successful submit or reset)
   useEffect(() => {
     if (submitCount === 0) {
       hasTouchedOnSubmitRef.current = false;
     }
   }, [submitCount]);
- 
+
   // Watch for errors and ensure city field is touched when errors exist (for manual validation)
   // Track when validation is triggered (errors appear after Application Sale button click)
   useEffect(() => {
@@ -202,13 +202,13 @@ const AddressInformation = () => {
         validationTriggeredRef.current = true;
       }
     }
-   
+
     // Auto-touch city field if validation was triggered and city has error
     if (validationTriggeredRef.current && errors.city && !touched.city) {
       setFieldTouched('city', true, false);
     }
   }, [errors, touched, setFieldTouched, submitCount]);
- 
+
   // Sync IDs when labels are present but IDs are missing (for pre-populated data)
   useEffect(() => {
     // Sync stateId if state is present but stateId is missing
@@ -218,7 +218,7 @@ const AddressInformation = () => {
         setFieldValue("stateId", pincodeData.stateId);
       }
     }
-   
+
     // Sync districtId if district is present but districtId is missing
     if (values.district && (!values.districtId || values.districtId === 0 || values.districtId === null)) {
       // Try to find district ID from pincode data if available
@@ -227,7 +227,7 @@ const AddressInformation = () => {
         setSelectedDistrictId(pincodeData.districtId);
       }
     }
-   
+
     // Sync mandalId if mandal is present but mandalId is missing
     // Wait for mandal API data to load before syncing
     if (values.mandal && (!values.mandalId || values.mandalId === 0 || values.mandalId === null)) {
@@ -236,7 +236,7 @@ const AddressInformation = () => {
         const originalMandal = String(values.mandal).trim();
         const mandalLabel = toTitleCase(originalMandal);
         let mandalIdValue = mandalNameToId.get(mandalLabel);
-       
+
         // Try exact match first
         if (mandalIdValue) {
           setFieldValue("mandalId", mandalIdValue);
@@ -257,12 +257,12 @@ const AddressInformation = () => {
               break;
             }
           }
-         
+
           // If still not found, try without toTitleCase
           if (!found) {
             for (const [key, id] of mandalNameToId.entries()) {
               if (key.toLowerCase() === originalMandal.toLowerCase() ||
-                  toTitleCase(key).toLowerCase() === originalMandal.toLowerCase()) {
+                toTitleCase(key).toLowerCase() === originalMandal.toLowerCase()) {
                 setFieldValue("mandalId", id);
                 setFieldValue("mandal", key); // Update to exact match from dropdown
                 setFieldTouched("mandal", true); // Touch after sync
@@ -274,7 +274,7 @@ const AddressInformation = () => {
         }
       }
     }
-   
+
     // Sync cityId if city is present but cityId is missing
     // Wait for city API data to load before syncing
     if (values.city && (!values.cityId || values.cityId === 0 || values.cityId === null)) {
@@ -317,35 +317,35 @@ const AddressInformation = () => {
     cityRaw,
     selectedDistrictId,
   ]);
- 
+
   /* -------------------------
       FIELD MAP
   ------------------------- */
   const fieldMap = useMemo(() => {
     const map = {};
- 
+
     addressInformationFields.forEach((f) => {
       map[f.name] = { ...f };
- 
+
       if (f.name === "mandal") map[f.name].options = mandalOptions;
       if (f.name === "city") map[f.name].options = cityOptions;
     });
- 
+
     return map;
   }, [mandalOptions, cityOptions]);
- 
+
   // Custom onChange that integrates Formik's handleChange for proper touched and validation triggering
   const customOnChange = (fname) => (e) => {
     handleChange(e); // This sets value and touched automatically
     const selectedValue = e.target.value;
-   
+
     // Clear error immediately when a valid value is selected
     if (selectedValue && selectedValue !== "Select Mandal" && selectedValue !== "Select City" && selectedValue !== "-") {
       if (errors[fname]) {
         setFieldError(fname, undefined);
       }
     }
-   
+
     // Store IDs when dropdowns are selected (after handleChange)
     if (fname === "mandal" && mandalNameToId.has(selectedValue)) {
       const id = mandalNameToId.get(selectedValue);
@@ -381,14 +381,14 @@ const AddressInformation = () => {
       }
     }
   };
- 
+
   return (
     <div className={styles.clgAppSaleAddressInfoWrapper}>
       <div className={styles.clgAppSaleAddressInfoTop}>
         <p className={styles.clgAppSaleAddressHeading}>Address Information</p>
         <div className={styles.clgAppSalePersonalInfoSeperationLine}></div>
       </div>
- 
+
       <div className={styles.clgAppSaleAddressInfoBottom}>
         {addressInformationFieldsLayout.map((row) => (
           <div key={row.id} className={styles.clgAppSalerow}>
@@ -400,24 +400,24 @@ const AddressInformation = () => {
               // Check if field is touched or if validation was triggered (Application Sale button clicked)
               const isTouched = touched[fname];
               const hasError = errors[fname];
-             
+
               // Detect if "Proceed to Sale" was clicked by checking if all/most fields are touched
               // (handleProceedToSale sets all fields as touched when validation fails)
-              const allFieldsTouched = Object.keys(touched).length > 0 && 
-                                       Object.values(touched).filter(Boolean).length >= 5; // At least 5 fields touched
+              const allFieldsTouched = Object.keys(touched).length > 0 &&
+                Object.values(touched).filter(Boolean).length >= 5; // At least 5 fields touched
               const validationAttempted = submitCount > 0 || validationTriggeredRef.current || allFieldsTouched;
-             
+
               // Only show errors AFTER "Proceed to Sale" button is clicked
               // This ensures errors appear after form submission attempt
               const hasValidValue = values[fname] &&
-                                   values[fname] !== "" &&
-                                   values[fname] !== "Select Mandal" &&
-                                   values[fname] !== "Select City" &&
-                                   values[fname] !== "-";
+                values[fname] !== "" &&
+                values[fname] !== "Select Mandal" &&
+                values[fname] !== "Select City" &&
+                values[fname] !== "-";
               // Show error if validation was attempted AND field has error AND no valid value
               const shouldShowError = validationAttempted && hasError && !hasValidValue;
               const fieldError = shouldShowError ? String(hasError) : null;
-             
+
               return (
                 <div key={fname} className={styles.clgAppSaleFieldCell}>
                   {renderField(fname, fieldMap, {
@@ -435,5 +435,5 @@ const AddressInformation = () => {
     </div>
   );
 };
- 
+
 export default AddressInformation;

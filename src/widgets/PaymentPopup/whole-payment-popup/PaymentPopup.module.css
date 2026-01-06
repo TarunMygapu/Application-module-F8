@@ -8,7 +8,7 @@
   align-items: center;
   z-index: 2000;
 }
- 
+
 .modal {
   width: 90%;
   max-width: 900px;
@@ -22,7 +22,7 @@
   flex-direction: column;
   overflow: hidden;
 }
- 
+
 .modalContent {
   flex: 1;
   overflow-y: auto;
@@ -31,33 +31,33 @@
   min-height: 0;
   max-height: 100%;
 }
- 
+
 /* Custom scrollbar */
 .modalContent::-webkit-scrollbar {
   width: 6px;
 }
- 
+
 .modalContent::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 10px;
 }
- 
+
 .modalContent::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 10px;
 }
- 
+
 .modalContent::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
- 
+
 .footer {
   padding: 20px 0;
   text-align: center;
   background: white;
   margin-top: auto;
 }
- 
+
 .finishBtn {
   background: #4338f2;
   color: white;
@@ -67,7 +67,7 @@
   font-size: 15px;
   cursor: pointer;
 }
- 
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }

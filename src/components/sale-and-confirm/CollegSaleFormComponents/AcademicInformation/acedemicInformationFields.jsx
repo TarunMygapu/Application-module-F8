@@ -7,12 +7,12 @@ export const academicFields = [
     label: "Hall Ticket Number",
     type: "text",
     disabled: false,
-    inputRule:"hallticket",
-    maxLength:"12",
+    inputRule: "hallticket",
+    maxLength: "12",
     placeholder: "Enter Hall Ticket Number",
     required: true,
   },
- 
+
   {
     name: "schoolState",
     label: "School State",
@@ -25,20 +25,20 @@ export const academicFields = [
     options: ["District-1", "District-2"],
     required: true,
   },
-  { name: "schoolType", label: "School Type", options: ["Type-1", "Type-2"] ,required: true},
+  { name: "schoolType", label: "School Type", options: ["Type-1", "Type-2"], required: true },
   {
     name: "schoolName",
     label: "School Name",
     options: ["School-1", "School-2"],
     required: true,
   },
- 
+
   {
     name: "tenthHallTicketNo",
     label: "10th Hall Ticket No",
     type: "text",
-    inputRule:"hallticket",
-        maxLength:"12",
+    inputRule: "hallticket",
+    maxLength: "12",
     placeholder: "Enter 10th Hall Ticket No",
     required: true,
   },
@@ -46,41 +46,41 @@ export const academicFields = [
     name: "interFirstYearHallTicketNo",
     label: "Inter 1st Year Hall Ticket No",
     type: "text",
-    inputRule:"hallticket",
-        maxLength:"12",
+    inputRule: "hallticket",
+    maxLength: "12",
     placeholder: "Enter Inter 1st Year Hall Ticket No",
     required: true,
   },
- 
+
   {
     name: "interHallTicketNo",
     label: "Inter Hall Ticket No",
     type: "text",
-    inputRule:"hallticket",
-        maxLength:"12",
+    inputRule: "hallticket",
+    maxLength: "12",
     placeholder: "Enter Inter Hall Ticket No",
     required: true,
   },
- 
-  { name: "clgState", label: "College State", options: ["State-1", "State-2"] ,required: true},
+
+  { name: "clgState", label: "College State", options: ["State-1", "State-2"], required: true },
   {
     name: "clgDistrict",
     label: "College District",
     options: ["District-1", "District-2"],
     required: true,
   },
-  { name: "clgType", label: "College Type", options: ["Type-1", "Type-2"] ,required: true},
- 
+  { name: "clgType", label: "College Type", options: ["Type-1", "Type-2"], required: true },
+
   {
     name: "collegeName",
     label: "College Name",
     options: ["College-1", "College-2"],
     required: true,
   },
- 
-  { name: "scoreAppNo", label: "Score App No", type: "text",inputRule:"digitsOnly",maxLength:"8",placeholder:"Enter Score App Number", disabled: false},
-  { name: "scoreMarks", label: "Score Marks", type: "text",inputRule:"digitsOnly",maxLength:"3",placeholder:"Enter Score Marks", disabled: false },
- 
+
+  { name: "scoreAppNo", label: "Score App No", type: "text", inputRule: "digitsOnly", maxLength: "8", placeholder: "Enter Score App Number", disabled: false },
+  { name: "scoreMarks", label: "Score Marks", type: "text", inputRule: "digitsOnly", maxLength: "3", placeholder: "Enter Score Marks", disabled: false },
+
   { name: "foodType", label: "Food Type", options: ["Veg", "Non-Veg"] },
   {
     name: "bloodGroup",
@@ -94,7 +94,7 @@ export const academicFields = [
     options: ["Hindu", "Muslim", "Christian"],
   },
 ];
- 
+
 // ============================
 // LAYOUT DEFINITIONS
 // ============================
@@ -104,19 +104,19 @@ export const academicLayouts = {
     ["schoolType", "schoolName", "scoreAppNo"],
     ["scoreMarks", "", ""],
   ],
- 
+
   "INTER2": [
     ["tenthHallTicketNo", "interFirstYearHallTicketNo", "clgState"],
     ["clgDistrict", "clgType", "collegeName"],
     ["scoreAppNo", "scoreMarks", ""],
   ],
- 
+
   "LONG_TERM": [
     ["interHallTicketNo", "clgState", "clgDistrict"],
     ["clgType", "collegeName", "scoreAppNo"],
     ["scoreMarks", "", ""],
   ],
- 
+
   "SHORT_TERM": [
     ["interHallTicketNo", "clgState", "clgDistrict"],
     ["clgType", "collegeName", "scoreAppNo"],
@@ -127,7 +127,7 @@ export const academicLayouts = {
     ["schoolType", "schoolName", "scoreAppNo"],
     ["scoreMarks", "", ""],
   ],
- 
+
   // COMMON rows for ALL orientation types
   // common: [
   //   ["scoreAppNo", "", ""],
@@ -135,12 +135,12 @@ export const academicLayouts = {
   //   ["caste", "religion", ""],
   // ],
 };
- 
+
 // ============================
 // DYNAMIC LAYOUT SELECTOR
 // ============================
 export const getAcademicLayout = (joiningClass) => {
   if (!joiningClass) return academicLayouts[""];  // default
- 
+
   return academicLayouts[joiningClass] || academicLayouts[""];
 };

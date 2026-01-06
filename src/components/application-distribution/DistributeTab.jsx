@@ -28,29 +28,29 @@ import { current } from "@reduxjs/toolkit";
 const DistributeTab = () => {
   const [isInsertClicked, setIsInsertClicked] = useState(false);
   const location = useLocation();
- 
+
   const [clickedFilterButton, setClickedFilterButton] = useState(false);
   const [callTable, setCallTable] = useState(true);
- 
+
   // 🔑 Use the literal string keys for permission checks, matching the keys in your SCREENS object
   const canViewZone = usePermission("DISTRIBUTE_ZONE").canView;
   const canViewDGM = usePermission("DISTRIBUTE_DGM").canView;
   const canViewCampus = usePermission("DISTRIBUTE_CAMPUS").canView;
- 
+
   // You can also check for full access to enable the 'Distribute New' button
   const canCreateZone = usePermission("DISTRIBUTE_ZONE").isFullAccess;
   const canCreateDGM = usePermission("DISTRIBUTE_DGM").isFullAccess;
   const canCreateCampus = usePermission("DISTRIBUTE_CAMPUS").isFullAccess;
- 
+
   // Combine all "can create" flags into a single check for the button
   const canInsert = canCreateZone || canCreateDGM || canCreateCampus;
- 
+
   useEffect(() => {
     // Reset the form state if the URL changes (user navigates between sub-tabs)
     setIsInsertClicked(false);
     setCallTable(true);
   }, [location.pathname]);
- 
+
   // 🔑 Define and Filter the navigation tabs based on user permissions
   const distributeNavTabs = [
     {
@@ -72,30 +72,30 @@ const DistributeTab = () => {
       key: "campus",
     },
   ].filter((tab) => tab.canView); // Filter only tabs the user can view
- 
+
   // Determine the default route (the key of the first visible tab)
   const firstVisibleKey = distributeNavTabs[0]?.key || null;
- 
+
   const buttonName = () => {
     // Determine the button name based on the current active sub-route or the first available
     const currentPath = location.pathname;
- 
-    if (currentPath.includes("/distribute/zone"))return "Distribute New to Zone";
+
+    if (currentPath.includes("/distribute/zone")) return "Distribute New to Zone";
     if (currentPath.includes("/distribute/dgm")) return "Distribute New to DGM";
     if (currentPath.includes("/distribute/campus"))
       return "Distribute New to Campus";
- 
+
     // Fallback: Use the first visible path for the button name if no specific sub-tab is active
     if (firstVisibleKey === "dgm") return "Distribute New to DGM";
     if (firstVisibleKey === "campus") return "Distribute New to Campus";
- 
+
     return "Distribute New to Zone"; // Default (if Zone is available or as a generic fallback)
   };
 
 
   const distributeSubText = () => {
     const currentLocation = location.pathname;
-     if (currentLocation.includes("zone"))
+    if (currentLocation.includes("zone"))
       return "Distribute Applications To All Zones.";
     if (currentLocation.includes("dgm"))
       return "Distribute Applications To All DGMs.";
@@ -103,11 +103,11 @@ const DistributeTab = () => {
       return "Distribute Applications To All Campuses.";
     return null;
   }
- 
+
   const handleDistributeButton = () => {
     setIsInsertClicked((prev) => !prev);
   };
- 
+
   // 🚫 If no tabs are visible, render a "No Access" message for this section.
   if (distributeNavTabs.length === 0) {
     return (
@@ -118,12 +118,12 @@ const DistributeTab = () => {
       </div>
     );
   }
- 
-  const displayFilterOptions = () =>{
+
+  const displayFilterOptions = () => {
     setClickedFilterButton(prev => !prev);
     console.log("Filter Button is Clicked");
   }
- 
+
   return (
     <>
       {isInsertClicked && canInsert && (
@@ -135,10 +135,10 @@ const DistributeTab = () => {
             onClick={handleDistributeButton}
             margin={"0"}
             variant="primary"
-          /> 
+          />
         </div>
       )}
- 
+
       {/* Renders the content when not in the insert form */}
       {!isInsertClicked && (
         <div className={styles.distribute_tab_form_graph}>
@@ -154,7 +154,7 @@ const DistributeTab = () => {
                   </p>
                 </div>
               </div>
- 
+
               {/* 🔑 NavLinks: Map over the filtered array */}
               <nav className={styles.nav}>
                 <ul className={styles.nav_bar}>
@@ -173,7 +173,7 @@ const DistributeTab = () => {
                 </ul>
               </nav>
             </div>
- 
+
             {/* 🔑 Route definitions: Conditionally render routes and handle redirects */}
             <div className={styles.distribute_nav_content}>
               <Routes>
@@ -184,13 +184,13 @@ const DistributeTab = () => {
                     element={<Navigate to={firstVisibleKey} replace />}
                   />
                 )}
- 
+
                 {/* Conditionally render the allowed routes */}
                 {canViewZone && (
                   <Route
                     path="zone"
                     element={
-                      <ZoneForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable}/>
+                      <ZoneForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable} />
                     }
                   />
                 )}
@@ -198,7 +198,7 @@ const DistributeTab = () => {
                   <Route
                     path="dgm"
                     element={
-                      <DgmForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable}/>
+                      <DgmForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable} />
                     }
                   />
                 )}
@@ -206,11 +206,11 @@ const DistributeTab = () => {
                   <Route
                     path="campus"
                     element={
-                      <CampusForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable}/>
+                      <CampusForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable} />
                     }
                   />
                 )}
- 
+
                 {/* Fallback for unauthorized/missing route within distribute */}
                 <Route
                   path="*"
@@ -220,47 +220,47 @@ const DistributeTab = () => {
             </div>
           </div>
           <SelectedEntityProvider>
-                      <div className={styles.prev_years_graphs_section}>
-            <div className={styles.accordian_header}>
-              <div className={styles.accordian_header_text}>
-                <figure>
-                <img src={headerIon} className={styles.icon} alt="header" />
-              </figure>
-              <h6 className={styles.header_text}>Previous Year Graph</h6>
-              </div>
-              <div className={styles.graphFilterButton}>
-                <Button
-                buttonname={"Filter"}
-                variant={"filterButton"}
-                lefticon={filterIcon}
-                onClick={displayFilterOptions}
-                />
-                {clickedFilterButton && (
-                  <CostSelectionForGraph onClose={() => setClickedFilterButton(false)}/>
+            <div className={styles.prev_years_graphs_section}>
+              <div className={styles.accordian_header}>
+                <div className={styles.accordian_header_text}>
+                  <figure>
+                    <img src={headerIon} className={styles.icon} alt="header" />
+                  </figure>
+                  <h6 className={styles.header_text}>Previous Year Graph</h6>
+                </div>
+                <div className={styles.graphFilterButton}>
+                  <Button
+                    buttonname={"Filter"}
+                    variant={"filterButton"}
+                    lefticon={filterIcon}
+                    onClick={displayFilterOptions}
+                  />
+                  {clickedFilterButton && (
+                    <CostSelectionForGraph onClose={() => setClickedFilterButton(false)} />
                   )}
+                </div>
+              </div>
+
+              <AccordiansContainer />
+
+              <div className={styles.prev_year_botton_icon}>
+                <figure className={styles.endIcon}>
+                  {/* <img src={endicon} /> */}
+                  {rightsidebelowicon}
+                </figure>
               </div>
             </div>
-         
-            <AccordiansContainer />
-     
-            <div className={styles.prev_year_botton_icon}>
-              <figure className={styles.endIcon}>
-                {/* <img src={endicon} /> */}
-                {rightsidebelowicon}
-              </figure>
-            </div>
-          </div>
           </SelectedEntityProvider>
- 
+
         </div>
       )}
- 
+
       {/* You might also want to secure the table component */}
       <div className={styles.distribute_tab_table}>
-        <DistributeTable callTable={callTable}/>
+        <DistributeTable callTable={callTable} />
       </div>
     </>
   );
 };
- 
+
 export default DistributeTab;

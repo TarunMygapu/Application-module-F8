@@ -16,10 +16,10 @@ export const getConcessionTypes = async () => {
   try {
     // Request body with concession type names
     const requestBody = ["1st year", "2nd year", "3rd year", "Admission Fee", "Tuition Fee"];
-    
+
     // Get token from localStorage
     const token = localStorage.getItem('token');
-    
+
     // Use POST request with concession type names in body
     const response = await apiClient.post('/student-admissions-sale/concessiontype_ids', requestBody, {
       headers: {
@@ -27,10 +27,10 @@ export const getConcessionTypes = async () => {
         ...(token && { 'Authorization': `Bearer ${token}` })
       }
     });
-    
+
     // Handle different response formats
     let concessionTypesData = response.data;
-    
+
     // If response.data is not an array, check if it's wrapped in another property
     if (!Array.isArray(response.data)) {
       // Check common wrapper properties
@@ -48,7 +48,7 @@ export const getConcessionTypes = async () => {
         throw new Error('Response data is not in expected format');
       }
     }
-    
+
     // Transform the response to ensure we have id and label
     const concessionTypes = concessionTypesData.map((type) => {
       return {
@@ -57,7 +57,7 @@ export const getConcessionTypes = async () => {
         value: type.concTypeId || type.id || type.concessionTypeId || type.concession_type_id || type.typeId || type.type_id || type.value
       };
     });
-    
+
     return concessionTypes;
   } catch (error) {
     console.error('❌ Error fetching concession types:', error);
@@ -78,13 +78,13 @@ export const useConcessionTypes = () => {
       try {
         setLoading(true);
         setError(null);
-        
+
         const concessionTypesData = await getConcessionTypes();
-        
+
         // Extract labels and create mapping
         const options = concessionTypesData.map(type => type.label || type.name || String(type));
         const labelToIdMap = new Map();
-        
+
         concessionTypesData.forEach(type => {
           const label = type.label || type.name || String(type);
           const id = type.id || type.value;
@@ -92,7 +92,7 @@ export const useConcessionTypes = () => {
             labelToIdMap.set(label, id);
           }
         });
-        
+
         setConcessionTypes(concessionTypesData || []);
         setConcessionTypeOptions(options);
         setConcessionTypeMap(labelToIdMap);
@@ -133,10 +133,10 @@ export const useConcessionTypes = () => {
         setLoading(true);
         setError(null);
         const concessionTypesData = await getConcessionTypes();
-        
+
         const options = concessionTypesData.map(type => type.label || type.name || String(type));
         const labelToIdMap = new Map();
-        
+
         concessionTypesData.forEach(type => {
           const label = type.label || type.name || String(type);
           const id = type.id || type.value;
@@ -144,7 +144,7 @@ export const useConcessionTypes = () => {
             labelToIdMap.set(label, id);
           }
         });
-        
+
         setConcessionTypes(concessionTypesData || []);
         setConcessionTypeOptions(options);
         setConcessionTypeMap(labelToIdMap);

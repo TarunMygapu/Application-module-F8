@@ -64,7 +64,7 @@ const LoginContainer = () => {
     return null;
   };
 
-  const loginFooter = () =>{
+  const loginFooter = () => {
     if (location.pathname === "/login") {
       return null;
     }
@@ -84,8 +84,8 @@ const LoginContainer = () => {
     <div className={styles.login_container}>
       <div className={styles.bgimage}>
         <figure>
-      <img src={loginbg} className={styles.loginbg} alt='loginbg'/>
-    </figure>
+          <img src={loginbg} className={styles.loginbg} alt='loginbg' />
+        </figure>
       </div>
       <div className={styles.login_content}>
         <figure>

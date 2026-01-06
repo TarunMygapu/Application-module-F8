@@ -1,12 +1,12 @@
 // import React from "react";
 // import Inputbox from "../../Inputbox/InputBox";
 // import styles from "./CardForms.module.css";
- 
+
 // const CardForms = ({ formData, onChange }) => {
- 
+
 //   return (
 //     <div className={styles.wrapper}>
-     
+
 //       {/* HEADER */}
 //       <div className={styles.topRow}>
 //         <label className={styles.checkboxRow}>
@@ -21,13 +21,13 @@
 //           />
 //           <span className={styles.checkBoxLabel}>PRO Credit Card</span>
 //         </label>
- 
+
 //         <div className={styles.concessionValueBox}>
 //           <span className={styles.concessionValue}>0</span>
 //           <p className={styles.concessionLabel}>Application Special Concession Value</p>
 //         </div>
 //       </div>
- 
+
 //       {/* ROW 1 */}
 //       <div className={styles.grid}>
 //         <Inputbox
@@ -38,7 +38,7 @@
 //           onChange={onChange}
 //           type="date"
 //         />
- 
+
 //         <Inputbox
 //           label="Amount *"
 //           name="card_amount"
@@ -48,7 +48,7 @@
 //           type="number"
 //         />
 //       </div>
- 
+
 //       {/* ROW 2 */}
 //       <div className={styles.grid}>
 //         <Inputbox
@@ -58,7 +58,7 @@
 //           value={formData.card_receiptNo}
 //           onChange={onChange}
 //         />
- 
+
 //         <Inputbox
 //           label="Remarks"
 //           name="card_remarks"
@@ -67,30 +67,30 @@
 //           onChange={onChange}
 //         />
 //       </div>
- 
+
 //     </div>
 //   );
 // };
- 
+
 // export default CardForms;
- 
- 
- 
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
+
+
+
 import React from "react";
 import Inputbox from "../../Inputbox/InputBox";
 import styles from "./CardForms.module.css";
- 
-const CardForms = ({ formData, onChange }) => {
- 
+
+const CardForms = ({ formData, onChange, errors }) => {
+
   return (
     <div className={styles.wrapper}>
-     
+
       {/* HEADER */}
       <div className={styles.topRow}>
         <label className={styles.checkboxRow}>
@@ -105,13 +105,13 @@ const CardForms = ({ formData, onChange }) => {
           />
           <span className={styles.checkBoxLabel}>PRO Credit Card</span>
         </label>
- 
+
         <div className={styles.concessionValueBox}>
           <span className={styles.concessionValue}>0</span>
           <p className={styles.concessionLabel}>Application Special Concession Value</p>
         </div>
       </div>
- 
+
       {/* ROW 1 */}
       <div className={styles.grid}>
         <Inputbox
@@ -123,7 +123,7 @@ const CardForms = ({ formData, onChange }) => {
           type="date"
           readOnly={true}
         />
- 
+
         <Inputbox
           label="Amount *"
           name="card_amount"
@@ -135,7 +135,7 @@ const CardForms = ({ formData, onChange }) => {
           inputRule="digits"
         />
       </div>
- 
+
       {/* ROW 2 */}
       <div className={styles.grid}>
         <Inputbox
@@ -145,8 +145,11 @@ const CardForms = ({ formData, onChange }) => {
           value={formData.card_receiptNo}
           onChange={onChange}
           required={true}
+          maxLength="9"
+          inputRule="digits"
+          error={errors?.card_receiptNo}
         />
- 
+
         <Inputbox
           label="Remarks"
           name="card_remarks"
@@ -155,9 +158,9 @@ const CardForms = ({ formData, onChange }) => {
           onChange={onChange}
         />
       </div>
- 
+
     </div>
   );
 };
- 
+
 export default CardForms;

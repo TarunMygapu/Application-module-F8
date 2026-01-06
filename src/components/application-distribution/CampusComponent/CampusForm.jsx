@@ -1,6 +1,6 @@
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import React, { useMemo, useState, useEffect, useRef, use } from "react";
 import DistributeForm from "../DistributeForm";
- 
+
 import {
   useGetAllDistricts,
   useGetCitiesByDistrict,
@@ -12,26 +12,26 @@ import {
   useGetApplicationSeriesForEmpId,
   useGetSchoolDgmCityDistrictId,
 } from "../../../queries/application-distribution/dropdownqueries";
- 
+
 // ---------- HELPERS ----------
 const asArray = (v) => (Array.isArray(v) ? v : []);
- 
+
 const yearLabel = (y) => y?.academicYear ?? "";
 const yearId = (y) => y?.acdcYearId ?? null;
- 
+
 const districtLabel = (d) => d?.districtName ?? "";
 const districtId = (d) => d?.districtId ?? null;
- 
+
 const cityLabel = (c) => c?.name ?? "";
 const cityId = (c) => c?.id ?? null;
- 
+
 const campusLabel = (c) => c?.name ?? "";
 const campusId = (c) => c?.id ?? null;
- 
+
 const empLabel = (e) => e?.name ?? "";
 const empId = (e) => e?.id ?? null;
- 
- 
+
+
 // =====================================================================
 //                           CAMPUS FORM
 // =====================================================================
@@ -43,7 +43,12 @@ const CampusForm = ({
   editId,
   setCallTable,
 }) => {
- 
+
+  const isHydratingRef = useRef(true);
+  const prevDistrictNameRef = useRef(null);
+  const prevCityNameRef = useRef(null);
+  const prevCampusNameRef = useRef(null);
+
   // ---------------- SELECTED KEYS ----------------
   const [selectedAcademicYearId, setSelectedAcademicYearId] = useState(null);
   const [selectedDistrictId, setSelectedDistrictId] = useState(null);
@@ -52,13 +57,13 @@ const CampusForm = ({
   const [issuedToId, setIssuedToId] = useState(null);
   const [selectedFee, setSelectedFee] = useState(null);
   const [selectedSeries, setSelectedSeries] = useState(null);
- 
+
   const employeeId = localStorage.getItem("empId");
   const category = localStorage.getItem("campusCategory");
- 
-  const {data: dgmEmpDetails} = useGetSchoolDgmCityDistrictId(employeeId,category);
+
+  const { data: dgmEmpDetails } = useGetSchoolDgmCityDistrictId(employeeId, category);
   // console.log("SCHOLL EMP DETAILS",dgmEmpDetails.data);
- 
+
   // ---------------- INITIAL FORM VALUES ----------------
   const seedInitialValues = {
     ...initialValues,
@@ -66,28 +71,43 @@ const CampusForm = ({
     campaignDistrictName: initialValues?.campaignDistrictName || "",
     cityName: initialValues?.cityName || "",
   };
- 
+
+  useEffect(() => {
+    if (!isUpdate) {
+      isHydratingRef.current = false;
+      return;
+    }
+
+    // initialize previous values from update data
+    prevDistrictNameRef.current = seedInitialValues.districtName || null;
+    prevCityNameRef.current = seedInitialValues.cityName || null;
+    prevCampusNameRef.current = seedInitialValues.campusName || null;
+
+    isHydratingRef.current = false;
+  }, [isUpdate, seedInitialValues]);
+
+
   const didSeedRef = useRef(false);
- 
+
   // ---------------- API CALLS ----------------
   const { data: yearsRaw = [] } = useGetAcademicYears();
   const { data: districtsRaw = [] } = useGetAllDistricts();
   const { data: citiesRaw = [] } = useGetCitiesByDistrict(selectedDistrictId);
   const { data: campusesRaw = [] } =
     useGetCampuesByCityWithCategory(category, selectedCityId);
- 
+
   const { data: employeesRaw = [] } = useGetProsByCampus(selectedCampusId);
   const { data: mobileNo } = useGetMobileNo(issuedToId);
- 
+
   // SCHOOL AUTOFILL API
   const { data: empDetails } = useGetSchoolDgmCityDistrictId(
     employeeId,
     category
   );
- 
+
   const { data: applicationFee = [] } =
     useGetAllFeeAmounts(employeeId, selectedAcademicYearId);
- 
+
   const { data: applicationSeries = [] } =
     useGetApplicationSeriesForEmpId(
       employeeId,
@@ -95,22 +115,22 @@ const CampusForm = ({
       selectedFee,
       false
     );
- 
- 
+
+
   // ---------------- NORMALIZATION ----------------
   const years = asArray(yearsRaw);
   const districts = asArray(districtsRaw);
   const cities = asArray(citiesRaw);
   const campuses = asArray(campusesRaw);
   const employees = asArray(employeesRaw);
- 
+
   // ---------------- LABEL ARRAYS ----------------
   const academicYearNames = years.map(yearLabel);
   const districtNames = districts.map(districtLabel);
   const cityNames = cities.map(cityLabel);
   const campusNames = campuses.map(campusLabel);
   const issuedToNames = employees.map(empLabel);
- 
+
   // ---------------- MAPPINGS ----------------
   const yearMap = new Map(years.map((y) => [yearLabel(y), yearId(y)]));
   const districtMap = new Map(
@@ -119,22 +139,22 @@ const CampusForm = ({
   const cityMap = new Map(cities.map((c) => [cityLabel(c), cityId(c)]));
   const campusMap = new Map(campuses.map((c) => [campusLabel(c), campusId(c)]));
   const empMap = new Map(employees.map((e) => [empLabel(e), empId(e)]));
- 
+
   // =====================================================================
   //     🚀 AUTO POPULATE FOR SCHOOL (district + city + form values)
   // =====================================================================
   useEffect(() => {
     if (category !== "SCHOOL") return;
     if (!empDetails?.districtId || !empDetails?.cityId) return;
- 
+
     const distId = empDetails.districtId;
     const cId = empDetails.cityId;
- 
+
     setSelectedDistrictId(distId);
     setSelectedCityId(cId);
- 
+
   }, [empDetails, category]);
- 
+
   // =====================================================================
   //            PATCH FORM VALUES AFTER OPTIONS LOAD
   // =====================================================================
@@ -142,27 +162,27 @@ const CampusForm = ({
     if (category !== "SCHOOL") return;
     if (!empDetails?.districtName || !empDetails?.cityName) return;
     if (!districtNames.length || !cityNames.length) return;
- 
+
     seedInitialValues.campaignDistrictName = empDetails.districtName;
     seedInitialValues.cityName = empDetails.cityName;
- 
+
   }, [districtNames, cityNames, empDetails, category]);
- 
+
   // =====================================================================
   //            DEFAULT ACADEMIC YEAR = "2025-26"
   // =====================================================================
   useEffect(() => {
     if (didSeedRef.current) return;
     if (!years.length) return;
- 
+
     const def = years.find((y) => yearLabel(y) === "2025-26");
- 
+
     if (def) {
       setSelectedAcademicYearId(yearId(def));
       didSeedRef.current = true;
     }
   }, [years]);
- 
+
   // =====================================================================
   //                 RESET LOGIC
   // =====================================================================
@@ -175,76 +195,117 @@ const CampusForm = ({
         setSelectedFee(null);
       }
     }
- 
+
     if (districtMap.has(values.campaignDistrictName)) {
       const id = districtMap.get(values.campaignDistrictName);
+      // if (id !== selectedDistrictId) {
+      //   setSelectedDistrictId(id);
+      //   if(!isUpdate) {
+      //             setFieldValue("cityName", "");
+      //   setFieldValue("campusName", "");
+      //   setFieldValue("issuedTo", "");
+      //   }
+      //   setSelectedCityId(null);
+      //   setSelectedCampusId(null);
+      // }
+      const prev = prevDistrictNameRef.current;
       if (id !== selectedDistrictId) {
         setSelectedDistrictId(id);
-        if(!isUpdate) {
-                  setFieldValue("cityName", "");
+      }
+      if (!isHydratingRef.current && values.campaignDistrictName !== prev) {
+        setSelectedDistrictId(id);
+        // 🔥 Reset children in BOTH create & update
+        setFieldValue("cityName", "");
         setFieldValue("campusName", "");
         setFieldValue("issuedTo", "");
-        }
         setSelectedCityId(null);
         setSelectedCampusId(null);
+        setIssuedToId(null);
       }
+      prevDistrictNameRef.current = values.campaignDistrictName;
     }
- 
+
     if (cityMap.has(values.cityName)) {
       const id = cityMap.get(values.cityName);
+      // if (id !== selectedCityId) {
+      //   setSelectedCityId(id);
+      //   if(!isUpdate) {
+      //             setFieldValue("campusName", "");
+      //   setFieldValue("issuedTo", "");
+      //   }
+      //   setSelectedCampusId(null);
+      // }
+      const prev = prevCityNameRef.current;
       if (id !== selectedCityId) {
         setSelectedCityId(id);
-        if(!isUpdate) {
-                  setFieldValue("campusName", "");
-        setFieldValue("issuedTo", "");
-        }
-        setSelectedCampusId(null);
       }
+
+      if (!isHydratingRef.current && values.cityName !== prev) {
+        setSelectedCityId(id);
+        // 🔥 Reset children in BOTH create & update
+        setFieldValue("campusName", "");
+        setFieldValue("issuedTo", "");
+        setSelectedCampusId(null);
+        setIssuedToId(null);
+      }
+      prevCityNameRef.current = values.cityName;
     }
- 
+
     if (campusMap.has(values.campusName)) {
       const id = campusMap.get(values.campusName);
+      // if (id !== selectedCampusId) {
+      //   setSelectedCampusId(id);
+      //   if(!isUpdate) {
+      //             setFieldValue("issuedTo", "");
+      //   }
+      // }
+      const prev = prevCampusNameRef.current;
       if (id !== selectedCampusId) {
         setSelectedCampusId(id);
-        if(!isUpdate) {
-                  setFieldValue("issuedTo", "");
-        }
       }
+
+      if (!isHydratingRef.current && values.campusName !== prev) {
+        setSelectedCampusId(id);
+        // 🔥 Reset children in BOTH create & update
+        setFieldValue("issuedTo", "");
+        setIssuedToId(null);
+      }
+      prevCampusNameRef.current = values.campusName;
     }
- 
+
     if (empMap.has(values.issuedTo)) {
       const id = empMap.get(values.issuedTo);
       setIssuedToId(id);
     }
     if (values.applicationFee && values.applicationFee !== selectedFee) {
       setSelectedFee(values.applicationFee);
-      if(!isUpdate) {
-              setFieldValue("applicationSeries", "");
-      setFieldValue("applicationCount", "");
-      setFieldValue("availableAppNoFrom", "");
-      setFieldValue("availableAppNoTo", "");
-      setFieldValue("applicationNoFrom", "");
+      if (!isUpdate) {
+        setFieldValue("applicationSeries", "");
+        setFieldValue("applicationCount", "");
+        setFieldValue("availableAppNoFrom", "");
+        setFieldValue("availableAppNoTo", "");
+        setFieldValue("applicationNoFrom", "");
       }
     }
 
   };
- 
+
   const seriesObj = useMemo(() => {
-     if (!selectedSeries) return null;
- 
-     return (
-       applicationSeries.find((s) => s.displaySeries === selectedSeries) || null
-     );
-   }, [selectedSeries, applicationSeries]);
- 
+    if (!selectedSeries) return null;
+
+    return (
+      applicationSeries.find((s) => s.displaySeries === selectedSeries) || null
+    );
+  }, [selectedSeries, applicationSeries]);
+
   // =====================================================================
   //                  BACKEND VALUES
   // =====================================================================
   const backendValues = useMemo(() => {
     const obj = {};
- 
+
     if (mobileNo != null) obj.mobileNumber = String(mobileNo);
- 
+
     if (seriesObj) {
       obj.applicationSeries = seriesObj.displaySeries;
       obj.applicationCount = seriesObj.availableCount;
@@ -252,17 +313,17 @@ const CampusForm = ({
       obj.availableAppNoTo = seriesObj.masterEndNo;
       obj.applicationNoFrom = seriesObj.startNo;
     }
- 
+
     if (selectedAcademicYearId) obj.academicYearId = selectedAcademicYearId;
     if (selectedDistrictId) obj.campaignDistrictId = selectedDistrictId;
     if (selectedCityId) obj.cityId = selectedCityId;
     if (selectedCampusId) obj.campusId = selectedCampusId;
- 
+
     if (issuedToId) {
       obj.issuedToEmpId = issuedToId;
       obj.issuedToId = issuedToId;
     }
- 
+
     return obj;
   }, [
     mobileNo,
@@ -275,7 +336,7 @@ const CampusForm = ({
     applicationFee,
     applicationSeries,
   ]);
- 
+
   // =====================================================================
   //                  OPTIONS FOR FORM
   // =====================================================================
@@ -285,16 +346,16 @@ const CampusForm = ({
     cityName: cityNames,
     campusName: campusNames,
     issuedTo: issuedToNames,
- 
-        applicationFee: Array.isArray(applicationFee)
-  ? applicationFee.map((f) => String(f))
-  : [],
- 
+
+    applicationFee: Array.isArray(applicationFee)
+      ? applicationFee.map((f) => String(f))
+      : [],
+
     applicationSeries: Array.isArray(applicationSeries)
       ? applicationSeries.map((s) => s.displaySeries)
       : [],
   };
- 
+
   return (
     <DistributeForm
       formType="Campus"
@@ -313,7 +374,5 @@ const CampusForm = ({
     />
   );
 };
- 
+
 export default CampusForm;
- 
- 

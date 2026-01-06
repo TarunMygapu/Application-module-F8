@@ -3,7 +3,13 @@ import styles from "./FilterSearch.module.css";
 
 const normalize = (s = "") => s.toLowerCase().replace(/\s+/g, " ").trim();
 
-const FilterSearch = ({ suggestions = [],onItemClick  }) => {
+const FilterSearch = ({ suggestions = [], onItemClick }) => {
+  const handleItemClick = (item) => {
+    if (onItemClick) {
+      onItemClick(item);
+    }
+  };
+
   return (
     <div className={styles.filter_search_container}>
       <div className={styles.suggestion_header}>
@@ -18,7 +24,8 @@ const FilterSearch = ({ suggestions = [],onItemClick  }) => {
           <li
             className={styles.list_items}
             key={`${normalize(item.name)}-${index}`}
-            onClick={() => onItemClick?.(item)}
+            onClick={() => handleItemClick(item)}
+            style={{ cursor: "pointer" }}
           >
             <span>{item?.name}</span>
             {item?.type && (
@@ -32,4 +39,3 @@ const FilterSearch = ({ suggestions = [],onItemClick  }) => {
 };
 
 export default FilterSearch;
-

@@ -3,11 +3,11 @@
 // import Dropdown from "../../Dropdown/Dropdown";
 // import styles from "./DDForms.module.css";
 // import { useOrganizations, useBanksByOrganization, useBranchesByOrganizationAndBank } from "../../../hooks/payment-apis/PaymentApis";
- 
+
 // const DDForms = ({ formData, onChange }) => {
 //   // Fetch organizations from API (needed for ID conversion)
 //   const { organizationOptions, getOrganizationIdByLabel, getOrganizationLabelById, loading: organizationsLoading } = useOrganizations();
- 
+
 //   // State to track selected organization ID (for fetching banks)
 //   // Initialize from formData if it's already an ID (number or numeric string)
 //   const getInitialOrgId = () => {
@@ -19,9 +19,9 @@
 //     }
 //     return null;
 //   };
- 
+
 //   const [selectedOrganizationId, setSelectedOrganizationId] = useState(getInitialOrgId());
- 
+
 //   // Update organization ID when formData changes (only if it's a numeric ID)
 //   useEffect(() => {
 //     const orgId = getInitialOrgId();
@@ -32,11 +32,11 @@
 //       setSelectedOrganizationId(null);
 //     }
 //   }, [formData?.dd_org]);
- 
- 
+
+
 //   // Fetch banks based on selected organization ID
 //   const { bankOptions, getBankIdByLabel, getBankLabelById, loading: banksLoading } = useBanksByOrganization(selectedOrganizationId);
- 
+
 //   // State to track selected bank ID (for fetching branches)
 //   const getInitialBankId = () => {
 //     if (!formData?.dd_bank) return null;
@@ -47,9 +47,9 @@
 //     }
 //     return null;
 //   };
- 
+
 //   const [selectedBankId, setSelectedBankId] = useState(getInitialBankId());
- 
+
 //   // Update bank ID when formData changes
 //   useEffect(() => {
 //     const bankId = getInitialBankId();
@@ -59,24 +59,24 @@
 //       setSelectedBankId(null);
 //     }
 //   }, [formData?.dd_bank]);
- 
+
 //   // Fetch branches based on selected organization ID and bank ID
 //   const { branchOptions, getBranchIdByLabel, getBranchLabelById, loading: branchesLoading } = useBranchesByOrganizationAndBank(selectedOrganizationId, selectedBankId);
- 
+
 //   const cityOptions = ["Hyderabad", "Bangalore", "Chennai"];
- 
+
 //   // Handle organization change - convert label to ID before storing and fetch banks
 //   const handleOrganizationChange = (e) => {
 //     const selectedLabel = e.target.value;
 //     const organizationId = getOrganizationIdByLabel(selectedLabel);
-   
+
 //     // Log for debugging
 //     console.log('📝 Selected Organization Label:', selectedLabel);
 //     console.log('🆔 Organization ID:', organizationId);
-   
+
 //     // Set organization ID to trigger bank fetching
 //     setSelectedOrganizationId(organizationId);
-   
+
 //     // Create a synthetic event with the ID value for backend
 //     const syntheticEvent = {
 //       target: {
@@ -84,9 +84,9 @@
 //         value: organizationId !== undefined ? organizationId : selectedLabel // Fallback to label if ID not found
 //       }
 //     };
-   
+
 //     onChange(syntheticEvent);
-   
+
 //     // Clear bank and branch selections when organization changes
 //     const clearBankEvent = {
 //       target: {
@@ -95,7 +95,7 @@
 //       }
 //     };
 //     onChange(clearBankEvent);
-   
+
 //     const clearBranchEvent = {
 //       target: {
 //         name: "dd_branch",
@@ -105,19 +105,19 @@
 //     onChange(clearBranchEvent);
 //     setSelectedBankId(null);
 //   };
- 
+
 //   // Handle bank change - convert label to ID before storing and fetch branches
 //   const handleBankChange = (e) => {
 //     const selectedLabel = e.target.value;
 //     const bankId = getBankIdByLabel(selectedLabel);
-   
+
 //     // Log for debugging
 //     console.log('📝 Selected Bank Label:', selectedLabel);
 //     console.log('🆔 Bank ID:', bankId);
-   
+
 //     // Set bank ID to trigger branch fetching
 //     setSelectedBankId(bankId);
-   
+
 //     // Create a synthetic event with the ID value for backend
 //     const syntheticEvent = {
 //       target: {
@@ -125,9 +125,9 @@
 //         value: bankId !== undefined ? bankId : selectedLabel // Fallback to label if ID not found
 //       }
 //     };
-   
+
 //     onChange(syntheticEvent);
-   
+
 //     // Clear branch selection when bank changes
 //     const clearBranchEvent = {
 //       target: {
@@ -137,16 +137,16 @@
 //     };
 //     onChange(clearBranchEvent);
 //   };
- 
+
 //   // Handle branch change - convert label to ID before storing
 //   const handleBranchChange = (e) => {
 //     const selectedLabel = e.target.value;
 //     const branchId = getBranchIdByLabel(selectedLabel);
-   
+
 //     // Log for debugging
 //     console.log('📝 Selected Branch Label:', selectedLabel);
 //     console.log('🆔 Branch ID:', branchId);
-   
+
 //     // Create a synthetic event with the ID value for backend
 //     const syntheticEvent = {
 //       target: {
@@ -154,10 +154,10 @@
 //         value: branchId !== undefined ? branchId : selectedLabel // Fallback to label if ID not found
 //       }
 //     };
-   
+
 //     onChange(syntheticEvent);
 //   };
- 
+
 //   // Get display value for organization (convert ID to label if needed)
 //   const getOrganizationDisplayValue = (orgValue) => {
 //     if (!orgValue) return "";
@@ -169,7 +169,7 @@
 //     const label = getOrganizationLabelById(orgValue);
 //     return label || orgValue;
 //   };
- 
+
 //   // Get display value for bank (convert ID to label if needed)
 //   const getBankDisplayValue = (bankValue) => {
 //     if (!bankValue) return "";
@@ -181,7 +181,7 @@
 //     const label = getBankLabelById(bankValue);
 //     return label || bankValue;
 //   };
- 
+
 //   // Get display value for branch (convert ID to label if needed)
 //   const getBranchDisplayValue = (branchValue) => {
 //     if (!branchValue) return "";
@@ -193,7 +193,7 @@
 //     const label = getBranchLabelById(branchValue);
 //     return label || branchValue;
 //   };
- 
+
 //   return (
 //     <div className={styles.wrapper}>
 //       {/* ROW 1 */}
@@ -206,7 +206,7 @@
 //           onChange={onChange}
 //           type="date"
 //         />
- 
+
 //         <Inputbox
 //           label="Amount *"
 //           name="dd_amount"
@@ -216,7 +216,7 @@
 //           type="number"
 //         />
 //       </div>
- 
+
 //       {/* ROW 2 */}
 //       <div className={styles.grid}>
 //         <Inputbox
@@ -226,7 +226,7 @@
 //           value={formData.dd_receiptNo}
 //           onChange={onChange}
 //         />
- 
+
 //         <Inputbox
 //           label="DD Number *"
 //           name="dd_number"
@@ -235,7 +235,7 @@
 //           onChange={onChange}
 //         />
 //       </div>
- 
+
 //       {/* ROW 3 */}
 //       <div className={styles.grid}>
 //         <Inputbox
@@ -246,7 +246,7 @@
 //           onChange={onChange}
 //           type="date"
 //         />
- 
+
 //         <Dropdown
 //           dropdownname="Organisation Name *"
 //           name="dd_org"
@@ -256,7 +256,7 @@
 //           disabled={organizationsLoading}
 //         />
 //       </div>
- 
+
 //       {/* ROW 4 */}
 //       <div className={styles.grid}>
 //         <Dropdown
@@ -267,7 +267,7 @@
 //           onChange={handleBankChange}
 //           disabled={banksLoading || !selectedOrganizationId}
 //         />
- 
+
 //         <Dropdown
 //           dropdownname="Branch Name *"
 //           name="dd_branch"
@@ -277,7 +277,7 @@
 //           disabled={branchesLoading || !selectedOrganizationId || !selectedBankId}
 //         />
 //       </div>
- 
+
 //       {/* ROW 5 */}
 //       <div className={styles.grid}>
 //         <Inputbox
@@ -287,7 +287,7 @@
 //           value={formData.dd_ifsc}
 //           onChange={onChange}
 //         />
- 
+
 //         <Dropdown
 //           dropdownname="City Name *"
 //           name="dd_city"
@@ -296,7 +296,7 @@
 //           onChange={onChange}
 //         />
 //       </div>
- 
+
 //       {/* ROW 6 */}
 //       <div className={styles.grid}>
 //         <Inputbox
@@ -307,46 +307,46 @@
 //           onChange={onChange}
 //         />
 //       </div>
- 
-     
+
+
 //     </div>
 //   );
 // };
- 
+
 // export default DDForms;
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState, useEffect } from "react";
 import Inputbox from "../../Inputbox/InputBox";
 import Dropdown from "../../Dropdown/Dropdown";
 import styles from "./DDForms.module.css";
 import { useOrganizations, useBanksByOrganization, useBranchesByOrganizationAndBank } from "../../../hooks/payment-apis/PaymentApis";
- 
-const DDForms = ({ formData, onChange }) => {
+
+const DDForms = ({ formData, onChange, errors }) => {
   // Fetch organizations from API (needed for ID conversion)
   const { organizationOptions, getOrganizationIdByLabel, getOrganizationLabelById, loading: organizationsLoading } = useOrganizations();
- 
+
   // State to track selected organization ID (for fetching banks)
   // Initialize from formData if it's already an ID (number or numeric string)
   const getInitialOrgId = () => {
@@ -358,9 +358,9 @@ const DDForms = ({ formData, onChange }) => {
     }
     return null;
   };
- 
+
   const [selectedOrganizationId, setSelectedOrganizationId] = useState(getInitialOrgId());
- 
+
   // Update organization ID when formData changes (only if it's a numeric ID)
   useEffect(() => {
     const orgId = getInitialOrgId();
@@ -371,11 +371,11 @@ const DDForms = ({ formData, onChange }) => {
       setSelectedOrganizationId(null);
     }
   }, [formData?.dd_org]);
- 
- 
+
+
   // Fetch banks based on selected organization ID
   const { bankOptions, getBankIdByLabel, getBankLabelById, loading: banksLoading } = useBanksByOrganization(selectedOrganizationId);
- 
+
   // State to track selected bank ID (for fetching branches)
   const getInitialBankId = () => {
     if (!formData?.dd_bank) return null;
@@ -386,9 +386,9 @@ const DDForms = ({ formData, onChange }) => {
     }
     return null;
   };
- 
+
   const [selectedBankId, setSelectedBankId] = useState(getInitialBankId());
- 
+
   // Update bank ID when formData changes
   useEffect(() => {
     const bankId = getInitialBankId();
@@ -398,24 +398,24 @@ const DDForms = ({ formData, onChange }) => {
       setSelectedBankId(null);
     }
   }, [formData?.dd_bank]);
- 
+
   // Fetch branches based on selected organization ID and bank ID
   const { branchOptions, getBranchIdByLabel, getBranchLabelById, loading: branchesLoading } = useBranchesByOrganizationAndBank(selectedOrganizationId, selectedBankId);
- 
+
   const cityOptions = ["Hyderabad", "Bangalore", "Chennai"];
- 
+
   // Handle organization change - convert label to ID before storing and fetch banks
   const handleOrganizationChange = (e) => {
     const selectedLabel = e.target.value;
     const organizationId = getOrganizationIdByLabel(selectedLabel);
-   
+
     // Log for debugging
     console.log('📝 Selected Organization Label:', selectedLabel);
     console.log('🆔 Organization ID:', organizationId);
-   
+
     // Set organization ID to trigger bank fetching
     setSelectedOrganizationId(organizationId);
-   
+
     // Create a synthetic event with the ID value for backend
     const syntheticEvent = {
       target: {
@@ -423,9 +423,9 @@ const DDForms = ({ formData, onChange }) => {
         value: organizationId !== undefined ? organizationId : selectedLabel // Fallback to label if ID not found
       }
     };
-   
+
     onChange(syntheticEvent);
-   
+
     // Clear bank and branch selections when organization changes
     const clearBankEvent = {
       target: {
@@ -434,7 +434,7 @@ const DDForms = ({ formData, onChange }) => {
       }
     };
     onChange(clearBankEvent);
-   
+
     const clearBranchEvent = {
       target: {
         name: "dd_branch",
@@ -444,19 +444,19 @@ const DDForms = ({ formData, onChange }) => {
     onChange(clearBranchEvent);
     setSelectedBankId(null);
   };
- 
+
   // Handle bank change - convert label to ID before storing and fetch branches
   const handleBankChange = (e) => {
     const selectedLabel = e.target.value;
     const bankId = getBankIdByLabel(selectedLabel);
-   
+
     // Log for debugging
     console.log('📝 Selected Bank Label:', selectedLabel);
     console.log('🆔 Bank ID:', bankId);
-   
+
     // Set bank ID to trigger branch fetching
     setSelectedBankId(bankId);
-   
+
     // Create a synthetic event with the ID value for backend
     const syntheticEvent = {
       target: {
@@ -464,9 +464,9 @@ const DDForms = ({ formData, onChange }) => {
         value: bankId !== undefined ? bankId : selectedLabel // Fallback to label if ID not found
       }
     };
-   
+
     onChange(syntheticEvent);
-   
+
     // Clear branch selection when bank changes
     const clearBranchEvent = {
       target: {
@@ -476,16 +476,16 @@ const DDForms = ({ formData, onChange }) => {
     };
     onChange(clearBranchEvent);
   };
- 
+
   // Handle branch change - convert label to ID before storing
   const handleBranchChange = (e) => {
     const selectedLabel = e.target.value;
     const branchId = getBranchIdByLabel(selectedLabel);
-   
+
     // Log for debugging
     console.log('📝 Selected Branch Label:', selectedLabel);
     console.log('🆔 Branch ID:', branchId);
-   
+
     // Create a synthetic event with the ID value for backend
     const syntheticEvent = {
       target: {
@@ -493,10 +493,10 @@ const DDForms = ({ formData, onChange }) => {
         value: branchId !== undefined ? branchId : selectedLabel // Fallback to label if ID not found
       }
     };
-   
+
     onChange(syntheticEvent);
   };
- 
+
   // Get display value for organization (convert ID to label if needed)
   const getOrganizationDisplayValue = (orgValue) => {
     if (!orgValue) return "";
@@ -508,7 +508,7 @@ const DDForms = ({ formData, onChange }) => {
     const label = getOrganizationLabelById(orgValue);
     return label || orgValue;
   };
- 
+
   // Get display value for bank (convert ID to label if needed)
   const getBankDisplayValue = (bankValue) => {
     if (!bankValue) return "";
@@ -520,7 +520,7 @@ const DDForms = ({ formData, onChange }) => {
     const label = getBankLabelById(bankValue);
     return label || bankValue;
   };
- 
+
   // Get display value for branch (convert ID to label if needed)
   const getBranchDisplayValue = (branchValue) => {
     if (!branchValue) return "";
@@ -532,7 +532,7 @@ const DDForms = ({ formData, onChange }) => {
     const label = getBranchLabelById(branchValue);
     return label || branchValue;
   };
- 
+
   return (
     <div className={styles.wrapper}>
       {/* ROW 1 */}
@@ -546,7 +546,7 @@ const DDForms = ({ formData, onChange }) => {
           type="date"
           readOnly={true}
         />
- 
+
         <Inputbox
           label="Amount *"
           name="dd_amount"
@@ -556,7 +556,7 @@ const DDForms = ({ formData, onChange }) => {
           type="number"
         />
       </div>
- 
+
       {/* ROW 2 */}
       <div className={styles.grid}>
         <Inputbox
@@ -566,8 +566,11 @@ const DDForms = ({ formData, onChange }) => {
           value={formData.dd_receiptNo}
           onChange={onChange}
           required={true}
+          maxLength="9"
+          inputRule="digits"
+          error={errors?.dd_receiptNo}
         />
- 
+
         <Inputbox
           label="DD Number *"
           name="dd_number"
@@ -576,7 +579,7 @@ const DDForms = ({ formData, onChange }) => {
           onChange={onChange}
         />
       </div>
- 
+
       {/* ROW 3 */}
       <div className={styles.grid}>
         <Inputbox
@@ -587,7 +590,7 @@ const DDForms = ({ formData, onChange }) => {
           onChange={onChange}
           type="date"
         />
- 
+
         <Dropdown
           dropdownname="Organisation Name *"
           name="dd_org"
@@ -597,7 +600,7 @@ const DDForms = ({ formData, onChange }) => {
           disabled={organizationsLoading}
         />
       </div>
- 
+
       {/* ROW 4 */}
       <div className={styles.grid}>
         <Dropdown
@@ -608,7 +611,7 @@ const DDForms = ({ formData, onChange }) => {
           onChange={handleBankChange}
           disabled={banksLoading || !selectedOrganizationId}
         />
- 
+
         <Dropdown
           dropdownname="Branch Name *"
           name="dd_branch"
@@ -618,7 +621,7 @@ const DDForms = ({ formData, onChange }) => {
           disabled={branchesLoading || !selectedOrganizationId || !selectedBankId}
         />
       </div>
- 
+
       {/* ROW 5 */}
       <div className={styles.grid}>
         <Inputbox
@@ -628,7 +631,7 @@ const DDForms = ({ formData, onChange }) => {
           value={formData.dd_ifsc}
           onChange={onChange}
         />
- 
+
         <Dropdown
           dropdownname="City Name *"
           name="dd_city"
@@ -637,7 +640,7 @@ const DDForms = ({ formData, onChange }) => {
           onChange={onChange}
         />
       </div>
- 
+
       {/* ROW 6 */}
       <div className={styles.grid}>
         <Inputbox
@@ -648,11 +651,10 @@ const DDForms = ({ formData, onChange }) => {
           onChange={onChange}
         />
       </div>
- 
-     
+
+
     </div>
   );
 };
- 
+
 export default DDForms;
- 

@@ -1,6 +1,7 @@
 .lottie_dot_wrapper {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end;
+  margin-bottom: 10px;
   max-width: 100%;
 }

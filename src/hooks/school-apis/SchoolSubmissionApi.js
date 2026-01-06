@@ -24,14 +24,14 @@ export const submitSchoolApplicationSale = async (payload) => {
     const fullUrl = `${BASE_URL}${endpoint}`;
     console.log('🌐 Submitting to:', fullUrl);
     console.log('📦 Payload size:', JSON.stringify(payload).length, 'bytes');
-    
+
     const response = await apiClient.post(endpoint, payload);
     console.log('✅ Response received:', response.status, response.statusText);
     return response.data;
   } catch (error) {
     console.error('❌ Error submitting school application sale:', error);
     console.error('📡 Request URL:', `${BASE_URL}/application-confirmation/confirm-school`);
-    
+
     // Log detailed error information
     if (error.response) {
       // Server responded with error status
@@ -41,7 +41,7 @@ export const submitSchoolApplicationSale = async (payload) => {
         data: error.response.data,
         headers: error.response.headers
       });
-      
+
       // If 500 error, show backend error details
       if (error.response.status === 500) {
         console.error('⚠️ 500 Internal Server Error - Backend processing failed:');
@@ -53,7 +53,7 @@ export const submitSchoolApplicationSale = async (payload) => {
         console.error('   4. Null pointer exceptions in backend code');
         console.error('   Backend error details:', error.response.data);
       }
-      
+
       // If 404, suggest checking the endpoint path
       if (error.response.status === 404) {
         console.error('⚠️ 404 Not Found - Please verify:');
@@ -62,7 +62,7 @@ export const submitSchoolApplicationSale = async (payload) => {
         console.error('   3. Backend controller has @PostMapping("/confirm-school") or equivalent');
         console.error('   4. Check if endpoint needs different path');
       }
-      
+
       // If 400 Bad Request
       if (error.response.status === 400) {
         console.error('⚠️ 400 Bad Request - Payload validation failed:');
@@ -75,7 +75,7 @@ export const submitSchoolApplicationSale = async (payload) => {
         message: error.message,
         code: error.code
       });
-      
+
       // If CORS error
       if (error.code === 'ERR_NETWORK' || error.message?.includes('CORS')) {
         console.error('⚠️ CORS Error - Backend needs CORS configuration:');
@@ -86,7 +86,7 @@ export const submitSchoolApplicationSale = async (payload) => {
       // Something else happened
       console.error('📊 Request Setup Error:', error.message);
     }
-    
+
     throw error;
   }
 };
@@ -138,7 +138,7 @@ export const mapFormDataToPayload = (formData, siblings, paymentData, detailsObj
 
   // Map parents array
   const parents = [];
-  
+
   // Father - relationTypeId: 1
   if (formData.fatherName || formData.fatherPhone || formData.fatherEmail) {
     parents.push({
@@ -201,7 +201,7 @@ export const mapFormDataToPayload = (formData, siblings, paymentData, detailsObj
 
   // Map concessions array
   const concessions = [];
-  
+
   // Admission Fee Concession
   if (formData.admissionConcession && formData.admissionConcessionTypeId) {
     concessions.push({
@@ -261,7 +261,7 @@ export const mapFormDataToPayload = (formData, siblings, paymentData, detailsObj
   console.log('  Siblings count:', siblings?.length || 0);
   console.log('  Languages:', formData.firstLanguage, formData.secondLanguage, formData.thirdLanguage);
   console.log('  Concessions - Admission:', formData.admissionConcession, 'Tuition:', formData.tuitionConcession);
-  
+
   const payload = {
     studAdmsNo: toNumber(detailsObject?.applicationNo || detailsObject?.studAdmsNo || 0),
     createdBy: 0, // Update with actual user ID
@@ -310,14 +310,14 @@ export const submitSchoolApplicationSaleCreate = async (payload) => {
     const fullUrl = `${BASE_URL}${endpoint}`;
     console.log('🌐 Submitting to:', fullUrl);
     console.log('📦 Payload size:', JSON.stringify(payload).length, 'bytes');
-    
+
     const response = await apiClient.post(endpoint, payload);
     console.log('✅ Response received:', response.status, response.statusText);
     return response.data;
   } catch (error) {
     console.error('❌ Error submitting school application sale create:', error);
     console.error('📡 Request URL:', `${BASE_URL}/student-admissions-sale/create`);
-    
+
     // Log detailed error information
     if (error.response) {
       console.error('📊 Server Error Response:', {
@@ -327,7 +327,7 @@ export const submitSchoolApplicationSaleCreate = async (payload) => {
         headers: error.response.headers
       });
     }
-    
+
     throw error;
   }
 };
@@ -344,14 +344,14 @@ export const submitSchoolApplicationSaleOnly = async (payload) => {
     console.log('🌐 Submitting to:', fullUrl);
     console.log('📦 Payload size:', JSON.stringify(payload).length, 'bytes');
     console.log('📋 Payload:', JSON.stringify(payload, null, 2));
-    
+
     const response = await apiClient.post(endpoint, payload);
     console.log('✅ Response received:', response.status, response.statusText);
     return response.data;
   } catch (error) {
     console.error('❌ Error submitting school application sale only:', error);
     console.error('📡 Request URL:', `${BASE_URL}/student-admissions-sale/create/sale/only`);
-    
+
     // Log detailed error information
     if (error.response) {
       console.error('📊 Server Error Response:', {
@@ -361,7 +361,7 @@ export const submitSchoolApplicationSaleOnly = async (payload) => {
         headers: error.response.headers
       });
     }
-    
+
     throw error;
   }
 };
@@ -378,7 +378,7 @@ export const mapSchoolApplicationSaleToPayload = (formData, paymentData, details
   // Helper function to convert value to number or return 0
   const toNumber = (value) => {
     if (value === null || value === undefined || value === '') return 0;
-    
+
     // If value is a string in "name - id" format, extract the ID
     if (typeof value === 'string' && value.includes(' - ')) {
       const parts = value.split(' - ');
@@ -390,7 +390,7 @@ export const mapSchoolApplicationSaleToPayload = (formData, paymentData, details
         }
       }
     }
-    
+
     const num = Number(value);
     return isNaN(num) ? 0 : num;
   };
@@ -706,8 +706,8 @@ export const mapSchoolApplicationSaleUpdateToPayload = (formData, detailsObject)
 
   // Get studAdmsNo from detailsObject or formData
   const studAdmsNoValue = toNumber(
-    detailsObject?.studAdmsNo || 
-    detailsObject?.stud_adms_no || 
+    detailsObject?.studAdmsNo ||
+    detailsObject?.stud_adms_no ||
     detailsObject?.applicationNo ||
     detailsObject?.application_no ||
     formData.studAdmsNo ||
@@ -767,14 +767,14 @@ export const updateSchoolApplicationSale = async (studAdmsNo, payload) => {
     console.log('🌐 Updating School Application Sale to:', fullUrl);
     console.log('📦 Payload size:', JSON.stringify(payload).length, 'bytes');
     console.log('📋 Payload:', JSON.stringify(payload, null, 2));
-    
+
     const response = await apiClient.put(endpoint, payload); // Use PUT for update
     console.log('✅ Update Response received:', response.status, response.statusText);
     return response.data;
   } catch (error) {
     console.error('❌ Error updating school application sale:', error);
     console.error('📡 Request URL:', `${BASE_URL}/student-admissions-sale/update_details/${studAdmsNo}`);
-    
+
     // Log detailed error information
     if (error.response) {
       console.error('📊 Server Error Response:', {
@@ -784,7 +784,7 @@ export const updateSchoolApplicationSale = async (studAdmsNo, payload) => {
         headers: error.response.headers
       });
     }
-    
+
     throw error;
   }
 };

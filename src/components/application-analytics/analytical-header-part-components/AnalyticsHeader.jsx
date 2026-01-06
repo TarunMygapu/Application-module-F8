@@ -33,9 +33,9 @@ const AnalyticsHeader = ({ onTabChange, activeTab }) => {
 
   const wrapperRef = useRef(null);
   const prevActiveTabRef = useRef(activeTab);
- 
+
   // ✅ Get selected entity from context
-  const { selectedEntity, clearSelection } = useSelectedEntity();
+  const { selectedEntity, selectEntity, clearSelection } = useSelectedEntity();
 
   // ✅ Get permissions
   const zonePerms = usePermission("DISTRIBUTE_ZONE");
@@ -51,25 +51,20 @@ const AnalyticsHeader = ({ onTabChange, activeTab }) => {
   }, []);
 
   // ✅ Update search box value when entity is selected
-useEffect(() => {
-  if (selectedEntity && selectedEntity.name) {
-    const sourceLabel =
-      selectedEntity.type === "zone"
-        ? "Zone"
-        : selectedEntity.type === "dgm"
-        ? "DGM"
-        : "Branch";
+  useEffect(() => {
+    if (selectedEntity && selectedEntity.name) {
+      const displayValue = `${selectedEntity.name} (${selectedEntity.type.toUpperCase()})`;
+      setSearchTerm(displayValue);
+      setShowSuggestions(false);
+      // Close the filter dropdown after selection
+      setShowSearchDropdown(false);
+    } else if (!selectedEntity.id) {
+      // Clear search box when selection is cleared
+      setSearchTerm("");
+    }
+  }, [selectedEntity]);
 
-    setSearchTerm(`${selectedEntity.name} (${sourceLabel})`);
-    setShowSuggestions(false);
-    setShowSearchDropdown(false);
-  } else if (!selectedEntity?.id) {
-    setSearchTerm("");
-  }
-}, [selectedEntity]);
-
-
-// ✅ Clear selection when tab changes (Zone/DGM/Campus)
+  // ✅ Clear selection when tab changes (Zone/DGM/Campus)
   // When user switches tabs, clear the previous selection since they're looking for a different category
   useEffect(() => {
     // Only clear if tab actually changed (not on initial mount)
@@ -92,26 +87,26 @@ useEffect(() => {
   });
   console.log("All Zones Query Data:", allZonesQuery.data);
 
-  const dgmsQueryStatic = useGetAllDgms(userCategory,{
+  const dgmsQueryStatic = useGetAllDgms(userCategory, {
     enabled: !!userCategory && !!isUserAdmin && dgmPerms.isFullAccess,
   });
 
   console.log("All DGMs Query Data:", dgmsQueryStatic.data);
 
-  const dgmsForZonalQuery = useGetDgmsForZonalAccountant(empId,userCategory, {
-    enabled: !!empId && !!userCategory &&  !isUserAdmin&& dgmPerms.isFullAccess,
+  const dgmsForZonalQuery = useGetDgmsForZonalAccountant(empId, userCategory, {
+    enabled: !!empId && !!userCategory && !isUserAdmin && dgmPerms.isFullAccess,
   });
 
   const allCampusesQuery = useGetAllCampuses(userCategory, {
     enabled: !!userCategory && !!isUserAdmin && campusPerms.isFullAccess,
   });
   console.log("All Campuses Query Data:", allCampusesQuery.data);
-  
-  const campusesForZonalQuery = useGetCampuesForZonalAccountant(empId,userCategory, {
+
+  const campusesForZonalQuery = useGetCampuesForZonalAccountant(empId, userCategory, {
     enabled: !!empId && !!userCategory && !isUserAdmin && campusPerms.isFullAccess,
   });
 
-  const campusesForDgmQuery = useGetCampuesForDgmEmpId(empId,userCategory, {
+  const campusesForDgmQuery = useGetCampuesForDgmEmpId(empId, userCategory, {
     enabled: !!empId && !!userCategory && !isUserAdmin && campusPerms.isFullAccess,
   });
 
@@ -159,7 +154,7 @@ useEffect(() => {
     // Campus data - different based on user type
     if (campusPerms.isFullAccess) {
       let campusData = [];
-     
+
       if (isUserAdmin) {
         campusData = allCampusesQuery.data || [];
       } else if (!isUserAdmin) {
@@ -224,8 +219,44 @@ useEffect(() => {
   // ✅ Handle search item click
   const handleSearchItemClick = (item) => {
     console.log("Search item selected:", item);
+
+    // Extract the actual ID from the prefixed ID (e.g., "zone-22" -> "22")
+    const actualId = item.id ? item.id.replace(/^(zone|dgm|campus)-/, "") : null;
+
+    // Map the type from "Zone"/"DGM"/"Campus" to "zone"/"dgm"/"campus"
+    let entityType = null;
+    if (item.type === "Zone") entityType = "zone";
+    else if (item.type === "DGM") entityType = "dgm";
+    else if (item.type === "Campus") entityType = "campus";
+
+    // For DGM, we need to find the original data to get cmpsId
+    let cmpsId = null;
+    if (entityType === "dgm" && actualId) {
+      // Find the DGM in the raw data to get cmpsId
+      let dgmData = [];
+      if (isUserAdmin) {
+        dgmData = dgmsQueryStatic.data || [];
+      } else {
+        dgmData = dgmsForZonalQuery.data || [];
+      }
+      const dgmItem = dgmData.find(dgm => String(dgm.id) === String(actualId));
+      if (dgmItem) {
+        cmpsId = dgmItem.cmpsId || dgmItem.campusId || dgmItem.cmps_id || dgmItem.campus_id || null;
+      }
+    }
+
+    // Call selectEntity with the extracted data
+    if (actualId && entityType) {
+      console.log(`✅ Calling selectEntity from search:`, {
+        id: actualId,
+        name: item.name,
+        type: entityType,
+        cmpsId: cmpsId,
+      });
+      selectEntity(actualId, item.name, entityType, cmpsId);
+    }
+
     // Close suggestions and filter dropdown after selection
-    // Note: searchTerm will be updated automatically via useEffect when selectedEntity changes
     setShowSuggestions(false);
     setShowSearchDropdown(false);
   };
@@ -248,7 +279,7 @@ useEffect(() => {
     if (zonePerms.isFullAccess) allowedTypes.push("Zone");
     if (dgmPerms.isFullAccess) allowedTypes.push("DGM");
     if (campusPerms.isFullAccess) allowedTypes.push("Branch");
-   
+
     if (allowedTypes.length === 0) return "Search";
     if (allowedTypes.length === 1) return `Search for ${allowedTypes[0]}`;
     if (allowedTypes.length === 2) return `Search for ${allowedTypes[0]} or ${allowedTypes[1]}`;
@@ -275,7 +306,7 @@ useEffect(() => {
           onChange={handleInputChange}
           value={searchTerm}
           inputRule="text"
-          maxLength={"undefined"}
+          maxLength="undefined"
         />
 
         {showSuggestions && <FilterSearch suggestions={suggestions} onItemClick={handleSearchItemClick} />}
@@ -286,3 +317,4 @@ useEffect(() => {
 };
 
 export default AnalyticsHeader;
+

@@ -3,11 +3,11 @@
 // import Dropdown from "../../Dropdown/Dropdown";
 // import styles from "./ChequeForms.module.css";
 // import { useOrganizations, useBanksByOrganization, useBranchesByOrganizationAndBank } from "../../../hooks/payment-apis/PaymentApis";
- 
+
 // const ChequeForms = ({ formData, onChange }) => {
 //   // Fetch organizations from API
 //   const { organizationOptions, getOrganizationIdByLabel, getOrganizationLabelById, loading: organizationsLoading } = useOrganizations();
- 
+
 //   // State to track selected organization ID (for fetching banks)
 //   // Initialize from formData if it's already an ID (number or numeric string)
 //   const getInitialOrgId = () => {
@@ -19,9 +19,9 @@
 //     }
 //     return null;
 //   };
- 
+
 //   const [selectedOrganizationId, setSelectedOrganizationId] = useState(getInitialOrgId());
- 
+
 //   // Update organization ID when formData changes (only if it's a numeric ID)
 //   useEffect(() => {
 //     const orgId = getInitialOrgId();
@@ -32,10 +32,10 @@
 //       setSelectedOrganizationId(null);
 //     }
 //   }, [formData?.cheque_org]);
- 
+
 //   // Fetch banks based on selected organization ID
 //   const { bankOptions, getBankIdByLabel, getBankLabelById, loading: banksLoading } = useBanksByOrganization(selectedOrganizationId);
- 
+
 //   // State to track selected bank ID (for fetching branches)
 //   const getInitialBankId = () => {
 //     if (!formData?.cheque_bank) return null;
@@ -46,9 +46,9 @@
 //     }
 //     return null;
 //   };
- 
+
 //   const [selectedBankId, setSelectedBankId] = useState(getInitialBankId());
- 
+
 //   // Update bank ID when formData changes
 //   useEffect(() => {
 //     const bankId = getInitialBankId();
@@ -58,24 +58,24 @@
 //       setSelectedBankId(null);
 //     }
 //   }, [formData?.cheque_bank]);
- 
+
 //   // Fetch branches based on selected organization ID and bank ID
 //   const { branchOptions, getBranchIdByLabel, getBranchLabelById, loading: branchesLoading } = useBranchesByOrganizationAndBank(selectedOrganizationId, selectedBankId);
- 
+
 //   const cityOptions = ["Hyderabad", "Bangalore", "Chennai"];
- 
+
 //   // Handle organization change - convert label to ID before storing and fetch banks
 //   const handleOrganizationChange = (e) => {
 //     const selectedLabel = e.target.value;
 //     const organizationId = getOrganizationIdByLabel(selectedLabel);
-   
+
 //     // Log for debugging
 //     console.log('📝 Cheque - Selected Organization Label:', selectedLabel);
 //     console.log('🆔 Cheque - Organization ID:', organizationId);
-   
+
 //     // Set organization ID to trigger bank fetching
 //     setSelectedOrganizationId(organizationId);
-   
+
 //     // Create a synthetic event with the ID value for backend
 //     const syntheticEvent = {
 //       target: {
@@ -83,9 +83,9 @@
 //         value: organizationId !== undefined ? organizationId : selectedLabel // Fallback to label if ID not found
 //       }
 //     };
-   
+
 //     onChange(syntheticEvent);
-   
+
 //     // Clear bank and branch selections when organization changes
 //     const clearBankEvent = {
 //       target: {
@@ -94,7 +94,7 @@
 //       }
 //     };
 //     onChange(clearBankEvent);
-   
+
 //     const clearBranchEvent = {
 //       target: {
 //         name: "cheque_branch",
@@ -104,19 +104,19 @@
 //     onChange(clearBranchEvent);
 //     setSelectedBankId(null);
 //   };
- 
+
 //   // Handle bank change - convert label to ID before storing and fetch branches
 //   const handleBankChange = (e) => {
 //     const selectedLabel = e.target.value;
 //     const bankId = getBankIdByLabel(selectedLabel);
-   
+
 //     // Log for debugging
 //     console.log('📝 Cheque - Selected Bank Label:', selectedLabel);
 //     console.log('🆔 Cheque - Bank ID:', bankId);
-   
+
 //     // Set bank ID to trigger branch fetching
 //     setSelectedBankId(bankId);
-   
+
 //     // Create a synthetic event with the ID value for backend
 //     const syntheticEvent = {
 //       target: {
@@ -124,9 +124,9 @@
 //         value: bankId !== undefined ? bankId : selectedLabel // Fallback to label if ID not found
 //       }
 //     };
-   
+
 //     onChange(syntheticEvent);
-   
+
 //     // Clear branch selection when bank changes
 //     const clearBranchEvent = {
 //       target: {
@@ -136,16 +136,16 @@
 //     };
 //     onChange(clearBranchEvent);
 //   };
- 
+
 //   // Handle branch change - convert label to ID before storing
 //   const handleBranchChange = (e) => {
 //     const selectedLabel = e.target.value;
 //     const branchId = getBranchIdByLabel(selectedLabel);
-   
+
 //     // Log for debugging
 //     console.log('📝 Cheque - Selected Branch Label:', selectedLabel);
 //     console.log('🆔 Cheque - Branch ID:', branchId);
-   
+
 //     // Create a synthetic event with the ID value for backend
 //     const syntheticEvent = {
 //       target: {
@@ -153,10 +153,10 @@
 //         value: branchId !== undefined ? branchId : selectedLabel // Fallback to label if ID not found
 //       }
 //     };
-   
+
 //     onChange(syntheticEvent);
 //   };
- 
+
 //   // Get display value for organization (convert ID to label if needed)
 //   const getOrganizationDisplayValue = (orgValue) => {
 //     if (!orgValue) return "";
@@ -168,7 +168,7 @@
 //     const label = getOrganizationLabelById(orgValue);
 //     return label || orgValue;
 //   };
- 
+
 //   // Get display value for bank (convert ID to label if needed)
 //   const getBankDisplayValue = (bankValue) => {
 //     if (!bankValue) return "";
@@ -180,7 +180,7 @@
 //     const label = getBankLabelById(bankValue);
 //     return label || bankValue;
 //   };
- 
+
 //   // Get display value for branch (convert ID to label if needed)
 //   const getBranchDisplayValue = (branchValue) => {
 //     if (!branchValue) return "";
@@ -192,10 +192,10 @@
 //     const label = getBranchLabelById(branchValue);
 //     return label || branchValue;
 //   };
- 
+
 //   return (
 //     <div className={styles.wrapper}>
- 
+
 //       {/* ROW 1 */}
 //       <div className={styles.grid}>
 //         <Inputbox
@@ -206,7 +206,7 @@
 //           onChange={onChange}
 //           type="date"
 //         />
- 
+
 //         <Inputbox
 //           label="Amount *"
 //           name="cheque_amount"
@@ -216,7 +216,7 @@
 //           type="number"
 //         />
 //       </div>
- 
+
 //       {/* ROW 2 */}
 //       <div className={styles.grid}>
 //         <Inputbox
@@ -226,7 +226,7 @@
 //           value={formData.cheque_receiptNo}
 //           onChange={onChange}
 //         />
- 
+
 //         <Inputbox
 //           label="Cheque Number *"
 //           name="cheque_number"
@@ -235,7 +235,7 @@
 //           onChange={onChange}
 //         />
 //       </div>
- 
+
 //       {/* ROW 3 */}
 //       <div className={styles.grid}>
 //         <Inputbox
@@ -246,7 +246,7 @@
 //           onChange={onChange}
 //           type="date"
 //         />
- 
+
 //         <Dropdown
 //           dropdownname="Organisation Name *"
 //           name="cheque_org"
@@ -256,7 +256,7 @@
 //           disabled={organizationsLoading}
 //         />
 //       </div>
- 
+
 //       {/* ROW 4 */}
 //       <div className={styles.grid}>
 //         <Dropdown
@@ -267,7 +267,7 @@
 //           onChange={handleBankChange}
 //           disabled={banksLoading || !selectedOrganizationId}
 //         />
- 
+
 //         <Dropdown
 //           dropdownname="Branch Name *"
 //           name="cheque_branch"
@@ -277,7 +277,7 @@
 //           disabled={branchesLoading || !selectedOrganizationId || !selectedBankId}
 //         />
 //       </div>
- 
+
 //       {/* ROW 5 */}
 //       <div className={styles.grid}>
 //         <Inputbox
@@ -287,7 +287,7 @@
 //           value={formData.cheque_ifsc}
 //           onChange={onChange}
 //         />
- 
+
 //         <Dropdown
 //           dropdownname="City Name *"
 //           name="cheque_city"
@@ -296,7 +296,7 @@
 //           onChange={onChange}
 //         />
 //       </div>
- 
+
 //       {/* ROW 6 */}
 //       <div className={styles.grid}>
 //         <Inputbox
@@ -310,39 +310,39 @@
 //     </div>
 //   );
 // };
- 
+
 // export default ChequeForms;
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import React, { useState, useEffect } from "react";
 import Inputbox from "../../Inputbox/InputBox";
 import Dropdown from "../../Dropdown/Dropdown";
 import styles from "./ChequeForms.module.css";
 import { useOrganizations, useBanksByOrganization, useBranchesByOrganizationAndBank } from "../../../hooks/payment-apis/PaymentApis";
- 
-const ChequeForms = ({ formData, onChange }) => {
+
+const ChequeForms = ({ formData, onChange, errors }) => {
   // Fetch organizations from API
   const { organizationOptions, getOrganizationIdByLabel, getOrganizationLabelById, loading: organizationsLoading } = useOrganizations();
- 
+
   // State to track selected organization ID (for fetching banks)
   // Initialize from formData if it's already an ID (number or numeric string)
   const getInitialOrgId = () => {
@@ -354,9 +354,9 @@ const ChequeForms = ({ formData, onChange }) => {
     }
     return null;
   };
- 
+
   const [selectedOrganizationId, setSelectedOrganizationId] = useState(getInitialOrgId());
- 
+
   // Update organization ID when formData changes (only if it's a numeric ID)
   useEffect(() => {
     const orgId = getInitialOrgId();
@@ -367,10 +367,10 @@ const ChequeForms = ({ formData, onChange }) => {
       setSelectedOrganizationId(null);
     }
   }, [formData?.cheque_org]);
- 
+
   // Fetch banks based on selected organization ID
   const { bankOptions, getBankIdByLabel, getBankLabelById, loading: banksLoading } = useBanksByOrganization(selectedOrganizationId);
- 
+
   // State to track selected bank ID (for fetching branches)
   const getInitialBankId = () => {
     if (!formData?.cheque_bank) return null;
@@ -381,9 +381,9 @@ const ChequeForms = ({ formData, onChange }) => {
     }
     return null;
   };
- 
+
   const [selectedBankId, setSelectedBankId] = useState(getInitialBankId());
- 
+
   // Update bank ID when formData changes
   useEffect(() => {
     const bankId = getInitialBankId();
@@ -393,24 +393,24 @@ const ChequeForms = ({ formData, onChange }) => {
       setSelectedBankId(null);
     }
   }, [formData?.cheque_bank]);
- 
+
   // Fetch branches based on selected organization ID and bank ID
   const { branchOptions, getBranchIdByLabel, getBranchLabelById, loading: branchesLoading } = useBranchesByOrganizationAndBank(selectedOrganizationId, selectedBankId);
- 
+
   const cityOptions = ["Hyderabad", "Bangalore", "Chennai"];
- 
+
   // Handle organization change - convert label to ID before storing and fetch banks
   const handleOrganizationChange = (e) => {
     const selectedLabel = e.target.value;
     const organizationId = getOrganizationIdByLabel(selectedLabel);
-   
+
     // Log for debugging
     console.log('📝 Cheque - Selected Organization Label:', selectedLabel);
     console.log('🆔 Cheque - Organization ID:', organizationId);
-   
+
     // Set organization ID to trigger bank fetching
     setSelectedOrganizationId(organizationId);
-   
+
     // Create a synthetic event with the ID value for backend
     const syntheticEvent = {
       target: {
@@ -418,9 +418,9 @@ const ChequeForms = ({ formData, onChange }) => {
         value: organizationId !== undefined ? organizationId : selectedLabel // Fallback to label if ID not found
       }
     };
-   
+
     onChange(syntheticEvent);
-   
+
     // Clear bank and branch selections when organization changes
     const clearBankEvent = {
       target: {
@@ -429,7 +429,7 @@ const ChequeForms = ({ formData, onChange }) => {
       }
     };
     onChange(clearBankEvent);
-   
+
     const clearBranchEvent = {
       target: {
         name: "cheque_branch",
@@ -439,19 +439,19 @@ const ChequeForms = ({ formData, onChange }) => {
     onChange(clearBranchEvent);
     setSelectedBankId(null);
   };
- 
+
   // Handle bank change - convert label to ID before storing and fetch branches
   const handleBankChange = (e) => {
     const selectedLabel = e.target.value;
     const bankId = getBankIdByLabel(selectedLabel);
-   
+
     // Log for debugging
     console.log('📝 Cheque - Selected Bank Label:', selectedLabel);
     console.log('🆔 Cheque - Bank ID:', bankId);
-   
+
     // Set bank ID to trigger branch fetching
     setSelectedBankId(bankId);
-   
+
     // Create a synthetic event with the ID value for backend
     const syntheticEvent = {
       target: {
@@ -459,9 +459,9 @@ const ChequeForms = ({ formData, onChange }) => {
         value: bankId !== undefined ? bankId : selectedLabel // Fallback to label if ID not found
       }
     };
-   
+
     onChange(syntheticEvent);
-   
+
     // Clear branch selection when bank changes
     const clearBranchEvent = {
       target: {
@@ -471,16 +471,16 @@ const ChequeForms = ({ formData, onChange }) => {
     };
     onChange(clearBranchEvent);
   };
- 
+
   // Handle branch change - convert label to ID before storing
   const handleBranchChange = (e) => {
     const selectedLabel = e.target.value;
     const branchId = getBranchIdByLabel(selectedLabel);
-   
+
     // Log for debugging
     console.log('📝 Cheque - Selected Branch Label:', selectedLabel);
     console.log('🆔 Cheque - Branch ID:', branchId);
-   
+
     // Create a synthetic event with the ID value for backend
     const syntheticEvent = {
       target: {
@@ -488,10 +488,10 @@ const ChequeForms = ({ formData, onChange }) => {
         value: branchId !== undefined ? branchId : selectedLabel // Fallback to label if ID not found
       }
     };
-   
+
     onChange(syntheticEvent);
   };
- 
+
   // Get display value for organization (convert ID to label if needed)
   const getOrganizationDisplayValue = (orgValue) => {
     if (!orgValue) return "";
@@ -503,7 +503,7 @@ const ChequeForms = ({ formData, onChange }) => {
     const label = getOrganizationLabelById(orgValue);
     return label || orgValue;
   };
- 
+
   // Get display value for bank (convert ID to label if needed)
   const getBankDisplayValue = (bankValue) => {
     if (!bankValue) return "";
@@ -515,7 +515,7 @@ const ChequeForms = ({ formData, onChange }) => {
     const label = getBankLabelById(bankValue);
     return label || bankValue;
   };
- 
+
   // Get display value for branch (convert ID to label if needed)
   const getBranchDisplayValue = (branchValue) => {
     if (!branchValue) return "";
@@ -527,10 +527,10 @@ const ChequeForms = ({ formData, onChange }) => {
     const label = getBranchLabelById(branchValue);
     return label || branchValue;
   };
- 
+
   return (
     <div className={styles.wrapper}>
- 
+
       {/* ROW 1 */}
       <div className={styles.grid}>
         <Inputbox
@@ -542,7 +542,7 @@ const ChequeForms = ({ formData, onChange }) => {
           type="date"
           readOnly={true}
         />
- 
+
         <Inputbox
           label="Amount *"
           name="cheque_amount"
@@ -552,7 +552,7 @@ const ChequeForms = ({ formData, onChange }) => {
           type="number"
         />
       </div>
- 
+
       {/* ROW 2 */}
       <div className={styles.grid}>
         <Inputbox
@@ -562,8 +562,11 @@ const ChequeForms = ({ formData, onChange }) => {
           value={formData.cheque_receiptNo}
           onChange={onChange}
           required={true}
+          maxLength="9"
+          inputRule="digits"
+          error={errors?.cheque_receiptNo}
         />
- 
+
         <Inputbox
           label="Cheque Number *"
           name="cheque_number"
@@ -572,7 +575,7 @@ const ChequeForms = ({ formData, onChange }) => {
           onChange={onChange}
         />
       </div>
- 
+
       {/* ROW 3 */}
       <div className={styles.grid}>
         <Inputbox
@@ -583,7 +586,7 @@ const ChequeForms = ({ formData, onChange }) => {
           onChange={onChange}
           type="date"
         />
- 
+
         <Dropdown
           dropdownname="Organisation Name *"
           name="cheque_org"
@@ -593,7 +596,7 @@ const ChequeForms = ({ formData, onChange }) => {
           disabled={organizationsLoading}
         />
       </div>
- 
+
       {/* ROW 4 */}
       <div className={styles.grid}>
         <Dropdown
@@ -604,7 +607,7 @@ const ChequeForms = ({ formData, onChange }) => {
           onChange={handleBankChange}
           disabled={banksLoading || !selectedOrganizationId}
         />
- 
+
         <Dropdown
           dropdownname="Branch Name *"
           name="cheque_branch"
@@ -614,7 +617,7 @@ const ChequeForms = ({ formData, onChange }) => {
           disabled={branchesLoading || !selectedOrganizationId || !selectedBankId}
         />
       </div>
- 
+
       {/* ROW 5 */}
       <div className={styles.grid}>
         <Inputbox
@@ -624,7 +627,7 @@ const ChequeForms = ({ formData, onChange }) => {
           value={formData.cheque_ifsc}
           onChange={onChange}
         />
- 
+
         <Dropdown
           dropdownname="City Name *"
           name="cheque_city"
@@ -633,7 +636,7 @@ const ChequeForms = ({ formData, onChange }) => {
           onChange={onChange}
         />
       </div>
- 
+
       {/* ROW 6 */}
       <div className={styles.grid}>
         <Inputbox
@@ -647,6 +650,5 @@ const ChequeForms = ({ formData, onChange }) => {
     </div>
   );
 };
- 
+
 export default ChequeForms;
- 
