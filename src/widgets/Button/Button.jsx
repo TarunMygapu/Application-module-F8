@@ -6,7 +6,7 @@ const Button = ({
   righticon,
   lefticon,
   onClick,
-  type="button",
+  type = "button",
   disabled,
   width,
   variant,
@@ -17,9 +17,8 @@ const Button = ({
         onClick={onClick}
         type={type}
         disabled={disabled}
-        className={`${styles.button} ${disabled ? styles.disabled : ""} ${
-          variant ? styles[variant] : ""
-        }`}
+        className={`${styles.button} ${disabled ? styles.disabled : ""} ${variant ? styles[variant] : ""
+          }`}
         style={{
           margin: width ? "0" : "0 auto", // Center the button only if width is not provided
           width: width || "auto", // Use the provided width or auto if not provided
@@ -28,7 +27,7 @@ const Button = ({
         {lefticon && <span className={styles.lefticon}>{lefticon}</span>}
         {buttonname}
         {righticon && <span className={styles.righticon}>{righticon}</span>}
-        
+
       </button>
     </div>
   );

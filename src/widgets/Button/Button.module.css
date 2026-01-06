@@ -17,10 +17,10 @@
 
 .button_wrapper .button.primary {
   background-color: #3425ff;
-  color: white ;
+  color: white;
 }
 
-.button_wrapper .button.secondary{
+.button_wrapper .button.secondary {
   background-color: white;
   color: #3425FF;
   border: 1px solid #3425FF;
@@ -38,19 +38,19 @@ button:hover {
   opacity: 0.9;
 }
 
-.isLoading{
+.isLoading {
   color: white;
   cursor: pointer;
   background-color: #110D8A;
 }
 
 .disabled {
-  color: rgba(52, 37, 255, 0.5) ;
-  background: #f6f8fa ;
-  cursor: not-allowed ;
+  color: rgba(52, 37, 255, 0.5);
+  background: #f6f8fa;
+  cursor: not-allowed;
 }
 
-.button_wrapper .button.history{
+.button_wrapper .button.history {
   background-color: #FBFBFB;
   color: #252C32;
   font-size: 14px;
@@ -58,61 +58,64 @@ button:hover {
   border: 1px solid #D2D2D2;
 }
 
-.button_wrapper .button.upload{
+.button_wrapper .button.upload {
   color: #3425FF;
   background-color: #D1D1D1;
   border: 1px solid #A8A8A8;
 }
 
-.button_wrapper .button span{
+.button_wrapper .button span {
   margin: 0;
   padding: 0;
 }
 
-.button_wrapper .button.third{
+.button_wrapper .button.third {
   padding: 8px 47px;
-    background-color: #3425ff;
-  color: white ;
+  background-color: #3425ff;
+  color: white;
 }
 
-.button_wrapper .button.forth{
+.button_wrapper .button.forth {
   background-color: white;
   color: #3425FF;
   border: 1px solid #3425FF;
   padding: 8px 50px;
 }
 
-.button_wrapper .button.noButton{
-   border: 2px solid #3425FF;
-    border-radius: 6px;
-    padding: 8px 37px;
-    color:#3425FF ;
-    background-color: #fff;
+.button_wrapper .button.noButton {
+  border: 2px solid #3425FF;
+  border-radius: 6px;
+  padding: 8px 37px;
+  color: #3425FF;
+  background-color: #fff;
 }
 
-.button_wrapper .button.yesButton{
-      border-radius: 6px;
-    padding: 7px 30px;
-    background-color:  #3425ff;
-    color: #fff;
+.button_wrapper .button.yesButton {
+  border-radius: 6px;
+  padding: 7px 30px;
+  background-color: #3425ff;
+  color: #fff;
 }
 
-.button_wrapper .button.primaryWithExtraPadding{
-   background-color: #3425ff;
-  color: white ;
+.button_wrapper .button.primaryWithExtraPadding {
+  background-color: #3425ff;
+  color: white;
   padding: 8px 34px;
 }
 
 
-.button_wrapper .button.secondaryWithExtraPadding{
+.button_wrapper .button.secondaryWithExtraPadding {
   background-color: white;
   color: #3425FF;
   border: 1px solid #3425FF;
   padding: 8px 34px;
 }
 
-.button_wrapper .button.filterButton{
-  border: 1px solid #3425FF;
+.button_wrapper .button.filterButton {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(#F3F3F3, #F3F3F3) padding-box,
+    linear-gradient(220deg, #DDDDDD, #6375FF) border-box;
   border-radius: 8px;
   padding: 6px;
   gap: 7px;
@@ -120,4 +123,18 @@ button:hover {
   font-weight: 400;
   font-size: 12px;
   background-color: #F3F3F3;
+}
+
+.button_wrapper .button.filterApplied {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(#3425FF, #3425FF) padding-box,
+    linear-gradient(220deg, #DDDDDD, #6375FF) border-box;
+  border-radius: 8px;
+  padding: 6px;
+  gap: 7px;
+  color: #FFFFFF;
+  font-weight: 400;
+  font-size: 12px;
+  background-color: #3425FF;
 }
