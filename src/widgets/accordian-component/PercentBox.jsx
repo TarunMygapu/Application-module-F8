@@ -44,6 +44,10 @@ const PercentBox = ({ items = [] }) => (
       const arrowColor = isIssued
   ? "#22C55E"   // 🔴 Issued → always red
   : "#EF4444";  // 🟢 Sold → always green
+
+     const arrowPercentColor = percentValue > 0 || percentValue < 0 ? (isIssued
+  ? "#22C55E"   // 🔴 Issued → always red
+  : "#EF4444") : "#000000"
       return (
         <span
           key={index}
@@ -67,7 +71,7 @@ const PercentBox = ({ items = [] }) => (
           <svg xmlns="http://www.w3.org/2000/svg" width="10" height="15" viewBox="0 0 10 11">
             <path
               d={getArrowPath(percentValue)}
-              stroke={arrowColor}
+              stroke={arrowPercentColor}
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"

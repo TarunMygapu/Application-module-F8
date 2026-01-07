@@ -102,7 +102,7 @@ const ApplicationNavLinks = () => {
 
 
   // Return null if component should be hidden
-  if (shouldHideComponent ) {
+  if (shouldHideComponent) {
     return null;
   }
  

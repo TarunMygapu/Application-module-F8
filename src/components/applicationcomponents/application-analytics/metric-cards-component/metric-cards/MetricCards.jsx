@@ -624,14 +624,14 @@ const MetricCards = () => {
           : styles.percentage_box_border_red;
         const arrowDirection = isPositive
           ? "M2.08337 4.66667L5.00004 1.75M5.00004 1.75L7.91671 4.66667M5.00004 1.75V9.25"
-          : "M7.91671 6.33333L5.00004 9.25M5.00004 9.25L2.08337 6.33333M5.00004 9.25V1.75";
+          : isNegative ?"M7.91671 6.33333L5.00004 9.25M5.00004 9.25L2.08337 6.33333M5.00004 9.25V1.75":"M2 5.5 L8 5.5";
  
         return (
           <div className={`${styles.metric_card} ${cardColor}`} key={index}>
             <div className={styles.metric_card_values}>
               <div className={`${styles.percentage_number_box} ${percentageBorder}`}>
                 <span className={`${styles.card_percentage_text} ${percentageColor}`}>
-                  {`${card.percentage >= 0 ? "+" : ""}${card.percentage}%`}
+                  {`${card.percentage >0 ? "+" :( card.percentage < 0 ? "-" : "")}${card.percentage}%`}
                 </span>
                 <span>
                   <svg
@@ -643,7 +643,7 @@ const MetricCards = () => {
                   >
                     <path
                       d={arrowDirection}
-                      stroke={isPositive ? "#22C55E" : "#EF4444"}
+                      stroke={isPositive ? "#22C55E" : isNegative ? "#EF4444" : "#000000"}
                       strokeWidth="1.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
