@@ -21,7 +21,7 @@ const fieldMapping = {
 };
  
 // 🔑 Accept onSelectionChange prop
-const CampusTable = ({ onSelectionChange,callTable }) => {
+const CampusTable = ({ onSelectionChange,callTable,tableTrigger }) => {
  
   const empId = localStorage.getItem("empId");
  
@@ -29,7 +29,7 @@ const CampusTable = ({ onSelectionChange,callTable }) => {
     data: tableData,
     isLoading,
     error,
-  } = useGetTableDetailsByEmpId(empId,4,callTable);
+  } = useGetTableDetailsByEmpId(empId,4,tableTrigger);
  
   console.log("Table Data: ",tableData);
  

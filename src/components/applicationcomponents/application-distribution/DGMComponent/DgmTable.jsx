@@ -6,7 +6,7 @@ import { useGetTableDetailsByEmpId,useGetApplicationSeriesForEmpId} from "../../
 import Spinner from "../../../commoncomponents/Spinner";
 
 // 🔑 Accept onSelectionChange prop
-const DgmTable = ({ onSelectionChange, callTable }) => {
+const DgmTable = ({ onSelectionChange, callTable, tableTrigger }) => {
  
   const empId = localStorage.getItem("empId");
  
@@ -14,7 +14,7 @@ const DgmTable = ({ onSelectionChange, callTable }) => {
     data: tableData,
     isLoading,
     error,
-  } = useGetTableDetailsByEmpId(empId,3,callTable);
+  } = useGetTableDetailsByEmpId(empId,3,tableTrigger);
   console.log("Table Data: ", tableData);
  
   // Normalize API -> table rows

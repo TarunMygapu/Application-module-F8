@@ -47,6 +47,7 @@ const ZoneForm = ({
   isUpdate = false,
   editId,
   setCallTable,
+   setTableTrigger,
 }) => {
 
   // const {setFieldValue} = useFormikContext();
@@ -423,6 +424,7 @@ const ZoneForm = ({
       isUpdate={isUpdate}
       editId={editId}
       setCallTable={setCallTable}
+       setTableTrigger={setTableTrigger}
     />
   );
 };

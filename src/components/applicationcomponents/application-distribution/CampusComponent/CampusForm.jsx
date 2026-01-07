@@ -42,6 +42,7 @@ const CampusForm = ({
   isUpdate = false,
   editId,
   setCallTable,
+  setTableTrigger,
 }) => {
 
   const isHydratingRef = useRef(true);
@@ -371,6 +372,7 @@ const CampusForm = ({
       isUpdate={isUpdate}
       editId={editId}
       setCallTable={setCallTable}
+      setTableTrigger={setTableTrigger}
     />
   );
 };

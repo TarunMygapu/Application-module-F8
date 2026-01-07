@@ -25,6 +25,7 @@ import { buildInitialValues } from "./buildInitialValuesForDistribution";
 
 import Popup from "../../../widgets/PopupWidgets/Popup";
 
+
 const normalizeOptions = (options) =>
   Array.isArray(options) ? options.filter((v) => v != null).map(String) : [];
 
@@ -78,12 +79,14 @@ const DistributeForm = ({
   onSeriesSelect,
   applicationSeriesList,
   setCallTable,
+   setTableTrigger,
 }) => {
   const employeeId = localStorage.getItem("empId");
   const category = localStorage.getItem("category");
   const [showPopup, setShowPopup] = useState(false);
   const [pendingValues, setPendingValues] = useState(null);
   const [apiLoading, setApiLoading] = useState(false);
+
 
   const [formError, setFormError] = useState(null);
   console.log("Form Type:", formType);
@@ -213,7 +216,8 @@ const DistributeForm = ({
 
         onSubmit?.({ ...values, _mode: "create" });
         setIsInsertClicked?.(true);
-        setCallTable?.(true);
+        // setCallTable(prev => !prev);
+        setTableTrigger(prev => prev + 1); 
       }
 
       console.log("🎉 FORM SUBMISSION SUCCESS — Closing popup...");

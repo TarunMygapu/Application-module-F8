@@ -41,6 +41,7 @@ const DgmForm = ({
   isUpdate = false,
   editId,
   setCallTable,
+   setTableTrigger,
 }) => {
 
 
@@ -344,6 +345,7 @@ const DgmForm = ({
       isUpdate={isUpdate}
       editId={editId}
       setCallTable={setCallTable}
+      setTableTrigger={setTableTrigger}
     />
   );
 };

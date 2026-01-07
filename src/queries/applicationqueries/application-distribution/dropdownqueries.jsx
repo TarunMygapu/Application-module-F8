@@ -325,11 +325,12 @@ export const useCampusbyCampaignId = (campaignId) =>
     enabled: !!campaignId,
   });
  
-export const useGetTableDetailsByEmpId = (empId,issuedToTypeId, shouldFetch = true) =>
+export const useGetTableDetailsByEmpId = (empId,issuedToTypeId,trigger=0) =>
   useQuery({
-    queryKey: ["Table Details with Id: ", empId,issuedToTypeId],
+    queryKey: ["Table Details with Id: ", empId,issuedToTypeId,trigger],
     queryFn: () => getTableDetailsByEmpId(empId,issuedToTypeId),
-    enabled: !!empId && !!issuedToTypeId && shouldFetch,
+    enabled: !!empId && !!issuedToTypeId,
+    keepPreviousData: true,
   });
   
   export const useGetRangeAvailAndApp = (academicYearId, cityId, stateId) =>

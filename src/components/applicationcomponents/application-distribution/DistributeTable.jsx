@@ -9,7 +9,7 @@ import styles from "./DistributeTable.module.css";
 import FileExport from "../sale-and-confirm/ApplicationStatus/components/ExportButton/FileExport";
 import { EXPORT_CONFIG } from "../sale-and-confirm/ApplicationStatus/components/ExportButton/utils/exportConfig";
 
-const DistributeTable = ({ callTable }) => {
+const DistributeTable = ({ callTable,tableTrigger }) => {
   const { pathname } = useLocation();
 
   const [showExport, setShowExport] = useState(false);
@@ -44,12 +44,12 @@ const DistributeTable = ({ callTable }) => {
   const renderTable = () => {
     if (pathname.includes("zone"))
       return (
-        <ZoneTable onSelectionChange={setSelectedRows} callTable={callTable} />
+        <ZoneTable onSelectionChange={setSelectedRows} callTable={callTable} tableTrigger={tableTrigger} />
       );
 
     if (pathname.includes("dgm"))
       return (
-        <DgmTable onSelectionChange={setSelectedRows} callTable={callTable} />
+        <DgmTable onSelectionChange={setSelectedRows} callTable={callTable} tableTrigger={tableTrigger} />
       );
 
     if (pathname.includes("campus"))
@@ -57,6 +57,7 @@ const DistributeTable = ({ callTable }) => {
         <CampusTable
           onSelectionChange={setSelectedRows}
           callTable={callTable}
+          tableTrigger={tableTrigger}
         />
       );
 

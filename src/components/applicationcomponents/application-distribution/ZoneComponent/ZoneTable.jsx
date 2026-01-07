@@ -6,14 +6,14 @@ import { useGetTableDetailsByEmpId ,useGetApplicationSeriesForEmpId,useGetDistri
 import Spinner from "../../../commoncomponents/Spinner";
 
  
-const ZoneTable = ({ onSelectionChange,callTable}) => {
+const ZoneTable = ({ onSelectionChange,callTable, tableTrigger}) => {
  
   const empId = localStorage.getItem("empId");
   const {
     data: tableData,
     isLoading,
     error,
-  } = useGetTableDetailsByEmpId(empId,2,callTable);
+  } = useGetTableDetailsByEmpId(empId,2,tableTrigger);
  
  
   console.log("Table Data: ", tableData);

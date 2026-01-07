@@ -30,7 +30,10 @@ const DistributeTab = () => {
   const location = useLocation();
 
   const [clickedFilterButton, setClickedFilterButton] = useState(false);
-  const [callTable, setCallTable] = useState(true);
+  const [callTable, setCallTable] = useState(false);
+  const [tableTrigger, setTableTrigger] = useState(0);
+
+
 
   // 🔑 Use the literal string keys for permission checks, matching the keys in your SCREENS object
   const canViewZone = usePermission("DISTRIBUTE_ZONE").canView;
@@ -106,6 +109,7 @@ const DistributeTab = () => {
 
   const handleDistributeButton = () => {
     setIsInsertClicked((prev) => !prev);
+    
   };
 
   // 🚫 If no tabs are visible, render a "No Access" message for this section.
@@ -190,7 +194,9 @@ const DistributeTab = () => {
                   <Route
                     path="zone"
                     element={
-                      <ZoneForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable} />
+                      <ZoneForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable} 
+                      setTableTrigger={setTableTrigger}
+                      />
                     }
                   />
                 )}
@@ -198,7 +204,9 @@ const DistributeTab = () => {
                   <Route
                     path="dgm"
                     element={
-                      <DgmForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable} />
+                      <DgmForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable} 
+                       setTableTrigger={setTableTrigger}
+                      />
                     }
                   />
                 )}
@@ -206,7 +214,9 @@ const DistributeTab = () => {
                   <Route
                     path="campus"
                     element={
-                      <CampusForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable} />
+                      <CampusForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable} 
+                       setTableTrigger={setTableTrigger}
+                      />
                     }
                   />
                 )}
@@ -257,7 +267,7 @@ const DistributeTab = () => {
 
       {/* You might also want to secure the table component */}
       <div className={styles.distribute_tab_table}>
-        <DistributeTable callTable={callTable} />
+        <DistributeTable callTable={callTable} tableTrigger={tableTrigger}/>
       </div>
     </>
   );

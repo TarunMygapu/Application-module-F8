@@ -99,9 +99,10 @@ const ApplicationNavLinks = () => {
   const shouldHideComponent = hiddenPaths.some((path) =>
     location.pathname.includes(path)
   );
- 
+
+
   // Return null if component should be hidden
-  if (shouldHideComponent) {
+  if (shouldHideComponent ) {
     return null;
   }
  
