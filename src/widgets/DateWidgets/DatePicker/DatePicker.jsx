@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./DatePicker.module.css";
-import Asterisk from "../../../assets/application-status/Asterisk";
+import Asterisk from "../../../assets/applicationassets/application-status/Asterisk";
  
 const dateIcon = (
   <svg

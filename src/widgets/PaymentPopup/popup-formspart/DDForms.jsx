@@ -341,7 +341,7 @@ import React, { useState, useEffect } from "react";
 import Inputbox from "../../Inputbox/InputBox";
 import Dropdown from "../../Dropdown/Dropdown";
 import styles from "./DDForms.module.css";
-import { useOrganizations, useBanksByOrganization, useBranchesByOrganizationAndBank } from "../../../hooks/payment-apis/PaymentApis";
+import { useOrganizations, useBanksByOrganization, useBranchesByOrganizationAndBank } from "../../../queries/applicationqueries/payment-apis/PaymentApis";
 
 const DDForms = ({ formData, onChange, errors }) => {
   // Fetch organizations from API (needed for ID conversion)

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styles from "./CurrentDate.module.css"; // Assuming you have relevant CSS in this file
-import Asterisk from "../../../assets/application-status/Asterisk";
+import Asterisk from "../../../assets/applicationassets/application-status/Asterisk";
 
 const dateIcon = (
   <svg

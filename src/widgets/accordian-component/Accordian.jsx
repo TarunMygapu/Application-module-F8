@@ -6,16 +6,16 @@ import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import BarGraph from "../graph-widget/BarGraph";
 import styles from "./Accordian.module.css";
-import graphTitleIcon from "../../assets/application-analytics/paper.svg";
+import graphTitleIcon from "../../assets/applicationassets/application-analytics/paper.svg";
 import PercentBox from "./PercentBox";
-import redDot from "../../assets/application-analytics/red_dot.png";
-import greenDot from "../../assets/application-analytics/green_dot.png";
+// import redDot from "../../asse../assets/applicationassetsts/application-analytics/red_dot.png";
+// import greenDot from "../../../assets/applicationassets/application-analytics/green_dot.png";
 
-import reddot2 from "../../assets/application-analytics/red2.svg";
-import greendot2 from "../../assets/application-analytics/green2.svg";
+import reddot2 from "../../assets/applicationassets/application-analytics/red2.svg";
+import greendot2 from "../../assets/applicationassets/application-analytics/green2.svg";
 
-import greenimage from "../../assets/application-analytics/greenimage.png"
-import redimage from "../../assets/application-analytics/redimage.png";
+// import greenimage from "../../../assets/applicationassets/application-analytics/greenimage.png"
+// import redimage from "../../../assets/applicationassets/application-analytics/redimage.png";
 
 // Controlled by parent: receives `expanded` and `onChange`
 const Accordian = ({ zoneTitle, percentageItems, graphBarData, expanded, onChange }) => {

@@ -1,7 +1,7 @@
 // hooks/useFirstAccessiblePath.js (New File)
 import { useSelector } from "react-redux";
 import { TAB_SCREEN_MAPPING } from "../constants/tabScreenMapping"; // Ensure path is correct
-import { tabs } from "../components/application-analytics/application-details-nav-links/applications-nav-links-component/links"; // Ensure path is correct
+import { tabs } from "../components/applicationcomponents/application-analytics/application-details-nav-links/applications-nav-links-component/links"; // Ensure path is correct
 
 export const useFirstAccessiblePath = () => {
   const permissions = useSelector((state) => state.authorization.permissions);

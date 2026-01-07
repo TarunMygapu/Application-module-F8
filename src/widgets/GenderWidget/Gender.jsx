@@ -83,7 +83,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import styles from "./Gender.module.css";
-import Asterisk from "../../assets/application-status/Asterisk";
+import Asterisk from "../../assets/applicationassets/application-status/Asterisk";
  
 const Gender = ({ name, label = "Gender", value, onChange, required = false, error }) => {
  

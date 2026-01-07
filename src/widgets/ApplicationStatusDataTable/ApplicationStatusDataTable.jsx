@@ -7,7 +7,7 @@ import {
 import { Modal, Box, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useLocation } from "react-router-dom";
-import crossicon from '../../assets/application-status/application-status/crossicon';
+import crossicon from '../../assets/applicationassets/application-status/application-status/crossicon';
 import Button from "../Button/Button";
 import styles from "./ApplicationStatusDataTable.module.css";
 

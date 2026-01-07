@@ -1,7 +1,7 @@
 import React from "react";
 // Reverted to original fixed stylesheet
 import styles from "./TextareaFixed.module.css";
-import Asterisk from "../../assets/application-status/Asterisk";
+import Asterisk from "../../assets/applicationassets/application-status/Asterisk";
 
 // Reuse same pattern concept as Inputbox but keep minimal for now
 const Textarea = ({

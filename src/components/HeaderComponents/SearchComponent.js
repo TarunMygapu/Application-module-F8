@@ -1,5 +1,5 @@
   import React from "react";
-  import searchIcon from "../../assets/application-analytics/searchicon.svg";
+  import searchIcon from "../../assets/applicationassets/application-analytics/searchicon.svg";
   import styles from "./SearchComponent.module.css";
 
   const SearchComponent = () => {

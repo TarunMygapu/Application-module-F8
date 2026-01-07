@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./InputBox.module.css";
-import Asterisk from "../../assets/application-status/Asterisk";
+import Asterisk from "../../assets/applicationassets/application-status/Asterisk";
 import { validateAadhaar } from "../../utils/validateAadhaar";
 
 // ---------------------- REGEX PATTERNS ---------------------- //

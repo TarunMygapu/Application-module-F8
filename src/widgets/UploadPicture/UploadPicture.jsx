@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './UploadPicture.module.css';
-import { ReactComponent as UploadIcon } from '../../assets/application-status/Upload.svg';
+import { ReactComponent as UploadIcon } from '../../assets/applicationassets/application-status/Upload.svg';
 
 const UploadPicture = () =>{
     return(

@@ -102,8 +102,8 @@
 
 import React from "react";
 import styles from "./BarGraph.module.css";
-import reddot2 from "../../assets/application-analytics/red2.svg";
-import greendot2 from "../../assets/application-analytics/green2.svg";
+import reddot2 from "../../assets/applicationassets/application-analytics/red2.svg";
+import greendot2 from "../../assets/applicationassets/application-analytics/green2.svg";
 import { formatFee } from "../../utils/feeFormat";
 
 const BarGraph = ({ graphBarData }) => {

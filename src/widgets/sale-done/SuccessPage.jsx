@@ -4,9 +4,9 @@ import styles from "./SuccessPage.module.css";
 // import pageicon from "../../assets/application-status/application-status/image (1).jpeg";
 // import Statusbar from "../StatusBar/Statusbar";
 import LottieWithDot from "../LottieWidgets/LottieWithDot/LottieWithDot";
-import successApplication from "../../assets/application-status/Varsity.lottie";
+import successApplication from "../../assets/applicationassets/application-status/Varsity.lottie";
 import Button from "../Button/Button";
-import rightarrow from "../../assets/application-distribution/rightarrow";
+import rightarrow from "../../assets/applicationassets/application-distribution/rightarrow";
 
 const SuccessPage = ({ applicationNo, studentName, amount, campus, zone, onBack, statusType = "sale", reverseOrder = false }) => {
   const navigate = useNavigate();

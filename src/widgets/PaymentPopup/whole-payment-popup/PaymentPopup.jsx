@@ -560,8 +560,8 @@ import DDForms from "../popup-formspart/DDForms";
 import ChequeForms from "../popup-formspart/ChequeForms";
 import CardForms from "../popup-formspart/CardForms";
 import Button from "../../Button/Button";
-import { submitSchoolApplicationSale, mapFormDataToPayload, submitSchoolApplicationSaleCreate, mapSchoolApplicationSaleToPayload } from "../../../hooks/school-apis/SchoolSubmissionApi";
-import { submitCollegeApplicationConfirmation, mapCollegeFormDataToPayload, submitCollegeFastSale, mapCollegeFastSaleToPayload, submitCollegeApplicationSaleComplete, mapCollegeApplicationSaleCompleteToPayload } from "../../../hooks/college-apis/CollegeSubmissionApi";
+import { submitSchoolApplicationSale, mapFormDataToPayload, submitSchoolApplicationSaleCreate, mapSchoolApplicationSaleToPayload } from "../../../queries/applicationqueries/school-apis/SchoolSubmissionApi";
+import { submitCollegeApplicationConfirmation, mapCollegeFormDataToPayload, submitCollegeFastSale, mapCollegeFastSaleToPayload, submitCollegeApplicationSaleComplete, mapCollegeApplicationSaleCompleteToPayload } from "../../../queries/applicationqueries/college-apis/CollegeSubmissionApi";
 import { getCurrentDate } from "../../../utils/getCurrentDate";
 
 // Helper function to get current date in YYYY-MM-DD format for HTML date inputs

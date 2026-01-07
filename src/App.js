@@ -6,7 +6,7 @@ import "./App.css";
 // --- Components ---
 import Header from "./components/HeaderComponents/Header";
 import SideBarContainer from "./containers/SideBar-container/SideBarContainer";
-import ApplicationModuleContainer from "./containers/Application-module-container/ApplicationModuleContainer";
+import ApplicationModuleContainer from "./containers/applicationcontainer/Application-module-container/ApplicationModuleContainer";
 
 import LoginContainer from "./components/login-components/LoginContainer";
 import { useAuthBootstrap } from "./hooks/useAuthBootstrap";

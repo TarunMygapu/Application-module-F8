@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import profileimg from "../../assets/application-analytics/profile_img.png";
+import profileimg from "../../assets/applicationassets/application-analytics/profile_img.png";
 import styles from "./UserInfoComponent.module.css";
 import { useDispatch } from "react-redux";
 import { logout } from "../../slices/authorizationSlice";

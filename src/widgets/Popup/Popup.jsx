@@ -3,8 +3,8 @@ import styles from "./Popup.module.css";
 
 // Assuming these paths are correct, but they are not used in the final JSX 
 // unless your Button component needs them, which is unlikely based on the provided code.
-import popupicon from "../../assets/application-status/Frame 1410092371.svg"; 
-import closeicon from "../../assets/application-status/iconamoon_close.svg"; 
+import popupicon from "../../assets/applicationassets/application-status/Frame 1410092371.svg"; 
+import closeicon from "../../assets/applicationassets/application-status/iconamoon_close.svg"; 
 
 import Button from "../Button/Button";
 

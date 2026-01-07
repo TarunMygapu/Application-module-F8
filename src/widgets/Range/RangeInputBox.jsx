@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./RangeInputBox.module.css";
-import updownicon from "../../assets/application-distribution/updownicon";
+import updownicon from "../../assets/applicationassets/application-distribution/updownicon";
 
 const RangeInputBox = ({ field, form, label }) => {
   const [rangeClicked, setRangeClicked] = useState(false);

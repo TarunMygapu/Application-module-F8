@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import styles from "./PopupNavTabs.module.css";
-import { ReactComponent as CashIcon } from '../../../assets/application-status/school-sale-conf-assets/CashIcon.svg';
-import { ReactComponent as DDIcon } from '../../../assets/application-status/school-sale-conf-assets/DDIcon.svg';
-import { ReactComponent as ChequeIcon } from '../../../assets/application-status/school-sale-conf-assets/Cheque.svg';
-import { ReactComponent as CardIcon } from '../../../assets/application-status/school-sale-conf-assets/Debit Card.svg';
+import { ReactComponent as CashIcon } from '../../../assets/applicationassets/application-status/school-sale-conf-assets/CashIcon.svg';
+import { ReactComponent as DDIcon } from '../../../assets/applicationassets/application-status/school-sale-conf-assets/DDIcon.svg';
+import { ReactComponent as ChequeIcon } from '../../../assets/applicationassets/application-status/school-sale-conf-assets/Cheque.svg';
+import { ReactComponent as CardIcon } from '../../../assets/applicationassets/application-status/school-sale-conf-assets/Debit Card.svg';
 const tabs = [
   { id: "cash", label: "Cash", icon: <CashIcon /> },
   { id: "dd", label: "DD", icon: <DDIcon /> },

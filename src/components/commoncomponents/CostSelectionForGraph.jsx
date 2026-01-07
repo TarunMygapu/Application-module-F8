@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from "react";
 import styles from "./CostSelectionForGraph.module.css";
 import Button from "../../widgets/Button/Button";
-import { useSelectedEntity } from "../../../src/contexts/SelectedEntityContext";
-import { useGetAllAmounts } from "../../../src/queries/application-analytics/analytics";
+import { useSelectedEntity } from "../../contexts/applicationcontext/SelectedEntityContext";
+import { useGetAllAmounts } from "../../queries/applicationqueries/application-analytics/analytics";
 
 const CostSelectionForGraph = ({ onClose, onApply, onClear }) => {
   const [activeTab, setActiveTab] = useState(null);

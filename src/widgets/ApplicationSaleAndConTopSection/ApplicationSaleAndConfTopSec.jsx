@@ -1,5 +1,5 @@
 import styles from "./ApplicationSaleAndConfTopSec.module.css";
-import backArrow from '../../assets/application-status/school-sale-conf-assets/backArrow.svg'; 
+import backArrow from '../../assets/applicationassets/application-status/school-sale-conf-assets/backArrow.svg'; 
 
 const ApplicationSaleAndConfTopSec = ({ step = 1, onBack, title, detailsObject }) => {
  

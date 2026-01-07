@@ -2,7 +2,7 @@ import React, {useEffect} from "react";
 
 import styles from "./DistriubtionSuccessPage.module.css";
 import LottieWithDot from "../LottieWithDot/LottieWithDot";
-import SuccessfullGif from "../../assets/Varsity.lottie";
+import SuccessfullGif from "../../assets/applicationassets/application-status/Varsity.lottie";
 import Button from "../Button/Button"
 
 const rightSideIcon = (
