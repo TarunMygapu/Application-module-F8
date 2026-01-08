@@ -618,6 +618,7 @@ const AccordiansContainer = () => {
 
   // ✅ Use useRole hook to check if user is admin (same as AnalyticsHeader)
   const { hasRole: isUserAdmin } = useRole("ADMIN");
+  console.log("Is User Admin from useRole hook:", isUserAdmin);
 
   // ✅ Get user roles from Redux (set during login)
   const roles = useSelector((state) => state.authorization?.roles || []);
@@ -655,6 +656,7 @@ const AccordiansContainer = () => {
   const isZonalAccountant =
     userCategory === "SCHOOL" || userCategory === "COLLEGE";
   const isAdminFromCategory = !!userCategory && !isZonalAccountant;
+  
 
   // ✅ Conditionally fetch graph data based on role
   // Admin uses: cards_graph endpoint → returns { metricCards: [...], graphData: { graphBarData: [...] } }
@@ -808,8 +810,11 @@ const AccordiansContainer = () => {
   const hasEntity = !!selectedEntity.id;
   const hasAmount = !!selectedAmount;
   const shouldFetch = hasEntity || hasAmount;
+  const employeeId = sessionStorage.getItem("empId");
 
-  const flexibleGraphQuery = useGetFlexibleGraph(zoneId, campusIds, campusId, amount, {
+  const userEmployeeId = isUserAdmin ? employeeId : "";
+
+  const flexibleGraphQuery = useGetFlexibleGraph(zoneId, campusIds, campusId, amount, userEmployeeId, {
     enabled: shouldFetch, // Enable when entity OR amount is selected
   });
 
@@ -981,7 +986,7 @@ const AccordiansContainer = () => {
 
   console.log("=== GRAPH DEBUG ===");
   console.log("User Category:", userCategory);
-  console.log("Is Admin:", isAdmin);
+  console.log("Is Admin:", isUserAdmin);
   console.log("Employee ID:", empId);
   console.log("Full Graph Response:", graphResponse);
   console.log("Is Loading:", isLoading);
@@ -1034,9 +1039,9 @@ const AccordiansContainer = () => {
 
   // ✅ Extract role from response for non-admin users
   const userRole = useMemo(() => {
-    if (isAdmin) return "Admin";
+    if (isUserAdmin) return "Admin";
     return graphResponse?.role || "User";
-  }, [graphResponse, isAdmin]);
+  }, [graphResponse, isUserAdmin]);
 
   console.log("User Role from API:", userRole);
 
@@ -1059,7 +1064,7 @@ const AccordiansContainer = () => {
       return [{
         title: "Previous Year Graph",
         graphData: [
-          { label: isAdmin ? "Issued" : "Total Applications", percent: 0, type: "issued" },
+          { label: isUserAdmin ? "Issued" : "Total Applications", percent: 0, type: "issued" },
           { label: "Sold", percent: 0, type: "sold" },
         ],
         graphBarData: defaultBarData, // Already in descending order
@@ -1186,7 +1191,7 @@ const AccordiansContainer = () => {
       return [{
         title: "Previous Year Graph",
         graphData: [
-          { label: isAdmin ? "Issued" : "Total Applications", percent: 0, type: "issued" },
+          { label: isUserAdmin ? "Issued" : "Total Applications", percent: 0, type: "issued" },
           { label: "Sold", percent: 0, type: "sold" },
         ],
         graphBarData: defaultBarData,
@@ -1298,7 +1303,7 @@ const AccordiansContainer = () => {
       return [{
         title: "Previous Year Graph",
         graphData: [
-          { label: isAdmin ? "Issued" : "Total Applications", percent: 0, type: "issued" },
+          { label: isUserAdmin ? "Issued" : "Total Applications", percent: 0, type: "issued" },
           { label: "Sold", percent: 0, type: "sold" },
         ],
         graphBarData: defaultBarData,
@@ -1320,7 +1325,7 @@ const AccordiansContainer = () => {
         title: accordionTitle,
         permissionKey: "DISTRIBUTE_ZONE",
         graphData: [
-          { label: isAdmin ? "Issued" : "Total Applications", percent: issuedPercent, type: "issued" },
+          { label: isUserAdmin ? "Issued" : "Total Applications", percent: issuedPercent, type: "issued" },
           { label: "Sold", percent: soldPercent, type: "sold" },
         ],
         graphBarData: sortedBarData, // Use sorted data (descending order - newest first)
@@ -1330,7 +1335,7 @@ const AccordiansContainer = () => {
         title: accordionTitle,
         permissionKey: "DISTRIBUTE_DGM",
         graphData: [
-          { label: isAdmin ? "Issued" : "Total Applications", percent: issuedPercent, type: "issued" },
+          { label: isUserAdmin ? "Issued" : "Total Applications", percent: issuedPercent, type: "issued" },
           { label: "Sold", percent: soldPercent, type: "sold" },
         ],
         graphBarData: sortedBarData, // Use sorted data (descending order - newest first)
@@ -1340,7 +1345,7 @@ const AccordiansContainer = () => {
         title: accordionTitle,
         permissionKey: "DISTRIBUTE_CAMPUS",
         graphData: [
-          { label: isAdmin ? "Issued" : "Total Applications", percent: issuedPercent, type: "issued" },
+          { label: isUserAdmin ? "Issued" : "Total Applications", percent: issuedPercent, type: "issued" },
           { label: "Sold", percent: soldPercent, type: "sold" },
         ],
         graphBarData: sortedBarData, // Use sorted data (descending order - newest first)
@@ -1352,7 +1357,7 @@ const AccordiansContainer = () => {
         title: accordionTitle,
         permissionKey: "VIEW_GRAPH",
         graphData: [
-          { label: isAdmin ? "Issued" : "Total Applications", percent: issuedPercent, type: "issued" },
+          { label: isUserAdmin ? "Issued" : "Total Applications", percent: issuedPercent, type: "issued" },
           { label: "Sold", percent: soldPercent, type: "sold" },
         ],
         graphBarData: sortedBarData, // Use sorted data (descending order - newest first)
@@ -1360,7 +1365,7 @@ const AccordiansContainer = () => {
     }
 
     return accordions;
-  }, [rawGraphData, canViewZone, canViewDGM, canViewCampus, isAdmin, userRole]);
+  }, [rawGraphData, canViewZone, canViewDGM, canViewCampus, isUserAdmin, userRole]);
 
   // ✅ Create accordion for selected zone/dgm/campus using flexible-graph endpoint
   // This accordion shows data based on entity selection, amount selection, or both
@@ -1417,7 +1422,7 @@ const AccordiansContainer = () => {
       return {
         title: hasEntity ? `${selectedEntity.name} Graph` : `Amount ${selectedAmount} Graph`,
         graphData: [
-          { label: isAdmin ? "Issued" : "Total Applications", percent: 0, type: "issued" },
+          { label: "Total Applications", percent: 0, type: "issued" },
           { label: "Sold", percent: 0, type: "sold" },
         ],
         graphBarData: defaultBarData,
@@ -1437,7 +1442,7 @@ const AccordiansContainer = () => {
       return {
         title: hasEntity ? `${selectedEntity.name} Graph` : `Amount ${selectedAmount} Graph`,
         graphData: [
-          { label: isAdmin ? "Issued" : "Total Applications", percent: 0, type: "issued" },
+          { label: "Total Applications", percent: 0, type: "issued" },
           { label: "Sold", percent: 0, type: "sold" },
         ],
         graphBarData: defaultBarData,
@@ -1478,7 +1483,7 @@ const AccordiansContainer = () => {
     console.log("✅ Creating accordion with title:", title);
 
     // Use the same label logic as default accordion
-    const issuedLabel = isAdmin ? "Issued" : "Total Applications";
+    const issuedLabel = "Total Applications";
 
     return {
       title: title,
@@ -1488,7 +1493,7 @@ const AccordiansContainer = () => {
       ],
       graphBarData: transformedBarData,
     };
-  }, [selectedEntity, selectedAmount, flexibleGraphQuery.data, flexibleGraphQuery.isLoading, flexibleGraphQuery.isFetching, flexibleGraphQuery.isError, isAdmin]);
+  }, [selectedEntity, selectedAmount, flexibleGraphQuery.data, flexibleGraphQuery.isLoading, flexibleGraphQuery.isFetching, flexibleGraphQuery.isError, isUserAdmin]);
 
   const visibleAccordions = useMemo(() => {
     // Start with default accordion(s)

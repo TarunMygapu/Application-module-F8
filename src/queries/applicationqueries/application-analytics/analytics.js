@@ -524,7 +524,7 @@ const getAnalyticsForCampus = async (campusId) => {
 // ----------------------
 // 📊 Flexible Graph API (supports zoneId, campusId, amount - all optional)
 // ----------------------
-const buildFlexibleGraphUrl = (zoneId, campusIds, campusId, amount) => {
+const buildFlexibleGraphUrl = (zoneId, campusIds, campusId, amount,empId) => {
   const baseUrl = "http://localhost:8080/api/analytics/flexible-graph";
   const params = new URLSearchParams();
 
@@ -560,7 +560,7 @@ const buildFlexibleGraphUrl = (zoneId, campusIds, campusId, amount) => {
   return finalUrl;
 };
 
-const getFlexibleGraph = async (zoneId, campusIds, campusId, amount) => {
+const getFlexibleGraph = async (zoneId, campusIds, campusId, amount,empId) => {
   console.log("🟣 API CALL: getFlexibleGraph with:", {
     zoneId,
     campusIds,
@@ -568,7 +568,7 @@ const getFlexibleGraph = async (zoneId, campusIds, campusId, amount) => {
     amount
   });
 
-  const url = buildFlexibleGraphUrl(zoneId, campusIds, campusId, amount);
+  const url = buildFlexibleGraphUrl(zoneId, campusIds, campusId, amount,empId);
   console.log("🟣 API URL:", url);
 
   try {
@@ -719,18 +719,20 @@ export const useGetAnalyticsForDgm = (empId, options = {}) =>
   });
 
 // ✅ Flexible Graph (supports zoneId, campusId, amount - all optional)
-export const useGetFlexibleGraph = (zoneId, campusIds, campusId, amount, options = {}) => {
+export const useGetFlexibleGraph = (zoneId, campusIds, campusId, amount,empId, options = {}) => {
   // Validate that at least one parameter is provided
   // Note: amount can be 0, which is a valid value
   const hasValidParams =
     (zoneId != null && zoneId !== "" && zoneId !== undefined) ||
     (campusIds != null && campusIds !== "" && campusIds !== undefined) ||
     (campusId != null && campusId !== "" && campusId !== undefined) ||
-    (amount != null && amount !== "" && amount !== undefined); // Allow 0 as valid amount
+    (amount != null && amount !== "" && amount !== undefined) ||
+    (empId != null && empId !== "" && empId !== undefined);  
+
 
   return useQuery({
-    queryKey: ["Get Flexible Graph", zoneId, campusIds, campusId, amount],
-    queryFn: () => getFlexibleGraph(zoneId, campusIds, campusId, amount),
+    queryKey: ["Get Flexible Graph", zoneId, campusIds, campusId, amount, empId],
+    queryFn: () => getFlexibleGraph(zoneId, campusIds, campusId, amount, empId),
     enabled: hasValidParams && (options.enabled ?? true),
     ...options,
   });

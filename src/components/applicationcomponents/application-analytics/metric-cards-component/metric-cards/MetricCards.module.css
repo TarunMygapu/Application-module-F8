@@ -71,17 +71,17 @@
 }
 
 .green_text {
-  color: #22c55e;
+  color: #22C55E;
 }
 
 .red_text {
-  color: #ef4444;
+  color: #C52222;
 }
 
 .percentage_box_border_red {
-  border-color: #ef4444;
+  border:1px solid #C52222;
 }
 
 .percentage_box_border_green {
-  border-color: #22c55e;
+  border:1px solid #22C55E;
 }

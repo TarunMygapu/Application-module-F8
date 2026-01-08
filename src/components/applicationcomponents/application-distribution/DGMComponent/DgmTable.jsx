@@ -105,16 +105,6 @@ const DgmTable = ({ onSelectionChange, callTable, tableTrigger }) => {
     });
   };
  
-   const {
-    data: seriesData,
-    refetch: refetchApplicationSeries
-  } = useGetApplicationSeriesForEmpId(
-    null, // receiverId (dynamic)
-    null, // academicYear (dynamic)
-    null, // amount (dynamic)
-    false // isPro default
-  );
- 
   // Apply updates returning from the form
   const handleUpdate = (updatedRow) => {
     setData((prev) =>

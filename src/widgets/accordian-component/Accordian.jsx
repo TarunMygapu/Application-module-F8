@@ -13,12 +13,22 @@ import PercentBox from "./PercentBox";
 
 import reddot2 from "../../assets/applicationassets/application-analytics/red2.svg";
 import greendot2 from "../../assets/applicationassets/application-analytics/green2.svg";
+import { useRole } from "../../hooks/useRole";
 
 // import greenimage from "../../../assets/applicationassets/application-analytics/greenimage.png"
 // import redimage from "../../../assets/applicationassets/application-analytics/redimage.png";
 
 // Controlled by parent: receives `expanded` and `onChange`
-const Accordian = ({ zoneTitle, percentageItems, graphBarData, expanded, onChange }) => {
+const Accordian = ({ zoneTitle, percentageItems, graphBarData, expanded = true, onChange }) => {
+  console.log("Accordian Props →", { zoneTitle, percentageItems, graphBarData, expanded});
+  const { hasRole: isUserAdmin } = useRole("ADMIN");
+  const userLabel = (zoneTitle) => {
+    if (zoneTitle === "Previous Year Graph") {
+      return isUserAdmin ? "Issued" : "Total Applications";
+    }
+    return "Total Applications";
+  };
+
   return (
     <Accordion
       expanded={!!expanded}
@@ -87,7 +97,7 @@ const Accordian = ({ zoneTitle, percentageItems, graphBarData, expanded, onChang
           <div className={styles.dots_container}>
             <div className={styles.dot_part}>
               <img src={reddot2} className={styles.red_dot} alt="Issued" />
-              <p>Issued</p>
+              <p>{userLabel(zoneTitle)}</p>
             </div>
             <div className={styles.dot_part}>
               <img src={greendot2} className={styles.green_dot} alt="Sold" />

@@ -262,7 +262,7 @@ const DistributeForm = ({
     if (hasDropdownConfig) {
       const isLockedonUpdate =
         isUpdate &&
-        (cfg.name === "applicationSeries" || cfg.name === "applicationFee");
+        (cfg.name === "applicationSeries" || cfg.name === "applicationFee" || cfg.name === "academicYear");
       const dropdownDisabled =
         !!cfg.disabled || isLockedonUpdate || options.length === 0;
       const searchResults =
