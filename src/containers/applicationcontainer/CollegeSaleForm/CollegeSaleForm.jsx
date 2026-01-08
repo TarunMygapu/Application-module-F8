@@ -3291,6 +3291,8 @@ const CollegeSalePage = () => {
   const [academicFormValues, setAcademicFormValues] = useState(null);
   const [submissionResponse, setSubmissionResponse] = useState(null);
 
+  
+
   // State to store data from ApplicationSaleDetails
   const [applicationDetailsData, setApplicationDetailsData] = useState(null);
 
@@ -3411,6 +3413,8 @@ const CollegeSalePage = () => {
 
   // API Call Function (Will replace placeholder)
   const handleSubmitAPI = async (values) => {
+    console.log("-------------------------------------------------------")
+    console.log("🚀 Submitting College Application Sale API with values:");
     console.log("📤 Final Submit API Payload:", values);
 
     // TODO: Replace this with your actual POST API call
@@ -3870,7 +3874,7 @@ const CollegeSalePage = () => {
           tenthHallTicketNo: sourceData.tenthHallTicketNo,
           interFirstYearHallTicketNo: sourceData.interFirstYearHallTicketNo,
           interHallTicketNo: sourceData.interHallTicketNo,
-          preHallTicketNo: sourceData.preHallTicketNo,
+          preHallTicketNo: sourceData.interHallTicketNo ||   sourceData.interFirstYearHallTicketNo,
           schoolStateName: sourceData.schoolStateName,
           preSchoolStateName: sourceData.preSchoolStateName,
           schoolStateId: sourceData.schoolStateId,
@@ -3902,7 +3906,7 @@ const CollegeSalePage = () => {
         });
 
         // Hall Ticket Number (for INTER1)
-        const hallTicketNoValue = sourceData.hallTicketNo || sourceData.tenthHallTicketNo || sourceData.hall_ticket_no || sourceData.htNo || sourceData.ht_no || sourceData.preHallTicketNo || sourceData.pre_hall_ticket_no;
+        const hallTicketNoValue = sourceData.hallTicketNo || sourceData.tenthHallTicketNo || sourceData.hall_ticket_no || sourceData.htNo || sourceData.ht_no ;
         if (hallTicketNoValue) {
           formik.setFieldValue("hallTicketNo", String(hallTicketNoValue));
           console.log("✅ Auto-populated hallTicketNo:", hallTicketNoValue);
@@ -3916,7 +3920,7 @@ const CollegeSalePage = () => {
         }
 
         // Inter 1st Year Hall Ticket No (for INTER2)
-        const interFirstYearHallTicketNoValue = sourceData.interFirstYearHallTicketNo || sourceData.inter_first_year_hall_ticket_no || sourceData.inter1stYearHallTicketNo || sourceData.inter_1st_year_hall_ticket_no;
+        const interFirstYearHallTicketNoValue = sourceData.interFirstYearHallTicketNo || sourceData.inter_first_year_hall_ticket_no || sourceData.interHallTicketNo || sourceData.inter_1st_year_hall_ticket_no;
         if (interFirstYearHallTicketNoValue) {
           formik.setFieldValue("interFirstYearHallTicketNo", String(interFirstYearHallTicketNoValue));
           console.log("✅ Auto-populated interFirstYearHallTicketNo:", interFirstYearHallTicketNoValue);
@@ -3928,9 +3932,9 @@ const CollegeSalePage = () => {
           formik.setFieldValue("interHallTicketNo", String(interHallTicketNoValue));
           console.log("✅ Auto-populated interHallTicketNo:", interHallTicketNoValue);
         }
-
+        console.log("SCORE APP NUMBER: ", sourceData.scoreAppNo);
         // Score App No
-        const scoreAppNoValue = sourceData.scoreAppNo || sourceData.studAdmsNo || sourceData.score_app_no || sourceData.stud_adms_no;
+        const scoreAppNoValue = sourceData.scoreAppNo;
         if (scoreAppNoValue) {
           formik.setFieldValue("scoreAppNo", String(scoreAppNoValue));
           console.log("✅ Auto-populated scoreAppNo:", scoreAppNoValue);
@@ -4448,6 +4452,8 @@ const CollegeSalePage = () => {
         }
 
         console.log(`✅ College form auto-populated from ${isFastSold ? 'fast sale' : 'overview'} data`);
+        console.log("---------------------------------------------------");
+        console.log("-------- SCORE APP NO: ", sourceData.scoreAppNo);
 
         // Log what was actually set in Formik for parent and orientation information
         setTimeout(() => {
@@ -4735,6 +4741,7 @@ const CollegeSalePage = () => {
                                 if (siblingsFromFormik.length > 0) {
                                   console.log('  - First sibling:', siblingsFromFormik[0]);
                                   console.log('  - All siblings:', JSON.stringify(siblingsFromFormik, null, 2));
+                                  console.log("Values set to Values from Formik:", JSON.stringify(currentFormikValues, null, 2));
                                 }
                                 console.log('====================================================');
 
@@ -4806,6 +4813,7 @@ const CollegeSalePage = () => {
                                 }
                                 console.log('  - Full values object keys:', Object.keys(values));
                                 console.log('====================================================');
+                                console.log("Values Send to Payment Popup:", values);
                                 setFormValues(values);
                                 setAcademicFormValues(academicData);
 

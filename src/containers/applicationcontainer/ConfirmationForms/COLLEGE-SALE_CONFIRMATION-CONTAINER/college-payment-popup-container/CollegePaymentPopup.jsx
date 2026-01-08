@@ -4,6 +4,7 @@ import PaymentPopup from '../../../../../widgets/PaymentPopup/whole-payment-popu
 const CollegePaymentPopup = ({ onClose, formData, academicFormData, detailsObject, applicationDetailsData, onSuccess }) => {
   // Debug: Log props received by CollegePaymentPopup
   console.log("📦 ===== COLLEGE PAYMENT POPUP CONTAINER =====");
+  console.log("Form Data:", formData);
   console.log("applicationDetailsData:", applicationDetailsData);
   console.log("detailsObject:", detailsObject);
   console.log("detailsObject.status:", detailsObject?.status);

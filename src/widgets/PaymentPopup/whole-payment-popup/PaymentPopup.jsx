@@ -941,6 +941,7 @@ const PaymentPopup = ({
           console.log("===========================================");
 
           // Submit to college confirmation API
+          console.log("📤 Payload set to the College Sale API: ",payload);
           response = await submitCollegeApplicationConfirmation(payload);
         } else if (saleType === "fast") {
           // Map college fast sale form data to API payload

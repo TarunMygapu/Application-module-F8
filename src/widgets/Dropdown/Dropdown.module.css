@@ -157,3 +157,11 @@
   font-size: 12px;
 }
  
+
+.dropdown_arrow {
+  transition: transform 0.2s ease;
+}
+
+.dropdown_arrow_open {
+  transform: rotate(180deg);
+}

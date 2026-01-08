@@ -192,6 +192,7 @@ const CollegeSaleConfirmationContainer = () => {
  
   // State to store form data and academic form data for submission
   const [formData, setFormData] = useState(null);
+  console.log("Form Data State in Confirmation Container:", formData);
   const [academicFormData, setAcademicFormData] = useState(null);
   const [submissionResponse, setSubmissionResponse] = useState(null);
  
@@ -240,6 +241,7 @@ const CollegeSaleConfirmationContainer = () => {
  
   const handleProceedToPayment = (formDataFromChild, academicFormDataFromChild) => {
     // Store form data and academic form data when proceeding to payment
+    console.log("📦 Proceeding to payment with form data:", formDataFromChild);
     setFormData(formDataFromChild);
     setAcademicFormData(academicFormDataFromChild);
     setShowPaymentPopup(true);

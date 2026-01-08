@@ -298,12 +298,13 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
     console.log("  - Second Year Concession:", formData.secondYearConcession);
     console.log("  - Second Year Concession Type ID:", formData.secondYearConcessionTypeId);
     console.log("  - Concession Reason:", formData.concessionReason);
-    console.log("  - Authorized By:", formData.authorizedBy);
-    console.log("  - Referred By:", formData.referredBy);
+    console.log("  - Authorized By:", formData.authorizedById);
+    console.log("  - Referred By:", formData.referredById);
     console.log("=====================================");
     
     if (onProceedToPayment) {
       // Pass form data and academic form data to parent
+      console.log("Form data being sent to onProceedToPayment:", formData);
       onProceedToPayment(formData, academicFormData);
     }
   };

@@ -10,13 +10,15 @@ const apiClient = axios.create({
   }
 });
 
-/**
+/** 
  * Submit college application confirmation data
  * @param {Object} payload - The complete payload matching the API structure
  * @returns {Promise} - Axios response
  */
 export const submitCollegeApplicationConfirmation = async (payload) => {
+
   try {
+    console.log("PAYLOAD SEND TO THE PAYLOAD API: ", payload);
     const endpoint = '/student_fast_sale/college-confirmation';
     const fullUrl = `${BASE_URL}${endpoint}`;
     console.log('🌐 Submitting to:', fullUrl);
@@ -141,17 +143,32 @@ export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentD
         }
       } else {
         // Try to convert directly
-        reasonId = toNumber(formData.concessionReason);
+        reasonId = toNumber(formData.concessionReasonId);
         console.log('  - Converted directly to number:', reasonId);
       }
     }
+
+    console.log("Values matching with middleware object:",{
+      "concessionTypeId":formData.concessionTypeId,
+      "concessionAmount": formData.concessionAmount,
+      "givenById": "what we have to set here?",
+      "authorizedById": 0,
+      "reasonId": formData.reasonId,
+      "comments": "string",
+      "createdBy": "what we have set here?",
+      "concReferedBy": formData.concReferedBy,
+      "proConcessionAmount": 0,
+      "proConcessionReason": "string",
+      "proConcessionGivenBy": 0
+    })
 
     console.log('  - Final reasonId:', reasonId, 'from:', formData.concessionReason);
 
     if (reasonId > 0) { // Only add if reasonId is valid (not 0 or null)
       // Extract authorizedBy and referredBy IDs (handle "name - id" format)
-      const authorizedById = toNumber(formData.authorizedBy);
-      const referredById = toNumber(formData.referredBy);
+      const authorizedById = toNumber(formData.authorizedById);
+      console.log("Authorized By ID:", authorizedById);
+      const referredById = toNumber(formData.referredById);
 
       // Get pro concession fields if "Concession Written on Application" is checked
       const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount
