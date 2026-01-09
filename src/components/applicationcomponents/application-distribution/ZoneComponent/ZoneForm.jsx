@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import React, { useMemo, useState, useEffect, useRef, use } from "react";
 import DistributeForm from "../DistributeForm";
 
 import {
@@ -10,7 +10,9 @@ import {
   useGetMobileNo,
   useGetAllFeeAmounts,
   useGetApplicationSeriesForEmpId,
+  useGetLocationOfEmployees,
 } from "../../../../queries/applicationqueries/application-distribution/dropdownqueries";
+import { useRole } from "../../../../hooks/useRole";
 import { useFormikContext } from "formik";
 
 // ---------- LABEL/ID HELPERS ----------
@@ -90,7 +92,11 @@ const ZoneForm = ({
     isHydratingRef.current = false;
   }, [isUpdate, seedInitialValues]);
 
+  const { hasRole: isUserAdmin } = useRole("ADMIN");
+  console.log("Is User Admin: ", isUserAdmin);
   const campusCategory = localStorage.getItem("campusCategory");
+  console.log("Employee Campus Category :", campusCategory);
+
 
   // --------------------- BASIC DROPDOWNS ----------------------------
   const { data: statesRaw = [] } = useGetStateName();
@@ -109,6 +115,11 @@ const ZoneForm = ({
     employeeId,
     selectedAcademicYearId
   );
+
+  console.log("------------------ ZONE FORM ---------------------")
+
+    const {data} = useGetLocationOfEmployees(employeeId, campusCategory, isUserAdmin);
+  console.log("Location of Employees Data:", data);
 
   // -------------------- APPLICATION SERIES -------------------------
   const { data: applicationSeries = [] } = useGetApplicationSeriesForEmpId(

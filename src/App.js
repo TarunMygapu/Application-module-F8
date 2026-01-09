@@ -28,7 +28,7 @@ const Fleet = () => <div>Fleet</div>;
 const Warehouse = () => <div>Warehouse</div>;
 const Sms = () => <div>SMS</div>;
 const QuestionBank = () => <div>Question Bank</div>;
-const AssetsManagement = () => <div>Assets Management</div>;
+const AssetsManagement = () => <div>Asset Management</div>;
 const PaymentsService = () => <div>Payment Services</div>;
 const Cctv = () => <div>CCTV</div>;
 const Hrms = () => <div>HRMS</div>;

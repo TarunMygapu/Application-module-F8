@@ -24,6 +24,7 @@ import {
 import { buildInitialValues } from "./buildInitialValuesForDistribution";
 
 import Popup from "../../../widgets/PopupWidgets/Popup";
+import {useRole} from "../../../hooks/useRole";
 
 
 const normalizeOptions = (options) =>
@@ -82,13 +83,14 @@ const DistributeForm = ({
    setTableTrigger,
 }) => {
   const employeeId = localStorage.getItem("empId");
-  const category = localStorage.getItem("category");
+  const category = localStorage.getItem("campusCategory");
+  const {hasRole : isUserAdmin } = useRole("ADMIN");
   const [showPopup, setShowPopup] = useState(false);
   const [pendingValues, setPendingValues] = useState(null);
   const [apiLoading, setApiLoading] = useState(false);
 
-
   const [formError, setFormError] = useState(null);
+  const restrictDropdown = isUserAdmin ? false: true;
   console.log("Form Type:", formType);
   const fieldsForType = useMemo(() => getFieldsForType(formType), [formType]);
   const fieldMap = useMemo(() => {
@@ -261,8 +263,9 @@ const DistributeForm = ({
     const options = normalizeOptions(rawOptions);
     if (hasDropdownConfig) {
       const isLockedonUpdate =
-        isUpdate &&
-        (cfg.name === "applicationSeries" || cfg.name === "applicationFee" || cfg.name === "academicYear");
+        restrictDropdown && 
+        (cfg.name === "cityName" || cfg.name === "zoneName" || cfg.name === "campaignDistrictName") || 
+        isUpdate && (cfg.name === "applicationSeries" || cfg.name === "applicationFee" || cfg.name === "academicYear");
       const dropdownDisabled =
         !!cfg.disabled || isLockedonUpdate || options.length === 0;
       const searchResults =

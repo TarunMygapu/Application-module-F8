@@ -11,7 +11,9 @@ import {
   useGetAllFeeAmounts,
   useGetApplicationSeriesForEmpId,
   useGetDgmWithZonalAccountant,
+  useGetLocationOfEmployees,
 } from "../../../../queries/applicationqueries/application-distribution/dropdownqueries";
+import { useRole } from "../../../../hooks/useRole";
 
 // ---------------- LABEL / ID HELPERS ----------------
 const yearLabel = (y) => y?.academicYear ?? y?.name ?? "";
@@ -44,7 +46,6 @@ const DgmForm = ({
    setTableTrigger,
 }) => {
 
-
   const isHydratingRef = useRef(true);
   const prevCityNameRef = useRef(null);
   const prevZoneNameRef = useRef(null);
@@ -65,21 +66,8 @@ const DgmForm = ({
     academicYear: initialValues?.academicYear || "2025-26",
   });
 
-  useEffect(() => {
-    if (!isUpdate) {
-      isHydratingRef.current = false;
-      return;
-    }
 
-    // initialize previous values from update data
-    prevCityNameRef.current = seedInitialValues.cityName || null;
-    prevZoneNameRef.current = seedInitialValues.zoneName || null;
-    prevCampusNameRef.current = seedInitialValues.campusName || null;
-
-    isHydratingRef.current = false;
-  }, [isUpdate, seedInitialValues]);
-
-  const didSeedRef = useRef(false);
+    const didSeedRef = useRef(false);
   const employeeId = localStorage.getItem("empId");
   const category = localStorage.getItem("category");
   const campusCategory = localStorage.getItem("campusCategory");
@@ -92,6 +80,13 @@ const DgmForm = ({
   console.log("Campus Raw Data: ", campusRaw);
   const { data: employeesRaw = [] } = useGetDgmsByCampus(selectedCampusId);
   const { data: mobileNo } = useGetMobileNo(issuedToId);
+  const {hasRole : isUserAdmin} = useRole("ADMIN");
+
+  const {data : locationData,isLoading,
+  isFetching,
+  isSuccess: isLocationSuccess,
+  isError,} = useGetLocationOfEmployees(employeeId,campusCategory,isUserAdmin);
+  console.log("ZONAL ACCOUNTANT LOCATIONS: ",locationData);
 
   // Application Fee
   const { data: applicationFee = [] } = useGetAllFeeAmounts(
@@ -119,6 +114,63 @@ const DgmForm = ({
   const zones = asArray(zonesRaw);
   const campuses = asArray(campusRaw);
   const employees = asArray(employeesRaw);
+
+const hydratedRef = useRef(false);
+
+useEffect(() => {
+  if (hydratedRef.current) return;
+  if (!isLocationSuccess || !locationData) return;
+  if (isUserAdmin) return;
+
+  const { cityId: cId, zoneId: zId, cityName, zoneName } = locationData;
+
+  // ⛔ backend returned nulls
+  if (!cId || !zId) {
+    hydratedRef.current = true;
+    isHydratingRef.current = false;
+    return;
+  }
+
+  // 🔁 STEP 1: set city (trigger zones API)
+  if (selectedCityId !== cId) {
+    isHydratingRef.current = true;
+    setSelectedCityId(cId);
+    return;
+  }
+
+  // ⛔ wait until city exists
+  const cityExists = cities.some(c => cityId(c) === cId);
+  if (!cityExists) return;
+
+  // ⛔ wait until zones load
+  if (!zones.length) return;
+
+  const zoneExists = zones.some(z => zoneId(z) === zId);
+  if (!zoneExists) return;
+
+  // ✅ STEP 2: set zone + Formik names
+  setSelectedZoneId(zId);
+
+  // setSeedInitialValues(prev => ({
+  //   ...prev,
+  //   cityName,
+  //   zoneName,
+  // }));
+
+  prevCityNameRef.current = cityName;
+  prevZoneNameRef.current = zoneName;
+
+  hydratedRef.current = true;
+  isHydratingRef.current = false;
+}, [
+  isLocationSuccess,
+  locationData,
+  selectedCityId,
+  zones,
+  cities,        // ✅ IMPORTANT
+  isUserAdmin,
+]);
+
 
   // ---------------- OPTIONS FOR UI ----------------
   const academicYearNames = years.map(yearLabel);
@@ -293,6 +345,10 @@ const DgmForm = ({
     if (selectedZoneId != null) obj.zoneId = selectedZoneId;
     if (selectedCampusId != null) obj.campusId = selectedCampusId;
 
+      // 🔥 ADD THESE
+  if (locationData?.cityName) obj.cityName = locationData.cityName;
+  if (locationData?.zoneName) obj.zoneName = locationData.zoneName;
+
     if (issuedToId != null) {
       obj.issuedToEmpId = issuedToId;
       obj.issuedToId = issuedToId;
@@ -309,6 +365,7 @@ const DgmForm = ({
     issuedToId,
     applicationFee,
     applicationSeries,
+    locationData,
   ]);
 
   // ---------------- DYNAMIC OPTIONS ----------------

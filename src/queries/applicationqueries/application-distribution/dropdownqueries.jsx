@@ -192,6 +192,9 @@ const getSchoolDgmCityDistrictId = async(empId, category)=>
 const getDgmWithZonalAccountant = async(zoneId,category) =>
 (await axios.get(`${BASE_URL}${DISTRIBUTION_GETS}/dgmforzone_with_category_college/${zoneId}/{category}?category=${category}`)).data;
 
+const getLocationOfEmployees = async(empId,category,isUserAdmin) =>
+  (await axios.get(`${BASE_URL}${DISTRIBUTION_GETS}/employee-location/${empId}?cmpsCategory=${category}&returnMessage=${isUserAdmin}`)).data;
+
 // ---------- TanStack Query v5 hooks ----------
 export const useGetStateName = () =>
   useQuery({ queryKey: ["state-names"], queryFn: getStateName });
@@ -447,4 +450,11 @@ export const useGetDgmWithZonalAccountant = (zoneId, category) =>
     queryKey:["Get DGMS for Zone Id With Category :", zoneId,category],
     queryFn: () => getDgmWithZonalAccountant(zoneId,category),
     enabled: !!zoneId,
+  })
+
+export const useGetLocationOfEmployees = (empId,category,isUserAdmin) =>
+  useQuery({
+    queryKey:["Get Location of Employees: ", empId,category,isUserAdmin],
+    queryFn: () => getLocationOfEmployees(empId,category,isUserAdmin),
+    enabled: !!empId && !!category && typeof isUserAdmin === "boolean",
   })

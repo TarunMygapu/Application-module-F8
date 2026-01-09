@@ -23,7 +23,7 @@ export const listData = [
   { icon: questiobank_icon, name: "Question Bank", route: "/scopes/question-bank" },
   {
     icon: assetsmanagement_icon,
-    name: "Assets Management",
+    name: "Asset Management",
     route: "/scopes/assets-management",
   },
   {

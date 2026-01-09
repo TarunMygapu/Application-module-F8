@@ -166,12 +166,47 @@ export const BackendPatcher = ({
   useEffect(() => patchNumber("stateId", backendValues.stateId), [
     backendValues.stateId,
   ]);
-  useEffect(() => patchNumber("cityId", backendValues.cityId), [
-    backendValues.cityId,
-  ]);
-  useEffect(() => patchNumber("zoneId", backendValues.zoneId), [
-    backendValues.zoneId,
-  ]);
+  // useEffect(() => patchNumber("cityId", backendValues.cityId), [
+  //   backendValues.cityId,
+  // ]);
+  // useEffect(() => patchNumber("zoneId", backendValues.zoneId), [
+  //   backendValues.zoneId,
+  // ]);
+
+  // ------------------ CITY NAME ------------------
+useEffect(() => {
+  if (backendValues.cityName != null) {
+    if (values.cityName !== backendValues.cityName) {
+      setFieldValue("cityName", backendValues.cityName, false);
+    }
+  }
+}, [backendValues.cityName, values.cityName, setFieldValue]);
+
+// ------------------ ZONE NAME ------------------
+useEffect(() => {
+  if (backendValues.zoneName != null) {
+    if (values.zoneName !== backendValues.zoneName) {
+      setFieldValue("zoneName", backendValues.zoneName, false);
+    }
+  }
+}, [backendValues.zoneName, values.zoneName, setFieldValue]);
+
+useEffect(() => {
+  if (backendValues.cityId != null) {
+    if (values.campusId !== backendValues.cityId) {
+      setFieldValue("cityId", backendValues.cityId, false);
+    }
+  }
+}, [backendValues.cityId, values.cityId, setFieldValue]);
+
+useEffect(() => {
+  if (backendValues.zoneId != null) {
+    if (values.zoneId !== backendValues.zoneId) {
+      setFieldValue("zoneId", backendValues.zoneId, false);
+    }
+  }
+}, [backendValues.zoneId, values.zoneId, setFieldValue]);
+
   useEffect(() => patchNumber("campusId", backendValues.campusId), [
     backendValues.campusId,
   ]);
