@@ -34,7 +34,7 @@ const Accordian = ({ zoneTitle, percentageItems, graphBarData, expanded = true, 
       expanded={!!expanded}
       onChange={(e, isExpanded) => onChange?.(e, isExpanded)}
       sx={{
-        "& .MuiAccordionDetails-root ": { padding: "8px 16px 0px" },
+        "& .MuiAccordionDetails-root ": { padding: "0px 16px 0px" },
         "&&": {
           "--Paper-shadow": "none",
           boxShadow: "none",
@@ -42,11 +42,13 @@ const Accordian = ({ zoneTitle, percentageItems, graphBarData, expanded = true, 
           border: "1px solid #E6E4F0",
           background: "rgba(255, 255, 255, 0.40)",
           backdropFilter: "blur(9.100000381469727px)",
+          height: expanded ? 254 : 89,
         },
         "&::before": { display: "none" },
         "& .MuiButtonBase-root": {
           alignItems: "start",
           padding: "12px 18px",
+          // height: 89,
         },
         "&.Mui-expanded": {
           borderRadius: "10px",
@@ -56,6 +58,15 @@ const Accordian = ({ zoneTitle, percentageItems, graphBarData, expanded = true, 
             "0 8px 16px 0 rgba(0, 0, 0, 0.14), 0 0 2px 0 rgba(0, 0, 0, 0.12)",
           backdropFilter: "blur(9.100000381469727px)",
           margin: "0px",
+          height:254,
+          // padding: "12px 18px",
+        },
+        "&.Mui-collapse": {
+          height: 89, // Height before expanding
+          padding: "12px 18px",
+        },
+         "& .MuiAccordionSummary-root": {
+          paddingBottom: expanded ? 0 : "12px", // Remove padding-bottom after expanding
         },
       }}
     >

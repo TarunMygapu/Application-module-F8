@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import styles from "./CostSelectionForGraph.module.css";
 import Button from "../../widgets/Button/Button";
 import { useSelectedEntity } from "../../contexts/applicationcontext/SelectedEntityContext";
@@ -8,34 +8,23 @@ const CostSelectionForGraph = ({ onClose, onApply, onClear }) => {
   const [activeTab, setActiveTab] = useState(null);
   const { setAmount, clearAmount, selectedAmount } = useSelectedEntity();
 
+  // Ref to track if click is inside the component
+  const containerRef = useRef(null);
+
   // Get employee ID from localStorage
   const empId = localStorage.getItem("empId");
   const academicYearId = 26; // Hardcoded as per requirement
 
-  console.log("💰 CostSelectionForGraph - empId:", empId, "academicYearId:", academicYearId);
-
   // Fetch amounts from backend
   const { data: amountsData, isLoading: amountsLoading, isError: amountsError } = useGetAllAmounts(empId, academicYearId);
 
-  console.log("💰 CostSelectionForGraph - API Response:", {
-    amountsData,
-    isLoading: amountsLoading,
-    isError: amountsError,
-    dataType: typeof amountsData,
-    isArray: Array.isArray(amountsData)
-  });
-
   // Transform backend data to costTabs format
   const costTabs = useMemo(() => {
-    // Only use fallback if we're not loading and there's no data
     if (amountsLoading) {
-      // Return empty array while loading
       return [];
     }
 
     if (amountsError) {
-      console.warn("💰 Error loading amounts, using fallback values");
-      // Fallback to default values if API fails
       return [
         { id: 1, label: "10000", value: "10000" },
         { id: 2, label: "5000", value: "5000" },
@@ -44,23 +33,13 @@ const CostSelectionForGraph = ({ onClose, onApply, onClear }) => {
       ];
     }
 
-    // If no data yet, return empty array
     if (!amountsData) {
-      console.log("💰 No amounts data yet");
       return [];
     }
 
-    // Handle different response formats
-    let amountsArray = [];
+    let amountsArray = Array.isArray(amountsData) ? amountsData : amountsData.data || amountsData.amounts || amountsData.values || [];
 
-    if (Array.isArray(amountsData)) {
-      amountsArray = amountsData;
-    } else if (typeof amountsData === 'object' && amountsData !== null) {
-      // If it's an object, try to extract array from common properties
-      amountsArray = amountsData.data || amountsData.amounts || amountsData.values || [];
-    } else {
-      console.warn("💰 Unexpected data format:", amountsData);
-      // Fallback
+    if (!Array.isArray(amountsArray)) {
       return [
         { id: 1, label: "10000", value: "10000" },
         { id: 2, label: "5000", value: "5000" },
@@ -69,45 +48,30 @@ const CostSelectionForGraph = ({ onClose, onApply, onClear }) => {
       ];
     }
 
-    if (!Array.isArray(amountsArray) || amountsArray.length === 0) {
-      console.warn("💰 Amounts array is empty or invalid, using fallback");
-      return [
-        { id: 1, label: "10000", value: "10000" },
-        { id: 2, label: "5000", value: "5000" },
-        { id: 3, label: "2000", value: "2000" },
-        { id: 4, label: "0", value: "0" },
-      ];
-    }
-
-    console.log("💰 Transforming amounts array:", amountsArray);
-
-    // Transform backend response to costTabs format
-    // Handle both: [10000, 5000, 2000, 0] and [{amount: 10000}, {amount: 5000}, ...]
     const transformed = amountsArray.map((item, index) => {
-      let amount;
-
-      if (typeof item === 'object' && item !== null) {
-        // Object format: {amount: 10000} or {value: 10000} or {id: 1, amount: 10000}
-        amount = item.amount || item.value || item.id || item;
-      } else {
-        // Direct value: 10000
-        amount = item;
-      }
-
+      let amount = item.amount || item.value || item.id || item;
       const amountStr = String(amount);
-      return {
-        id: index + 1,
-        label: amountStr,
-        value: amountStr,
-      };
-    }).sort((a, b) => Number(b.value) - Number(a.value)); // Sort descending
+      return { id: index + 1, label: amountStr, value: amountStr };
+    }).sort((a, b) => Number(b.value) - Number(a.value));
 
-    console.log("💰 Transformed costTabs:", transformed);
     return transformed;
   }, [amountsData, amountsLoading, amountsError]);
 
-  // Initialize activeTab from context if available
-  React.useEffect(() => {
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        onClose?.(); // Close the modal when clicked outside
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [onClose]);
+
+  useEffect(() => {
     if (selectedAmount !== null && selectedAmount !== undefined) {
       setActiveTab(selectedAmount.toString());
     }
@@ -120,24 +84,23 @@ const CostSelectionForGraph = ({ onClose, onApply, onClear }) => {
   const clearActive = () => {
     setActiveTab(null);
     clearAmount();
-    onClear?.();          // ✅ reset button style
+    onClear?.();
   };
-
 
   const handleApply = () => {
     if (activeTab) {
       setAmount(activeTab);
-      onApply?.();        // ✅ tell parent filter is applied
+      onApply?.();
     } else {
       clearAmount();
       onClear?.();
     }
 
-    onClose?.();
+    onClose?.(); // Close after applying
   };
 
   return (
-    <div className={styles.costSelectionForGraphWrapper}>
+    <div className={styles.costSelectionForGraphWrapper} ref={containerRef}>
       <div className={styles.costFilterTop}>
         <p className={styles.costFilterheading}>Application Price</p>
         {amountsLoading ? (
@@ -153,8 +116,7 @@ const CostSelectionForGraph = ({ onClose, onApply, onClear }) => {
                 onClick={() => handleNavTab(tab.value)}
               >
                 <a
-                  className={`${styles.cost_nav_item} ${activeTab === tab.value ? styles.active : ""
-                    }`}
+                  className={`${styles.cost_nav_item} ${activeTab === tab.value ? styles.active : ""}`}
                 >
                   {tab.label}
                 </a>

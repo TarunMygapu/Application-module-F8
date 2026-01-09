@@ -34,8 +34,9 @@ const AnalyticsWholeContainer = () => {
   }, [initialTab]);
 
   const displayFilterOptions = () => {
-    setClickedFilterButton(prev => !prev);
-    console.log("Filter Button is Clicked");
+           if (!clickedFilterButton) {
+      setClickedFilterButton(true);
+    }
   }
 
   const closeFilter = () => {

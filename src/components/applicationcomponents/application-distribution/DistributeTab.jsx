@@ -23,6 +23,7 @@ import CostSelectionForGraph from "../../commoncomponents/CostSelectionForGraph"
 
 import { SelectedEntityProvider } from "../../../contexts/applicationcontext/SelectedEntityContext";
 import rightsidebelowicon from "../../../assets/applicationassets/application-distribution/right-side-down-icon";
+import blueFilterIcon from "../../../assets/applicationassets/application-distribution/blueFilterIcon";
 import { current } from "@reduxjs/toolkit";
 
 const DistributeTab = () => {
@@ -32,8 +33,8 @@ const DistributeTab = () => {
   const [clickedFilterButton, setClickedFilterButton] = useState(false);
   const [callTable, setCallTable] = useState(false);
   const [tableTrigger, setTableTrigger] = useState(0);
-
-
+  const [isFilterApplied, setIsFilterApplied] = useState(false);
+  const isIcon = isFilterApplied ? blueFilterIcon : filterIcon;
 
   // 🔑 Use the literal string keys for permission checks, matching the keys in your SCREENS object
   const canViewZone = usePermission("DISTRIBUTE_ZONE").canView;
@@ -124,9 +125,14 @@ const DistributeTab = () => {
   }
 
   const displayFilterOptions = () => {
-    setClickedFilterButton(prev => !prev);
-    console.log("Filter Button is Clicked");
+       if (!clickedFilterButton) {
+      setClickedFilterButton(true);
+    }
   }
+
+      const closeFilterOptions = () => {
+    setClickedFilterButton(false);  // Close when CostSelectionForGraph is closed
+  };
 
   return (
     <>
@@ -241,12 +247,15 @@ const DistributeTab = () => {
                 <div className={styles.graphFilterButton}>
                   <Button
                     buttonname={"Filter"}
-                    variant={"filterButton"}
-                    lefticon={filterIcon}
+                    variant={isFilterApplied ? "filterApplied" : "filterButton"}
+                    lefticon={isIcon}
                     onClick={displayFilterOptions}
                   />
                   {clickedFilterButton && (
-                    <CostSelectionForGraph onClose={() => setClickedFilterButton(false)} />
+                    <CostSelectionForGraph onClose={closeFilterOptions} 
+                      onApply={() => setIsFilterApplied(true)}
+                      onClear={() => setIsFilterApplied(false)}
+                    />
                   )}
                 </div>
               </div>
