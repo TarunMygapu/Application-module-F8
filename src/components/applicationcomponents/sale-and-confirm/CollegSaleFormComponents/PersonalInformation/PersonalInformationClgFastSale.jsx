@@ -322,7 +322,7 @@ const PersonalInformationClgFastSale = () => {
       {/* Upload Photo */}
       <div className={styles.clgAppSaleUploadPictureWrapper}>
         <UploadPicture />
-        <p className={styles.uploadPictureHint}>Photo should not exceed 300kb</p>
+        <p className={styles.uploadPictureHint}>Max image size is 300kb</p>
       </div>
     </div>
   );

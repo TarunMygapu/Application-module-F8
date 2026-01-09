@@ -343,7 +343,7 @@ import Dropdown from "../../Dropdown/Dropdown";
 import styles from "./DDForms.module.css";
 import { useOrganizations, useBanksByOrganization, useBranchesByOrganizationAndBank } from "../../../queries/applicationqueries/payment-apis/PaymentApis";
 
-const DDForms = ({ formData, onChange, errors }) => {
+const DDForms = ({ formData, onChange, errors, amountReadOnly = false }) => {
   // Fetch organizations from API (needed for ID conversion)
   const { organizationOptions, getOrganizationIdByLabel, getOrganizationLabelById, loading: organizationsLoading } = useOrganizations();
 
@@ -554,6 +554,8 @@ const DDForms = ({ formData, onChange, errors }) => {
           value={formData.dd_amount}
           onChange={onChange}
           type="number"
+          readOnly={amountReadOnly}
+          error={errors?.dd_amount}
         />
       </div>
 

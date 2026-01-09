@@ -86,7 +86,7 @@ import React from "react";
 import Inputbox from "../../Inputbox/InputBox";
 import styles from "./CardForms.module.css";
 
-const CardForms = ({ formData, onChange, errors }) => {
+const CardForms = ({ formData, onChange, errors, amountReadOnly = false }) => {
 
   return (
     <div className={styles.wrapper}>
@@ -133,6 +133,8 @@ const CardForms = ({ formData, onChange, errors }) => {
           type="number"
           maxLength="9"
           inputRule="digits"
+          readOnly={amountReadOnly}
+          error={errors?.card_amount}
         />
       </div>
 

@@ -586,7 +586,8 @@ const PaymentPopup = ({
   saleType = "regular", // "regular" or "fast"
   isConfirmation = false, // true for confirmation flow, false for sale flow
   isSaleAndConfirmFlow = false, // true when coming from "Sale & Confirm" button, false when from table "Confirm"
-  onSuccess // Callback function when submission is successful
+  onSuccess, // Callback function when submission is successful
+  amountReadOnly = false // When true, amount field is read-only (for College Fast Sale)
 }) => {
   // Debug: Log all props when component mounts or updates
   console.log("🎯 ===== PAYMENT POPUP COMPONENT RENDERED =====");
@@ -865,6 +866,31 @@ const PaymentPopup = ({
 
   const handleFinishSale = async () => {
     try {
+      // Validate amount field first
+      let amountFieldName = "";
+      if (activeTab === "cash") amountFieldName = "amount";
+      else if (activeTab === "dd") amountFieldName = "dd_amount";
+      else if (activeTab === "cheque") amountFieldName = "cheque_amount";
+      else if (activeTab === "card") amountFieldName = "card_amount";
+
+      const amountValue = paymentFormData[amountFieldName];
+      const parsedAmount = parseFloat(amountValue);
+
+      // Amount must be entered (not empty) and must be at least 0
+      if (amountValue === undefined || amountValue === null || amountValue === "" || String(amountValue).trim() === "") {
+        const errorMsg = "Amount is required";
+        setFormErrors({ [amountFieldName]: errorMsg });
+        setSubmitError(errorMsg);
+        return;
+      }
+
+      if (isNaN(parsedAmount) || parsedAmount < 0) {
+        const errorMsg = "Amount must be at least 0";
+        setFormErrors({ [amountFieldName]: errorMsg });
+        setSubmitError(errorMsg);
+        return;
+      }
+
       let receiptFieldName = "";
       if (activeTab === "cash") receiptFieldName = "prePrinted";
       else if (activeTab === "dd") receiptFieldName = "dd_receiptNo";
@@ -1226,12 +1252,12 @@ const PaymentPopup = ({
           )}
 
           {activeTab === "cash" && (
-            <CashForms formData={paymentFormData} onChange={handleFormChange} errors={formErrors} />
+            <CashForms formData={paymentFormData} onChange={handleFormChange} errors={formErrors} amountReadOnly={amountReadOnly} />
           )}
 
           {activeTab === "dd" && (
             <>
-              <DDForms formData={paymentFormData} onChange={handleFormChange} errors={formErrors} />
+              <DDForms formData={paymentFormData} onChange={handleFormChange} errors={formErrors} amountReadOnly={amountReadOnly} />
               <div className={styles.footer}>
                 <Button
                   buttonname={isSubmitting ? "Submitting..." : buttonText}
@@ -1262,7 +1288,7 @@ const PaymentPopup = ({
 
           {activeTab === "cheque" && (
             <>
-              <ChequeForms formData={paymentFormData} onChange={handleFormChange} errors={formErrors} />
+              <ChequeForms formData={paymentFormData} onChange={handleFormChange} errors={formErrors} amountReadOnly={amountReadOnly} />
               <div className={styles.footer}>
                 <Button
                   buttonname={isSubmitting ? "Submitting..." : buttonText}
@@ -1292,7 +1318,7 @@ const PaymentPopup = ({
           )}
 
           {activeTab === "card" && (
-            <CardForms formData={paymentFormData} onChange={handleFormChange} errors={formErrors} />
+            <CardForms formData={paymentFormData} onChange={handleFormChange} errors={formErrors} amountReadOnly={amountReadOnly} />
           )}
         </div>
 

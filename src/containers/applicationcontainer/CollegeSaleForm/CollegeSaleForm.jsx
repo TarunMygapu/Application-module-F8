@@ -3568,19 +3568,22 @@ const CollegeSalePage = () => {
 
         // Employee ID (for Staff/Staff children quota)
         // Handle format: "name - id" or just the employee ID
-        const employeeIdValue = sourceData.employeeId || sourceData.employee_id || sourceData.referredById || sourceData.referred_by_id || sourceData.admissionReferredByEmpId || sourceData.admission_referred_by_emp_id;
-        const employeeNameValue = sourceData.employeeName || sourceData.employee_name || sourceData.referredByName || sourceData.referred_by_name || sourceData.admissionReferredByEmpName || sourceData.admission_referred_by_emp_name;
+        // Look for admissionReferredByID and admissionReferredByName from fast sale API response
+        const employeeIdValue = sourceData.admissionReferredByID || sourceData.admissionReferredById || sourceData.employeeId || sourceData.employee_id || sourceData.referredById || sourceData.referred_by_id;
+        const employeeNameValue = sourceData.admissionReferredByName || sourceData.employeeName || sourceData.employee_name || sourceData.referredByName || sourceData.referred_by_name;
 
         // Check if quota is Staff or Staff children before populating employee
-        if (quotaValue && (quotaValue.toLowerCase().includes("staff"))) {
-          if (employeeIdValue) {
-            // If only ID is available, try to format as "name - id" if we have the name
-            let employeeDisplayValue = employeeIdValue;
-            if (employeeNameValue) {
-              employeeDisplayValue = `${employeeNameValue} - ${employeeIdValue}`;
-            }
-            formik.setFieldValue("quotaId", employeeDisplayValue);
-            console.log("✅ Auto-populated employeeId:", employeeDisplayValue);
+        const quotaIdValue = sourceData.quotaId || sourceData.quota_id;
+        if ((quotaIdValue === 1) || (quotaValue && quotaValue.toLowerCase().includes("staff"))) {
+          if (employeeIdValue && employeeNameValue) {
+            // Format as "name - id" for display
+            const employeeDisplayValue = `${employeeNameValue} - ${employeeIdValue}`;
+            formik.setFieldValue("employeeId", employeeDisplayValue);
+            console.log("✅ Auto-populated employeeId (Staff quota):", employeeDisplayValue);
+          } else if (employeeIdValue) {
+            // If only ID is available
+            formik.setFieldValue("employeeId", String(employeeIdValue));
+            console.log("✅ Auto-populated employeeId from ID:", employeeIdValue);
           } else if (employeeNameValue) {
             // If only name is available
             formik.setFieldValue("employeeId", employeeNameValue);

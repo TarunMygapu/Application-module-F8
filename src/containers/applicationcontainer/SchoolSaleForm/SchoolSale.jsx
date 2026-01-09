@@ -1087,6 +1087,30 @@ const SchoolSale = () => {
         formik.setFieldValue("quotaId", quotaId);
         console.log("✅ Auto-populated quotaId:", quotaId);
       }
+
+      // Employee ID (for Staff/Staff children quota)
+      // Look for admissionReferredByID and admissionReferredByName from fast sale API response
+      const employeeIdValue = overviewData.admissionReferredByID || overviewData.admissionReferredById || overviewData.employeeId || overviewData.employee_id || overviewData.referredById || overviewData.referred_by_id;
+      const employeeNameValue = overviewData.admissionReferredByName || overviewData.employeeName || overviewData.employee_name || overviewData.referredByName || overviewData.referred_by_name;
+      const quotaIdValue = overviewData.quotaId || overviewData.quota_id;
+
+      // Check if quota is Staff or Staff children before populating employee
+      if ((quotaIdValue === 1) || (quotaValue && quotaValue.toLowerCase().includes("staff"))) {
+        if (employeeIdValue && employeeNameValue) {
+          // Format as "name - id" for display
+          const employeeDisplayValue = `${employeeNameValue} - ${employeeIdValue}`;
+          formik.setFieldValue("employeeId", employeeDisplayValue);
+          console.log("✅ Auto-populated employeeId (Staff quota):", employeeDisplayValue);
+        } else if (employeeIdValue) {
+          // If only ID is available
+          formik.setFieldValue("employeeId", String(employeeIdValue));
+          console.log("✅ Auto-populated employeeId from ID:", employeeIdValue);
+        } else if (employeeNameValue) {
+          // If only name is available
+          formik.setFieldValue("employeeId", employeeNameValue);
+          console.log("✅ Auto-populated employeeId from name:", employeeNameValue);
+        }
+      }
      
       // Admission Type - check multiple possible field names
       const admissionTypeValue = overviewData.admissionType || overviewData.admissionTypeName || overviewData.admission_type_name;

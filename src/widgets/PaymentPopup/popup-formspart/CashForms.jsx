@@ -62,7 +62,7 @@ import Inputbox from "../../Inputbox/InputBox";
 import styles from "./CashForms.module.css";
 import CurrentDate from "../../DateWidgets/CurrentDate/CurrentDate";
  
-const CashForms = ({ formData, onChange, errors }) => {
+const CashForms = ({ formData, onChange, errors, amountReadOnly = false }) => {
   return (
     <div className={styles.wrapper}>
  
@@ -85,6 +85,8 @@ const CashForms = ({ formData, onChange, errors }) => {
           inputRule="digits"
           maxLength="9"
           required={true}
+          readOnly={amountReadOnly}
+          error={errors?.amount}
         />
       </div>
  

@@ -101,6 +101,10 @@ export const submitSchoolApplicationSale = async (payload) => {
  * @returns {Object} - Mapped payload matching API structure
  */
 export const mapFormDataToPayload = (formData, siblings, paymentData, detailsObject, activeTab) => {
+  // Get logged-in employee ID from localStorage
+  const loggedInEmpId = parseInt(localStorage.getItem("empId") || "0", 10);
+  console.log('👤 Logged-in Employee ID (createdBy):', loggedInEmpId);
+
   // Helper function to convert value to number or return 0
   const toNumber = (value) => {
     if (value === null || value === undefined || value === '') return 0;
@@ -148,7 +152,7 @@ export const mapFormDataToPayload = (formData, siblings, paymentData, detailsObj
       otherOccupation: toString(formData.fatherOtherOccupation),
       mobileNo: toNumber(formData.fatherPhone),
       email: toString(formData.fatherEmail),
-      createdBy: 0, // Update with actual user ID
+      createdBy: loggedInEmpId,
       sectorId: toNumber(formData.fatherSector)
     });
   }
@@ -162,7 +166,7 @@ export const mapFormDataToPayload = (formData, siblings, paymentData, detailsObj
       otherOccupation: toString(formData.motherOtherOccupation),
       mobileNo: toNumber(formData.motherPhone),
       email: toString(formData.motherEmail),
-      createdBy: 0, // Update with actual user ID
+      createdBy: loggedInEmpId,
       sectorId: toNumber(formData.motherSector)
     });
   }
@@ -175,7 +179,7 @@ export const mapFormDataToPayload = (formData, siblings, paymentData, detailsObj
       schoolName: toString(sibling.siblingSchool),
       classId: toNumber(sibling.siblingClass),
       relationTypeId: toNumber(sibling.siblingRelation),
-      createdBy: 0 // Update with actual user ID
+      createdBy: loggedInEmpId
     }));
 
   // Map languages array
@@ -211,7 +215,7 @@ export const mapFormDataToPayload = (formData, siblings, paymentData, detailsObj
       authorizedById: toNumber(formData.authorizedBy),
       reasonId: toNumber(formData.concessionReason),
       comments: toString(formData.concessionDescription),
-      createdBy: 0, // Update with actual user ID
+      createdBy: loggedInEmpId,
       concReferedBy: toNumber(formData.referredBy)
     });
   }
@@ -225,7 +229,7 @@ export const mapFormDataToPayload = (formData, siblings, paymentData, detailsObj
       authorizedById: toNumber(formData.authorizedBy),
       reasonId: toNumber(formData.concessionReason),
       comments: toString(formData.concessionDescription),
-      createdBy: 0, // Update with actual user ID
+      createdBy: loggedInEmpId,
       concReferedBy: toNumber(formData.referredBy)
     });
   }
@@ -237,7 +241,7 @@ export const mapFormDataToPayload = (formData, siblings, paymentData, detailsObj
     amount: toNumber(paymentData.amount || paymentData.card_amount || paymentData.dd_amount || paymentData.cheque_amount),
     prePrintedReceiptNo: toString(paymentData.prePrinted || paymentData.card_receiptNo || paymentData.dd_receiptNo || paymentData.cheque_receiptNo),
     remarks: toString(paymentData.remarks || paymentData.card_remarks || paymentData.dd_remarks || paymentData.cheque_remarks),
-    createdBy: 0, // Update with actual user ID
+    createdBy: loggedInEmpId,
     transactionNumber: toString(paymentData.dd_transactionNo || paymentData.cheque_transactionNo || ''),
     transactionDate: toISODate(paymentData.dd_transactionDate || paymentData.cheque_transactionDate),
     organisationId: toNumber(paymentData.dd_org || paymentData.cheque_org || 0),
@@ -264,7 +268,7 @@ export const mapFormDataToPayload = (formData, siblings, paymentData, detailsObj
 
   const payload = {
     studAdmsNo: toNumber(detailsObject?.applicationNo || detailsObject?.studAdmsNo || 0),
-    createdBy: 0, // Update with actual user ID
+    createdBy: loggedInEmpId,
     appConfDate: new Date().toISOString(),
     foodTypeId: toNumber(formData.foodType),
     bloodGroupId: toNumber(formData.bloodGroup),
@@ -375,6 +379,10 @@ export const submitSchoolApplicationSaleOnly = async (payload) => {
  * @returns {Object} - Mapped payload matching API structure
  */
 export const mapSchoolApplicationSaleToPayload = (formData, paymentData, detailsObject, activeTab) => {
+  // Get logged-in employee ID from localStorage
+  const loggedInEmpId = parseInt(localStorage.getItem("empId") || "0", 10);
+  console.log('👤 Logged-in Employee ID (createdBy):', loggedInEmpId);
+
   // Helper function to convert value to number or return 0
   const toNumber = (value) => {
     if (value === null || value === undefined || value === '') return 0;
@@ -434,7 +442,7 @@ export const mapSchoolApplicationSaleToPayload = (formData, paymentData, details
     districtId: toNumber(formData.districtId || formData.district || 0),
     pincode: toNumber(formData.pincode || 0),
     stateId: toNumber(formData.stateId || formData.state || 0),
-    createdBy: 0
+    createdBy: loggedInEmpId
   };
 
   // Map payment details
@@ -444,7 +452,7 @@ export const mapSchoolApplicationSaleToPayload = (formData, paymentData, details
     amount: toNumber(paymentData.amount || paymentData.card_amount || paymentData.dd_amount || paymentData.cheque_amount),
     prePrintedReceiptNo: toString(paymentData.prePrinted || paymentData.card_receiptNo || paymentData.dd_receiptNo || paymentData.cheque_receiptNo),
     remarks: toString(paymentData.remarks || paymentData.card_remarks || paymentData.dd_remarks || paymentData.cheque_remarks),
-    createdBy: 0,
+    createdBy: loggedInEmpId,
     transactionNumber: toString(paymentData.dd_transactionNo || paymentData.cheque_transactionNo || ''),
     transactionDate: toISODate(paymentData.dd_transactionDate || paymentData.cheque_transactionDate),
     organisationId: toNumber(paymentData.dd_org || paymentData.cheque_org || 0),
@@ -531,7 +539,24 @@ export const mapSchoolApplicationSaleToPayload = (formData, paymentData, details
       return 0;
     })(),
     proReceiptNo: toNumber(formData.proReceiptNo || 0),
-    admissionReferedBy: toString(formData.quotaAdmissionReferredBy || formData.admissionReferedBy || ''),
+    admissionReferedBy: (() => {
+      // When quotaId is 1 (Staff), pass the employee ID from the employeeId field
+      // For any other quotaId, pass empty string
+      const quotaIdValue = toNumber(formData.quotaId);
+      if (quotaIdValue === 1 && formData.employeeId) {
+        // Extract ID from "name - id" format
+        const empIdStr = String(formData.employeeId);
+        if (empIdStr.includes(' - ')) {
+          const parts = empIdStr.split(' - ');
+          const extractedId = parts[parts.length - 1].trim();
+          console.log('✅ Staff quota detected, using employeeId as admissionReferedBy:', extractedId);
+          return extractedId;
+        }
+        return empIdStr;
+      }
+      // For non-Staff quotas, pass empty string
+      return '';
+    })(),
     appSaleDate: new Date().toISOString(),
     fatherName: toString(formData.fatherName || ''),
     fatherMobileNo: toNumber(formData.fatherMobile || formData.fatherMobileNo || formData.mobileNumber || 0),
@@ -552,7 +577,7 @@ export const mapSchoolApplicationSaleToPayload = (formData, paymentData, details
     })(),
     addressDetails: addressDetails,
     studAdmsNo: toNumber(detailsObject?.applicationNo || detailsObject?.studAdmsNo || 0),
-    createdBy: 0,
+    createdBy: loggedInEmpId,
     paymentDetails: paymentDetails
   };
 
@@ -583,6 +608,10 @@ export const mapSchoolApplicationSaleToPayload = (formData, paymentData, details
  * @returns {Object} - Mapped payload matching API structure
  */
 export const mapSchoolApplicationSaleOnlyToPayload = (formData, detailsObject) => {
+  // Get logged-in employee ID from localStorage
+  const loggedInEmpId = parseInt(localStorage.getItem("empId") || "0", 10);
+  console.log('👤 Logged-in Employee ID (createdBy):', loggedInEmpId);
+
   // Helper function to convert value to number or return 0
   const toNumber = (value) => {
     if (value === null || value === undefined || value === '') return 0;
@@ -618,7 +647,7 @@ export const mapSchoolApplicationSaleOnlyToPayload = (formData, detailsObject) =
     districtId: toNumber(formData.districtId || 0),
     pincode: toNumber(formData.pincode || 0),
     stateId: toNumber(formData.stateId || 0),
-    createdBy: 0
+    createdBy: loggedInEmpId
   };
 
   // Build the payload matching the provided structure
@@ -632,7 +661,24 @@ export const mapSchoolApplicationSaleOnlyToPayload = (formData, detailsObject) =
     quotaId: toNumber(formData.quotaId || 0),
     proReceiptNo: toNumber(formData.proReceiptNo || 0),
     appSaleDate: toISODate(formData.appSaleDate || new Date()),
-    admissionReferedBy: toString(formData.admissionReferedBy || formData.quotaAdmissionReferredBy || ''),
+    admissionReferedBy: (() => {
+      // When quotaId is 1 (Staff), pass the employee ID from the employeeId field
+      // For any other quotaId, pass empty string
+      const quotaIdValue = toNumber(formData.quotaId);
+      if (quotaIdValue === 1 && formData.employeeId) {
+        // Extract ID from "name - id" format
+        const empIdStr = String(formData.employeeId);
+        if (empIdStr.includes(' - ')) {
+          const parts = empIdStr.split(' - ');
+          const extractedId = parts[parts.length - 1].trim();
+          console.log('✅ Staff quota detected, using employeeId as admissionReferedBy:', extractedId);
+          return extractedId;
+        }
+        return empIdStr;
+      }
+      // For non-Staff quotas, pass empty string
+      return '';
+    })(),
     fatherName: toString(formData.fatherName || ''),
     fatherMobileNo: toNumber(formData.fatherMobile || 0),
     academicYearId: toNumber(formData.academicYearId || 0),
@@ -643,7 +689,7 @@ export const mapSchoolApplicationSaleOnlyToPayload = (formData, detailsObject) =
     appTypeId: toNumber(formData.appTypeId || 0),
     addressDetails: addressDetails,
     studAdmsNo: toNumber(detailsObject?.applicationNo || detailsObject?.studAdmsNo || 0),
-    createdBy: 0
+    createdBy: loggedInEmpId
   };
 
   console.log('✅ Sale Only Payload Created:');
@@ -666,6 +712,10 @@ export const mapSchoolApplicationSaleOnlyToPayload = (formData, detailsObject) =
  * @returns {Object} - Mapped payload matching update API structure
  */
 export const mapSchoolApplicationSaleUpdateToPayload = (formData, detailsObject) => {
+  // Get logged-in employee ID from localStorage
+  const loggedInEmpId = parseInt(localStorage.getItem("empId") || "0", 10);
+  console.log('👤 Logged-in Employee ID (createdBy):', loggedInEmpId);
+
   // Helper function to convert value to number or return 0
   const toNumber = (value) => {
     if (value === null || value === undefined || value === '') return 0;
@@ -701,7 +751,7 @@ export const mapSchoolApplicationSaleUpdateToPayload = (formData, detailsObject)
     districtId: toNumber(formData.districtId || 0),
     pincode: toNumber(formData.pincode || 0),
     stateId: toNumber(formData.stateId || 0),
-    createdBy: 0
+    createdBy: loggedInEmpId
   };
 
   // Get studAdmsNo from detailsObject or formData
@@ -725,7 +775,24 @@ export const mapSchoolApplicationSaleUpdateToPayload = (formData, detailsObject)
     quotaId: toNumber(formData.quotaId || 0),
     proReceiptNo: toNumber(formData.proReceiptNo || 0),
     appSaleDate: toISODate(formData.appSaleDate || new Date()),
-    admissionReferedBy: toString(formData.admissionReferedBy || formData.quotaAdmissionReferredBy || ''),
+    admissionReferedBy: (() => {
+      // When quotaId is 1 (Staff), pass the employee ID from the employeeId field
+      // For any other quotaId, pass empty string
+      const quotaIdValue = toNumber(formData.quotaId);
+      if (quotaIdValue === 1 && formData.employeeId) {
+        // Extract ID from "name - id" format
+        const empIdStr = String(formData.employeeId);
+        if (empIdStr.includes(' - ')) {
+          const parts = empIdStr.split(' - ');
+          const extractedId = parts[parts.length - 1].trim();
+          console.log('✅ Staff quota detected, using employeeId as admissionReferedBy:', extractedId);
+          return extractedId;
+        }
+        return empIdStr;
+      }
+      // For non-Staff quotas, pass empty string
+      return '';
+    })(),
     fatherName: toString(formData.fatherName || ''),
     fatherMobileNo: toNumber(formData.fatherMobile || formData.fatherMobileNo || 0),
     academicYearId: toNumber(formData.academicYearId || 0),
@@ -736,7 +803,7 @@ export const mapSchoolApplicationSaleUpdateToPayload = (formData, detailsObject)
     appTypeId: toNumber(formData.appTypeId || 0),
     addressDetails: addressDetails,
     studAdmsNo: studAdmsNoValue,
-    createdBy: 0
+    createdBy: loggedInEmpId
   };
 
   console.log('📋 School Update Payload Mapping:');

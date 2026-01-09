@@ -198,7 +198,7 @@ table tbody tr:nth-child(odd) {
 }
  
 /* Confirmed */
-.confirmed {
+.fastsold {
   border: 1px solid #22C55E;
   background: #F9FFF4;
   color: #22C55E;
@@ -220,7 +220,7 @@ table tbody tr:nth-child(odd) {
  
  
 /* Fast Sold */
-.fastsold {
+.confirmed {
   border: 1px solid #61660D;
   background: #DBFFD8;
   color: #61660D;

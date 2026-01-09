@@ -6,7 +6,7 @@ import useCollegeConcessionFormState from "./hooks/useCollegeConcessionFormState
 import ButtonRightArrow from "../../../../../../../assets/applicationassets/application-status/school-sale-conf-assets/ButtonRightArrow";
 
 const CollegeConceInfoForms = ({ formData, onChange, academicYear, academicYearId, overviewData, errors = {} }) => {
-  console.logs("Form data in CollegeConceInfoForms:", formData);
+  console.log("Form data in CollegeConceInfoForms:", formData);
   const state = useCollegeConcessionFormState({ formData, onChange, academicYear, academicYearId, overviewData });
 
   // Track if user has manually edited any Concession Written on Application fields

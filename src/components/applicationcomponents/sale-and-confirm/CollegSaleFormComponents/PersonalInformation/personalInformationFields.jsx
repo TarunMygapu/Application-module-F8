@@ -11,6 +11,7 @@ export const personalInfoFields = [
     inputRule: "onlyLettersSingleSpace",
     autoCapitalize: true,
     required: true,
+    maxLength: "25",
   },
   {
     name: "surName",
@@ -21,6 +22,7 @@ export const personalInfoFields = [
     inputRule: "onlyLettersSingleSpace",
     autoCapitalize: true,
     required: true,
+    maxLength: "25",
   },
   {
     name: "gender",

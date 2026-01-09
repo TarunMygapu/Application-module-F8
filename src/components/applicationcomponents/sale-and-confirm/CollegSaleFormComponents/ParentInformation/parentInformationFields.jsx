@@ -4,7 +4,7 @@ export const parentInfoFields =[
  
   // FATHER
   { name: "fatherName", label: "Father Name", type: "text",placeholder:"Enter Father Name", inputRule: "onlyLettersSingleSpace",
-    autoCapitalize: true, required: true, },
+    autoCapitalize: true, required: true,maxLength: "25" },
   { name: "fatherMobile", label: "Mobile Number", component: PhoneNumberBox,required: true, },
   { name: "fatherEmail", label: "Email", type: "text",inputRule: "email",placeholder:"Enter Father Email",required: true,  },
  
@@ -15,7 +15,7 @@ export const parentInfoFields =[
  
   // MOTHER
   { name: "motherName", label: "Mother Name", type: "text",placeholder:"Enter Mother Name", inputRule: "onlyLettersSingleSpace",
-    autoCapitalize: true,required: true,},
+    autoCapitalize: true,required: true,maxLength: "25"},
   { name: "motherMobile", label: "Mobile Number", component: PhoneNumberBox,required: true,},
   { name: "motherEmail", label: "Email", type: "text",inputRule: "email",placeholder:"Enter Mother Email" ,required: true},
  
@@ -37,6 +37,7 @@ export const siblingsInformationFields=[
     placeholder: "Enter Full Name",
     autoCapitalize: true,
     required: true,
+    maxLength: "25",
   },
    {
     name:"relationType",

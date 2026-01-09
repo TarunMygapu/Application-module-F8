@@ -41,18 +41,18 @@ const clgActualSaleValidationSchema = () =>
     // ===================================================
     firstName: Yup.string()
       .trim()
-      .required("First name is required")
+      .required("First Name is required")
       .matches(onlyLettersSingleSpace, "Only alphabets allowed"),
 
     surName: Yup.string()
       .trim()
-      .required("Sur/Last name is required")
+      .required("Sur/Last Name is required")
       .matches(onlyLettersSingleSpace, "Only alphabets allowed"),
 
     gender: Yup.string().required("Gender is required"),
 
     aaparNo: Yup.string()
-      .required("Aapar number is required")
+      .required("Aapar Number is required")
       .test(
         "aaparCheck",
         "Aapar must be 12 digits and cannot start with 0",
@@ -64,7 +64,7 @@ const clgActualSaleValidationSchema = () =>
       .test("ageCheck", "Must be 15 years or above", validateAge15Plus),
 
     aadharCardNo: Yup.string()
-      .required("Aadhar number is required")
+      .required("Aadhar Number is required")
       .matches(/^[0-9]{12}$/, "Aadhar must be 12 digits")
       .matches(aadharRegex, "Invalid Aadhar number"),
 
@@ -74,7 +74,7 @@ const clgActualSaleValidationSchema = () =>
       .nullable()
       .when("quotaAdmissionReferredBy", {
         is: "Staff",
-        then: (s) => s.required("Employee ID is required for Staff quota"),
+        then: (s) => s.required("Employee ID is required for Staff Quota"),
       }),
 
     admissionType: Yup.string().required("Admission type is required"),
@@ -100,25 +100,25 @@ const clgActualSaleValidationSchema = () =>
     // ===================================================
     fatherName: Yup.string()
       .trim()
-      .required("Father name is required")
+      .required("Father Name is required")
       .matches(onlyLettersSingleSpace, "Only alphabets allowed"),
 
     fatherMobile: Yup.string()
-      .required("Mobile number is required")
+      .required("Mobile Number is required")
       .matches(/^[6-9]\d{9}$/, "Invalid mobile number"),
 
     motherName: Yup.string()
       .trim()
-      .required("Mother name is required")
+      .required("Mother Name is required")
       .matches(onlyLettersSingleSpace, "Only alphabets allowed"),
 
     motherMobile: Yup.string()
-      .required("Mobile number is required")
+      .required("Mobile Number is required")
       .matches(/^[6-9]\d{9}$/, "Invalid mobile number"),
 
     fatherEmail: Yup.string()
       .trim()
-      .required("Father email is required")
+      .required("Father Email is required")
       .matches(emailRegex, "Please enter a valid email address"),
 
     motherEmail: Yup.string()
@@ -140,19 +140,19 @@ const clgActualSaleValidationSchema = () =>
 
     fatherSector: Yup.string()
       .nullable()
-      .required("Father sector is required"),
+      .required("Father Sector is required"),
 
     fatherOccupation: Yup.string()
       .nullable()
-      .required("Father occupation is required"),
+      .required("Father Occupation is required"),
 
     motherSector: Yup.string()
       .nullable()
-      .required("Mother sector is required"),
+      .required("Mother Sector is required"),
 
     motherOccupation: Yup.string()
       .nullable()
-      .required("Mother occupation is required"),
+      .required("Mother Occupation is required"),
 
     fatherOther: Yup.string()
       .nullable()
@@ -165,7 +165,7 @@ const clgActualSaleValidationSchema = () =>
       .nullable()
       .when(["motherSector", "motherOccupation"], {
         is: (sector, occupation) => sector === "Others" && occupation === "Others",
-        then: (schema) => schema.required("Other field is required when sector and occupation are Others"),
+        then: (schema) => schema.required("Other Field is required when Sector and Occupation are Others"),
       }),
 
     // ===================================================
@@ -173,9 +173,9 @@ const clgActualSaleValidationSchema = () =>
     // ===================================================
     orientationCity: Yup.string().required("City is required"),
     branchName: Yup.string().nullable(),
-    joiningClass: Yup.string().required("Joining class is required"),
-    orientationName: Yup.string().required("Course name is required"),
-    studentType: Yup.string().required("Student type is required"),
+    joiningClass: Yup.string().required("Joining Class is required"),
+    orientationName: Yup.string().required("Course Name is required"),
+    studentType: Yup.string().required("Student Type is required"),
 
     academicYear: Yup.string().nullable(),
     orientationStartDate: Yup.string().nullable(),
@@ -186,11 +186,11 @@ const clgActualSaleValidationSchema = () =>
     // ADDRESS INFORMATION
     // ===================================================
     doorNo: Yup.string()
-      .required("Door number is required")
+      .required("Door Number is required")
       .matches(doorNoRegex, "Invalid door number"),
 
     streetName: Yup.string()
-      .required("Street name is required")
+      .required("Street Name is required")
       .max(100),
 
     landmark: Yup.string()
@@ -486,18 +486,18 @@ const clgFastSaleValidationSchema = () =>
     // ===================================================
     firstName: Yup.string()
       .trim()
-      .required("First name is required")
+      .required("First Name is required")
       .matches(onlyLettersSingleSpace, "Only alphabets allowed"),
 
     surName: Yup.string()
       .trim()
-      .required("Sur/Last name is required")
+      .required("Sur/Last Name is required")
       .matches(onlyLettersSingleSpace, "Only alphabets allowed"),
 
     gender: Yup.string().required("Gender is required"),
 
     aaparNo: Yup.string()
-      .required("Aapar number is required")
+      .required("Aapar Number is required")
       .test(
         "aaparCheck",
         "Aapar must be 12 digits and cannot start with 0",
@@ -509,7 +509,7 @@ const clgFastSaleValidationSchema = () =>
       .test("ageCheck", "Must be 15 years or above", validateAge15Plus),
 
     aadharCardNo: Yup.string()
-      .required("Aadhar number is required")
+      .required("Aadhar Number is required")
       .matches(/^[0-9]{12}$/, "Aadhar must be 12 digits")
       .matches(aadharRegex, "Invalid Aadhar number"),
 
@@ -519,7 +519,7 @@ const clgFastSaleValidationSchema = () =>
       .nullable()
       .when("quotaAdmissionReferredBy", {
         is: "Staff",
-        then: (s) => s.required("Employee ID is required for Staff quota"),
+        then: (s) => s.required("Employee ID is required for Staff Quota"),
       }),
 
     admissionType: Yup.string().required("Admission type is required"),
@@ -529,11 +529,11 @@ const clgFastSaleValidationSchema = () =>
     // ===================================================
     fatherName: Yup.string()
       .trim()
-      .required("Father name is required")
+      .required("Father Name is required")
       .matches(onlyLettersSingleSpace, "Only alphabets allowed"),
 
     fatherMobile: Yup.string()
-      .required("Mobile number is required")
+      .required("Mobile Number is required")
       .matches(/^[6-9]\d{9}$/, "Invalid mobile number"),
 
     // ===================================================
@@ -544,9 +544,9 @@ const clgFastSaleValidationSchema = () =>
     // For fast sale, campusName is used (not branchName)
     campusName: Yup.string().required("Branch/Campus is required"),
 
-    joiningClass: Yup.string().required("Joining class is required"),
-    orientationName: Yup.string().required("Course name is required"),
-    studentType: Yup.string().required("Student type is required"),
+    joiningClass: Yup.string().required("Joining Class is required"),
+    orientationName: Yup.string().required("Course Name is required"),
+    studentType: Yup.string().required("Student Type is required"),
 
     academicYear: Yup.string().nullable(),
     orientationStartDate: Yup.string().nullable(),

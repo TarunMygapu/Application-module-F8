@@ -61,6 +61,10 @@ export const submitCollegeApplicationConfirmation = async (payload) => {
  * @returns {Object} - Mapped payload matching API structure
  */
 export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentData, detailsObject, activeTab) => {
+  // Get logged-in employee ID from localStorage
+  const loggedInEmpId = parseInt(localStorage.getItem("empId") || "0", 10);
+  console.log('👤 Logged-in Employee ID (createdBy):', loggedInEmpId);
+
   // Helper function to convert value to number or return 0
   const toNumber = (value) => {
     if (value === null || value === undefined || value === '') return 0;
@@ -195,7 +199,7 @@ export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentD
         authorizedById: authorizedById,
         reasonId: reasonId, // Required field - must not be null
         comments: toString(formData.description),
-        createdBy: 0, // Update with actual user ID
+        createdBy: loggedInEmpId,
         concReferedBy: referredById,
         proConcessionAmount: proConcessionAmount,
         proConcessionReason: proConcessionReason,
@@ -269,7 +273,7 @@ export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentD
         authorizedById: authorizedById,
         reasonId: reasonId, // Required field - must not be null
         comments: toString(formData.description),
-        createdBy: 0, // Update with actual user ID
+        createdBy: loggedInEmpId,
         concReferedBy: referredById,
         proConcessionAmount: proConcessionAmount,
         proConcessionReason: proConcessionReason,
@@ -301,7 +305,7 @@ export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentD
     amount: toNumber(paymentData.amount || paymentData.card_amount || paymentData.dd_amount || paymentData.cheque_amount),
     prePrintedReceiptNo: toString(paymentData.prePrinted || paymentData.card_receiptNo || paymentData.dd_receiptNo || paymentData.cheque_receiptNo),
     remarks: toString(paymentData.remarks || paymentData.card_remarks || paymentData.dd_remarks || paymentData.cheque_remarks),
-    createdBy: 0, // Update with actual user ID
+    createdBy: loggedInEmpId,
     transactionNumber: toString(paymentData.dd_transactionNo || paymentData.cheque_transactionNo || ''),
     transactionDate: toISODate(paymentData.dd_transactionDate || paymentData.cheque_transactionDate),
     organisationId: toNumber(paymentData.dd_org || paymentData.cheque_org || 0),
@@ -330,7 +334,7 @@ export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentD
     cityId: toNumber(academicFormData?.cityId || 0),
     courseNameId: toNumber(academicFormData?.courseNameId || academicFormData?.orientationId || 0),
     studAdmsNo: toNumber(detailsObject?.applicationNo || detailsObject?.studAdmsNo || 0),
-    createdBy: 0, // Update with actual user ID
+    createdBy: loggedInEmpId,
     concessions: concessions, // Always include concessions array (even if empty)
     paymentDetails: paymentDetails
   };
@@ -394,6 +398,10 @@ export const submitCollegeFastSale = async (payload) => {
  * @returns {Object} - Mapped payload matching API structure
  */
 export const mapCollegeFastSaleToPayload = (formData, paymentData, detailsObject, activeTab) => {
+  // Get logged-in employee ID from localStorage
+  const loggedInEmpId = parseInt(localStorage.getItem("empId") || "0", 10);
+  console.log('👤 Logged-in Employee ID (createdBy):', loggedInEmpId);
+
   // Log received formData for debugging
   console.log('🔍 ===== mapCollegeFastSaleToPayload - Received formData =====');
   console.log('  - admissionType:', formData.admissionType);
@@ -453,7 +461,7 @@ export const mapCollegeFastSaleToPayload = (formData, paymentData, detailsObject
     districtId: toNumber(formData.districtId || 0),
     pincode: toNumber(formData.pincode || 0),
     stateId: toNumber(formData.stateId || 0),
-    createdBy: 0
+    createdBy: loggedInEmpId
   };
 
   // Map payment details based on active tab
@@ -463,7 +471,7 @@ export const mapCollegeFastSaleToPayload = (formData, paymentData, detailsObject
     amount: toNumber(paymentData.amount || paymentData.card_amount || paymentData.dd_amount || paymentData.cheque_amount),
     prePrintedReceiptNo: toString(paymentData.prePrinted || paymentData.card_receiptNo || paymentData.dd_receiptNo || paymentData.cheque_receiptNo),
     remarks: toString(paymentData.remarks || paymentData.card_remarks || paymentData.dd_remarks || paymentData.cheque_remarks),
-    createdBy: 0,
+    createdBy: loggedInEmpId,
     transactionNumber: toString(paymentData.dd_transactionNo || paymentData.cheque_transactionNo || ''),
     transactionDate: toISODate(paymentData.dd_transactionDate || paymentData.cheque_transactionDate),
     organisationId: toNumber(paymentData.dd_org || paymentData.cheque_org || 0),
@@ -475,7 +483,7 @@ export const mapCollegeFastSaleToPayload = (formData, paymentData, detailsObject
 
   // Build the payload matching the provided structure
   const payload = {
-    createdBy: 0,
+    createdBy: loggedInEmpId,
     aadharCardNo: toNumber(formData.aadharCardNo || 0),
     apaarNo: toString(formData.aaparNo || formData.apaarNo || ''),
     firstName: toString(formData.firstName || ''),
@@ -532,7 +540,24 @@ export const mapCollegeFastSaleToPayload = (formData, paymentData, detailsObject
       return 0;
     })(),
     app_sale_date: toISODate(formData.appSaleDate || new Date()),
-    admissionReferredBy: toString(formData.admissionReferedBy || formData.admissionReferredBy || formData.quotaAdmissionReferredBy || ''),
+    admissionReferredBy: (() => {
+      // When quotaId is 1 (Staff), pass the employee ID from the employeeId field
+      // For any other quotaId, pass empty string
+      const quotaIdValue = toNumber(formData.quotaId);
+      if (quotaIdValue === 1 && formData.employeeId) {
+        // Extract ID from "name - id" format
+        const empIdStr = String(formData.employeeId);
+        if (empIdStr.includes(' - ')) {
+          const parts = empIdStr.split(' - ');
+          const extractedId = parts[parts.length - 1].trim();
+          console.log('✅ Staff quota detected, using employeeId as admissionReferredBy:', extractedId);
+          return extractedId;
+        }
+        return empIdStr;
+      }
+      // For non-Staff quotas, pass empty string
+      return '';
+    })(),
     fatherName: toString(formData.fatherName || ''),
     fatherMobileNo: toNumber(formData.fatherMobile || formData.fatherMobileNo || formData.mobileNumber || 0),
     academicYearId: toNumber(formData.academicYearId || 0),
@@ -602,6 +627,10 @@ export const mapCollegeFastSaleToPayload = (formData, paymentData, detailsObject
  * @returns {Object} - Mapped payload matching complete API structure
  */
 export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData, detailsObject, activeTab) => {
+  // Get logged-in employee ID from localStorage
+  const loggedInEmpId = parseInt(localStorage.getItem("empId") || "0", 10);
+  console.log('👤 Logged-in Employee ID (createdBy):', loggedInEmpId);
+
   // Helper function to convert value to number or return 0
   const toNumber = (value) => {
     if (value === null || value === undefined || value === '') return 0;
@@ -666,7 +695,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
     schoolName: toString(sibling.schoolName),
     classId: toNumber(sibling.classId),
     relationTypeId: toNumber(sibling.relationTypeId),
-    createdBy: 0
+    createdBy: loggedInEmpId
   }));
 
   console.log('✅ Mapped siblings array:', siblings);
@@ -741,7 +770,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
         authorizedById: toNumber(formData.authorizedBy || 0),
         reasonId: reasonId, // Required field - must not be 0 or null
         comments: toString(formData.description || ''),
-        createdBy: 0,
+        createdBy: loggedInEmpId,
         concReferedBy: toNumber(formData.referredBy || 0),
         proConcessionAmount: proConcessionAmount,
         proConcessionReason: proConcessionReason,
@@ -815,7 +844,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
         authorizedById: toNumber(formData.authorizedBy || 0),
         reasonId: reasonId, // Required field - must not be 0 or null
         comments: toString(formData.description || ''),
-        createdBy: 0,
+        createdBy: loggedInEmpId,
         concReferedBy: toNumber(formData.referredBy || 0),
         proConcessionAmount: proConcessionAmount,
         proConcessionReason: proConcessionReason,
@@ -878,7 +907,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
       // Try to convert state label to ID (fallback - will be 0 if not found)
       return toNumber(formData.state || 0);
     })(),
-    createdBy: 0
+    createdBy: loggedInEmpId
   };
 
   // Map payment details
@@ -888,7 +917,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
     amount: toNumber(paymentData.amount || paymentData.card_amount || paymentData.dd_amount || paymentData.cheque_amount),
     prePrintedReceiptNo: toString(paymentData.prePrinted || paymentData.card_receiptNo || paymentData.dd_receiptNo || paymentData.cheque_receiptNo),
     remarks: toString(paymentData.remarks || paymentData.card_remarks || paymentData.dd_remarks || paymentData.cheque_remarks),
-    createdBy: 0,
+    createdBy: loggedInEmpId,
     transactionNumber: toString(paymentData.dd_transactionNo || paymentData.cheque_transactionNo || ''),
     transactionDate: toISODate(paymentData.dd_transactionDate || paymentData.cheque_transactionDate),
     organisationId: toNumber(paymentData.dd_org || paymentData.cheque_org || 0),
@@ -901,7 +930,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
   // Build the complete payload matching the provided structure
   const payload = {
     studAdmsNo: toNumber(detailsObject?.applicationNo || detailsObject?.studAdmsNo || formData.studAdmsNo || 0),
-    createdBy: 0,
+    createdBy: loggedInEmpId,
     hallTicketNumber: toString(formData.hallTicketNo),
     preHallTicketNo: toString(formData.tenthHallTicketNo),
     schoolStateId: (() => {
@@ -998,7 +1027,24 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
       return toNumber(formData.quotaAdmissionReferredBy);
     })(),
     appSaleDate: toISODate(formData.appSaleDate || new Date()),
-    admissionReferedBy: toString(formData.admissionReferedBy || formData.admissionReferredBy || formData.quotaAdmissionReferredBy || ''),
+    admissionReferedBy: (() => {
+      // When quotaId is 1 (Staff), pass the employee ID from the employeeId field
+      // For any other quotaId, pass empty string
+      const quotaIdValue = toNumber(formData.quotaId);
+      if (quotaIdValue === 1 && formData.employeeId) {
+        // Extract ID from "name - id" format
+        const empIdStr = String(formData.employeeId);
+        if (empIdStr.includes(' - ')) {
+          const parts = empIdStr.split(' - ');
+          const extractedId = parts[parts.length - 1].trim();
+          console.log('✅ Staff quota detected, using employeeId as admissionReferedBy:', extractedId);
+          return extractedId;
+        }
+        return empIdStr;
+      }
+      // For non-Staff quotas, pass empty string
+      return '';
+    })(),
     fatherName: toString(formData.fatherName),
     fatherMobileNo: toNumber(formData.mobileNumber || formData.fatherMobile || formData.fatherMobileNo),
     fatherEmail: toString(formData.email || formData.fatherEmail),
@@ -1176,6 +1222,10 @@ export const submitCollegeApplicationSaleComplete = async (payload) => {
  * @returns {Object} - Mapped payload matching update API structure
  */
 export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, detailsObject, activeTab) => {
+  // Get logged-in employee ID from localStorage
+  const loggedInEmpId = parseInt(localStorage.getItem("empId") || "0", 10);
+  console.log('👤 Logged-in Employee ID (createdBy):', loggedInEmpId);
+
   // Helper function to convert value to number or return 0
   const toNumber = (value) => {
     if (value === null || value === undefined || value === '') return 0;
@@ -1206,7 +1256,7 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
     schoolName: toString(sibling.schoolName),
     classId: toNumber(sibling.classId),
     relationTypeId: toNumber(sibling.relationTypeId),
-    createdBy: 0
+    createdBy: loggedInEmpId
   }));
 
   // Map concessions array
@@ -1285,7 +1335,7 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
       authorizedById: authorizedById,
       reasonId: reasonId,
       comments: toString(formData.description || ''),
-      createdBy: 0,
+      createdBy: loggedInEmpId,
       concReferedBy: referredById,
       proConcessionAmount: proConcessionAmount,
       proConcessionReason: proConcessionReason,
@@ -1334,7 +1384,7 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
       authorizedById: authorizedById,
       reasonId: reasonId,
       comments: toString(formData.description || ''),
-      createdBy: 0,
+      createdBy: loggedInEmpId,
       concReferedBy: referredById,
       proConcessionAmount: proConcessionAmount,
       proConcessionReason: proConcessionReason,
@@ -1353,7 +1403,7 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
     districtId: toNumber(formData.districtId || 0),
     pincode: toNumber(formData.pincode || 0),
     stateId: toNumber(formData.stateId || 0),
-    createdBy: 0
+    createdBy: loggedInEmpId
   };
 
   // Build the payload matching the update API structure
@@ -1381,7 +1431,7 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
 
   const payload = {
     studAdmsNo: studAdmsNoValue, // Use scoreAppNo as studAdmsNo
-    createdBy: 0,
+    createdBy: loggedInEmpId,
     hallTicketNumber: calculatedHallTicketNo, // Limit to 15 chars
     schoolStateId: toNumber(formData.schoolStateId || 0),
     schoolDistrictId: toNumber(formData.schoolDistrictId || 0),
@@ -1406,7 +1456,24 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
     dob: toISODate(formData.dob),
     aadharCardNo: toNumber(formData.aadharCardNo || 0),
     apaarNo: toString(formData.aaparNo || formData.apaarNo || ''),
-    admissionReferredBy: toString(formData.quotaAdmissionReferredBy || formData.admissionReferredBy || ''),
+    admissionReferredBy: (() => {
+      // When quotaId is 1 (Staff), pass the employee ID from the employeeId field
+      // For any other quotaId, pass empty string
+      const quotaIdValue = toNumber(formData.quotaId);
+      if (quotaIdValue === 1 && formData.employeeId) {
+        // Extract ID from "name - id" format
+        const empIdStr = String(formData.employeeId);
+        if (empIdStr.includes(' - ')) {
+          const parts = empIdStr.split(' - ');
+          const extractedId = parts[parts.length - 1].trim();
+          console.log('✅ Staff quota detected, using employeeId as admissionReferredBy:', extractedId);
+          return extractedId;
+        }
+        return empIdStr;
+      }
+      // For non-Staff quotas, pass empty string
+      return '';
+    })(),
     appTypeId: toNumber(formData.appTypeId || 0),
     quotaId: toNumber(formData.quotaId || 0),
     appSaleDate: toISODate(formData.appSaleDate || new Date()),

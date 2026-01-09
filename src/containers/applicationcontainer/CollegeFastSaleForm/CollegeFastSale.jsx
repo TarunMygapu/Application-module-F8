@@ -810,7 +810,7 @@ const CollegeFastSale = () => {
                     initialCampusName={applicationDetailsData?.campusName}
                     initialCampusId={applicationDetailsData?.campusId}
                   />
-                  <AddressInformation />
+                  <AddressInformation hideAsterisks={true} />
                 </div>
 
                 <div className={styles.clgAppSaleButtonsWrapper}>
@@ -849,6 +849,7 @@ const CollegeFastSale = () => {
               type="college"
               saleType={saleType}
               onSuccess={handleSubmissionSuccess}
+              amountReadOnly={true}
             />
           )}
         </>

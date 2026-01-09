@@ -101,6 +101,7 @@ export const useCollegeOverviewData = (applicationNo) => {
       try {
         setLoading(true);
         const response = await getCollegeOverviewData(applicationNo);
+        console.log('College Overview Data:', response);
         const backendData = response?.data || response;
         setOverviewData(backendData);
         setError(null);

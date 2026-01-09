@@ -339,7 +339,7 @@ import Dropdown from "../../Dropdown/Dropdown";
 import styles from "./ChequeForms.module.css";
 import { useOrganizations, useBanksByOrganization, useBranchesByOrganizationAndBank } from "../../../queries/applicationqueries/payment-apis/PaymentApis";
 
-const ChequeForms = ({ formData, onChange, errors }) => {
+const ChequeForms = ({ formData, onChange, errors, amountReadOnly = false }) => {
   // Fetch organizations from API
   const { organizationOptions, getOrganizationIdByLabel, getOrganizationLabelById, loading: organizationsLoading } = useOrganizations();
 
@@ -550,6 +550,8 @@ const ChequeForms = ({ formData, onChange, errors }) => {
           value={formData.cheque_amount}
           onChange={onChange}
           type="number"
+          readOnly={amountReadOnly}
+          error={errors?.cheque_amount}
         />
       </div>
 

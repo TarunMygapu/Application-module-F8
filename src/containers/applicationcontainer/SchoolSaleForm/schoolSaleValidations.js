@@ -44,13 +44,13 @@ const schoolSaleValidationSchema = (maxConcessionLimit) =>
     // ===================================================
     firstName: Yup.string()
       .trim()
-      .required("First name is required")
+      .required("First Name is required")
       .matches(onlyLettersSingleSpace, "Only alphabets allowed, single space only"),
  
     surName: Yup.string()
       .trim()
       .matches(onlyLettersSingleSpace, "Only alphabets allowed, single space only")
-      .required("Sur/Last name is required")
+      .required("Sur/Last Name is required")
       .nullable(),
  
     gender: Yup.string().required("Gender is required"),
@@ -62,14 +62,14 @@ const schoolSaleValidationSchema = (maxConcessionLimit) =>
         "Aapar must be 12 digits and cannot start with 0",
         (val) => !val || aaparRegex.test(val)
       )
-      .required("Aapar number is required"),
+      .required("Aapar Number is required"),
  
     dob: Yup.date()
       .required("Date of birth is required")
       .test("ageCheck", "Must be 3 years or above", validateAge3Plus),
  
     aadharCardNo: Yup.string()
-      .required("Aadhar number is required")
+      .required("Aadhar Number is required")
       .matches(/^[0-9]{12}$/, "Aadhar must be 12 digits")
       .matches(aadharRegex, "Invalid Aadhar number"),
  
@@ -99,13 +99,13 @@ const schoolSaleValidationSchema = (maxConcessionLimit) =>
       .trim()
       .matches(onlyLettersSingleSpace, "Only alphabets allowed, single space only")
       .nullable()
-      .required("Father name is required"),
+      .required("Father Name is required"),
  
     // mobileNumber: Used in some forms (deprecated, use fatherMobile)
     mobileNumber: Yup.string().nullable(),
     // fatherMobile: Used in school and college forms for parent mobile number (required)
     fatherMobile: Yup.string()
-      .required("Mobile number is required")
+      .required("Mobile Number is required")
       .matches(/^[6-9]\d{9}$/, "Mobile number must start with 6, 7, 8, or 9 and be exactly 10 digits"),
  
     // email: Yup.string().trim().nullable().matches(emailRegex, "Invalid email format"),
@@ -133,9 +133,9 @@ const schoolSaleValidationSchema = (maxConcessionLimit) =>
     // orientationCity: Used for Orientation Information (required for both school and college)
     // orientationCity: Yup.string().required("City is required"),
     branchName: Yup.string().required("Branch is required"),
-    joiningClass: Yup.string().required("Joining class is required"),
-    orientationName: Yup.string().required("Orientation name is required"),
-    studentType: Yup.string().required("Student type is required"),
+    joiningClass: Yup.string().required("Joining Class is required"),
+    orientationName: Yup.string().required("Orientation Name is required"),
+    studentType: Yup.string().required("Student Type is required"),
  
     academicYear: Yup.string().nullable(),
     orientationStartDate: Yup.string().nullable(),
@@ -146,7 +146,7 @@ const schoolSaleValidationSchema = (maxConcessionLimit) =>
     // ===================================================
     // ADDRESS INFORMATION
     // ===================================================
-    doorNo: Yup.string().nullable().required("Door number is required").matches(doorNoRegex, "Only letters, numbers and - / # & allowed"),
+    doorNo: Yup.string().nullable().required("Door Number is required").matches(doorNoRegex, "Only letters, numbers and - / # & allowed"),
  
     streetName: Yup.string()
       .nullable()

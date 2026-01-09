@@ -16,7 +16,7 @@ import {
 } from "../../../../../queries/applicationqueries/saleApis/clgSaleApis";
 import { toTitleCase } from "../../../../../utils/toTitleCase";
 
-const AddressInformation = () => {
+const AddressInformation = ({ hideAsterisks = false }) => {
   const formik = useFormikContext();
   const { values, setFieldValue, setFieldTouched, setFieldError, errors, touched, submitCount, handleChange, handleBlur } = formik;
   const [selectedDistrictId, setSelectedDistrictId] = useState(null);
@@ -82,11 +82,11 @@ const AddressInformation = () => {
         setFieldValue("districtId", pincodeData.districtId);
         setSelectedDistrictId(pincodeData.districtId);
       }
-    } else if (!isPincodeValid && values.pincode) {
-      // Only reset if pincode was previously valid and now invalid
-      // Don't reset if pincode is empty (might be initial state)
-      const wasValid = String(values.pincode || "").length === 6;
-      if (wasValid) {
+    } else if (!isPincodeValid) {
+      // Clear state and district whenever pincode is not valid (not 6 digits)
+      // This ensures fields are cleared immediately when even a single digit is removed
+      const hasExistingValues = values.state || values.district || values.stateId || values.districtId;
+      if (hasExistingValues) {
         setFieldValue("state", "");
         setFieldValue("district", "");
         setFieldValue("mandal", "");
@@ -327,12 +327,17 @@ const AddressInformation = () => {
     addressInformationFields.forEach((f) => {
       map[f.name] = { ...f };
 
+      // Hide asterisks by setting required to false for display purposes
+      if (hideAsterisks) {
+        map[f.name].required = false;
+      }
+
       if (f.name === "mandal") map[f.name].options = mandalOptions;
       if (f.name === "city") map[f.name].options = cityOptions;
     });
 
     return map;
-  }, [mandalOptions, cityOptions]);
+  }, [mandalOptions, cityOptions, hideAsterisks]);
 
   // Custom onChange that integrates Formik's handleChange for proper touched and validation triggering
   const customOnChange = (fname) => (e) => {
