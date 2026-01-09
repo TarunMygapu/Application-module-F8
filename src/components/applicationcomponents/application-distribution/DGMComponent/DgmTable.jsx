@@ -33,7 +33,13 @@ const DgmTable = ({ onSelectionChange, callTable, tableTrigger }) => {
         applicationCount: item.totalAppCount,
         cityName:item.cityname,
         zoneName:item.zoneName,
-        mobileNumber:item.mobileNumber,
+        mobileNumber:item.mobileNmuber,
+        cityId: item.city_id,
+        zoneId: item.zone_id,
+        campusId: item.cmps_id,
+        issuedToEmpId: item.issued_to_emp_id,
+        issuedName : item.issuedToName,
+        academicYearId : item.acdc_year_id,
       })),
     [tableData]
   );
@@ -124,6 +130,9 @@ const DgmTable = ({ onSelectionChange, callTable, tableTrigger }) => {
                 updatedRow.applicationNoTo || item.applicationNoTo,
               issueDate: updatedRow.issueDate || item.issueDate,
               mobileNumber: updatedRow.mobileNumber || item.mobileNumber,
+              cityId : updatedRow.cityId || item.city_id,
+              zoneId : updatedRow.zoneId || item.zone_id,
+              campusId : updatedRow.cmps_id || item.cmps_id,
             }
           : item
       )
@@ -143,17 +152,28 @@ const DgmTable = ({ onSelectionChange, callTable, tableTrigger }) => {
 };
   // Map table fields -> form fields
   const fieldMapping = {
-    applicationForm: "applicationNoFrom",
-    issuedName: "issuedTo",
-    campusName: "campusName",
-    zoneName: "zoneName",
-    academicYear: "academicYear",
-    cityName: "cityName",
-    range: "range",
-    applicationTo: "applicationNoTo",
-    issueDate: "issueDate",
-    mobileNumber: "mobileNumber",
-  };
+  cityName: "cityName",
+  cityId: "cityId",
+
+  zoneName: "zoneName",
+  zoneId: "zoneId",
+
+  campusName: "campusName",
+  campusId: "campusId",
+
+  issuedName: "issuedName",
+  issuedToEmpId: "issuedToEmpId",
+  issuedToId : "issuedToId",
+  issuedName :"issuedName",
+  applicationForm: "applicationNoFrom",
+  applicationTo: "applicationNoTo",
+  applicationSeries: "applicationSeries",
+  applicationCount: "applicationCount",
+  mobileNumber: "mobileNumber",
+};
+
+
+  // console.log("Values to the Form: ",fieldMapping);
  
   // Loading & error states
   if (isLoading) return <div style={{ padding: 16 }}>Table data is loading…</div>;

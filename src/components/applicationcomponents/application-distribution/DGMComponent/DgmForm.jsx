@@ -117,6 +117,44 @@ const DgmForm = ({
 
 const hydratedRef = useRef(false);
 
+const updateHydratedRef = useRef(false);
+
+useEffect(() => {
+  if (!isUpdate || !initialValues) return;
+  if (updateHydratedRef.current) return;
+
+  console.log("🟡 UPDATE HYDRATION START", initialValues);
+
+  isHydratingRef.current = true;
+
+  // ✅ STEP 1: set IDs FIRST (so APIs can load)
+  if (initialValues.cityId) setSelectedCityId(initialValues.cityId);
+  if (initialValues.zoneId) setSelectedZoneId(initialValues.zoneId);
+  if (initialValues.campusId) setSelectedCampusId(initialValues.campusId);
+  if (initialValues.issuedToEmpId) setIssuedToId(initialValues.issuedToEmpId);
+
+  // ✅ store refs to prevent resets
+  prevCityNameRef.current = initialValues.cityName ?? null;
+  prevZoneNameRef.current = initialValues.zoneName ?? null;
+  prevCampusNameRef.current = initialValues.campusName ?? null;
+
+  // ✅ STEP 2: set visible values into Formik initial values
+  setSeedInitialValues(prev => ({
+    ...prev,
+    cityName: initialValues.cityName ?? "",
+    zoneName: initialValues.zoneName ?? "",
+    campusName: initialValues.campusName ?? "",
+    issuedTo: initialValues.issuedTo ?? "",
+    applicationFee: initialValues.applicationFee ?? "",
+    applicationSeries: initialValues.applicationSeries ?? "",
+  }));
+
+  updateHydratedRef.current = true;
+  isHydratingRef.current = false;
+}, [isUpdate, initialValues]);
+
+
+
 useEffect(() => {
   if (hydratedRef.current) return;
   if (!isLocationSuccess || !locationData) return;
@@ -200,122 +238,96 @@ useEffect(() => {
   }, [years]);
 
   // ---------------- RESET ON CHANGE ----------------
-  const handleValuesChange = (values, setFieldValue) => {
+const handleValuesChange = (values, setFieldValue) => {
+  if (!setFieldValue) return;
 
-    if (!setFieldValue) return; // Safety check
+  /* ================= CITY ================= */
+  if (values.cityName && cityMap.has(values.cityName)) {
+    const newCityId = cityMap.get(values.cityName);
 
-    if (values.academicYear && yearMap.has(values.academicYear)) {
-      const id = yearMap.get(values.academicYear);
-      if (id !== selectedAcademicYearId) {
-        setSelectedAcademicYearId(id);
-        setSelectedFee(null);
-      }
-    }
+    if (newCityId !== selectedCityId) {
+      console.log("🔥 CITY CHANGE DETECTED");
 
-    if (values.cityName && cityMap.has(values.cityName)) {
-      const id = cityMap.get(values.cityName);
-      // if (id !== selectedCityId) {
-      //   setSelectedCityId(id);
-      //   if(!isUpdate) {
-      //   setFieldValue("zoneName", "");
-      //   setFieldValue("campusName", "");
-      //   setFieldValue("issuedTo", "");
-      //   }
-      //   setSelectedZoneId(null);
-      //   setSelectedCampusId(null);
-      //   setIssuedToId(null);
-      //   setSelectedFee(null);
-      // }
-      const prev = prevCityNameRef.current;
-      if (id !== selectedCityId) {
-        setSelectedCityId(id);
-      }
-      if (!isHydratingRef.current && values.cityName !== prev) {
-        setSelectedCityId(id);
-        // 🔥 Reset children in BOTH create & update
-        setFieldValue("zoneName", "");
-        setFieldValue("campusName", "");
-        setFieldValue("issuedTo", "");
-        setSelectedZoneId(null);
-        setSelectedCampusId(null);
-        setIssuedToId(null);
-        setSelectedFee(null);
-      }
+      // 🔥 RESET CHILDREN FIRST
+      setFieldValue("zoneName", "");
+      setFieldValue("campusName", "");
+      setFieldValue("issuedTo", "");
+
+      setSelectedZoneId(null);
+      setSelectedCampusId(null);
+      setIssuedToId(null);
+      setSelectedFee(null);
+
+      // ✅ THEN update parent
+      setSelectedCityId(newCityId);
+
       prevCityNameRef.current = values.cityName;
+      return;
     }
+  }
 
-    if (values.zoneName && zoneMap.has(values.zoneName)) {
-      const id = zoneMap.get(values.zoneName);
+  /* ================= ZONE ================= */
+  if (values.zoneName && zoneMap.has(values.zoneName)) {
+    const newZoneId = zoneMap.get(values.zoneName);
 
-      // if (id !== selectedZoneId) {
-      //   setSelectedZoneId(id);
-      //   if(!isUpdate) {
-      //             setFieldValue("campusName", "");
-      //   setFieldValue("issuedTo", "");
+    if (newZoneId !== selectedZoneId) {
+      console.log("🔥 ZONE CHANGE DETECTED");
 
-      //   }
-      //   setSelectedCampusId(null);
-      //   setIssuedToId(null);
-      //   setSelectedFee(null);
-      // }
-      const prev = prevZoneNameRef.current;
-      if (id !== selectedZoneId) {
-        setSelectedZoneId(id);
-      }
-      if (!isHydratingRef.current && values.zoneName !== prev) {
-        setSelectedZoneId(id);
-        // 🔥 Reset children in BOTH create & update
-        setFieldValue("campusName", "");
-        setFieldValue("issuedTo", "");
-        setSelectedCampusId(null);
-        setIssuedToId(null);
-        setSelectedFee(null);
-      }
+      // 🔥 RESET CHILDREN FIRST
+      setFieldValue("campusName", "");
+      setFieldValue("issuedTo", "");
+
+      setSelectedCampusId(null);
+      setIssuedToId(null);
+      setSelectedFee(null);
+
+      // ✅ THEN update parent
+      setSelectedZoneId(newZoneId);
+
       prevZoneNameRef.current = values.zoneName;
+      return;
     }
+  }
 
-    if (values.campusName && campusMap.has(values.campusName)) {
-      const id = campusMap.get(values.campusName);
+  /* ================= CAMPUS ================= */
+  if (values.campusName && campusMap.has(values.campusName)) {
+    const newCampusId = campusMap.get(values.campusName);
 
-      // if (id !== selectedCampusId) {
-      //   setSelectedCampusId(id);
-      //   if(!isUpdate) {
-      //             setFieldValue("issuedTo", "");
-      //   }
-      //   setIssuedToId(null);
-      //   setSelectedFee(null);
-      // }
-      const prev = prevCampusNameRef.current;
-      if (id !== selectedCampusId) {
-        setSelectedCampusId(id);
-      }
-      if (!isHydratingRef.current && values.campusName !== prev) {
-        setSelectedCampusId(id);
-        // 🔥 Reset children in BOTH create & update
-        setFieldValue("issuedTo", "");
-        setIssuedToId(null);
-        setSelectedFee(null);
-      }
-      prevCampusNameRef.current = values.campusName;
+    if (newCampusId !== selectedCampusId) {
+      console.log("🔥 CAMPUS CHANGE DETECTED");
+
+      setFieldValue("issuedTo", "");
+      setIssuedToId(null);
+      setSelectedFee(null);
+
+      setSelectedCampusId(newCampusId);
+      return;
     }
+  }
 
-    if (values.issuedTo && empMap.has(values.issuedTo)) {
-      const id = empMap.get(values.issuedTo);
-      if (id !== issuedToId) setIssuedToId(id);
+  /* ================= ISSUED TO ================= */
+  if (values.issuedTo && empMap.has(values.issuedTo)) {
+    const newEmpId = empMap.get(values.issuedTo);
+    if (newEmpId !== issuedToId) {
+      setIssuedToId(newEmpId);
     }
+  }
 
-    if (values.applicationFee && values.applicationFee !== selectedFee) {
-      // selectedFee(values.applicationFee);
-      setSelectedFee(values.applicationFee);
-      if (!isUpdate) {
-        setFieldValue("applicationSeries", "");
-        setFieldValue("applicationCount", "");
-        setFieldValue("availableAppNoFrom", "");
-        setFieldValue("availableAppNoTo", "");
-        setFieldValue("applicationNoFrom", "");
-      }
+  /* ================= APPLICATION FEE ================= */
+  if (values.applicationFee && values.applicationFee !== selectedFee) {
+    setSelectedFee(values.applicationFee);
+
+    if (!isUpdate) {
+      setFieldValue("applicationSeries", "");
+      setFieldValue("applicationCount", "");
+      setFieldValue("availableAppNoFrom", "");
+      setFieldValue("availableAppNoTo", "");
+      setFieldValue("applicationNoFrom", "");
     }
-  };
+  }
+};
+
+
 
   // ---------------- SELECTED SERIES OBJECT ----------------
   const seriesObj = useMemo(() => {
@@ -328,6 +340,27 @@ useEffect(() => {
 
   // ---------------- BACKEND VALUES (MATCHES ZoneForm) ----------------
   const backendValues = useMemo(() => {
+
+    if (isUpdate && initialValues) {
+    return {
+      academicYearId: initialValues.academicYearId,
+      cityId: initialValues.cityId,
+      zoneId: initialValues.zoneId,
+      campusId: initialValues.campusId,
+      issuedToEmpId: initialValues.issuedToEmpId,
+      issuedTo: initialValues.issuedToEmpId,
+      cityName: initialValues.cityName,
+      zoneName: initialValues.zoneName,
+      campusName: initialValues.campusName,
+      applicationSeries: initialValues.applicationSeries,
+      applicationCount: initialValues.applicationCount,
+      applicationNoFrom: initialValues.applicationNoFrom,
+      availableAppNoFrom: initialValues.availableAppNoFrom,
+      availableAppNoTo: initialValues.availableAppNoTo,
+      issuedName: initialValues.issuedName,
+    };
+  }
+
     const obj = {};
 
     if (mobileNo != null) obj.mobileNumber = String(mobileNo);

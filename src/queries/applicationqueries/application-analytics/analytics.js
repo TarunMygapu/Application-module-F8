@@ -552,6 +552,9 @@ const buildFlexibleGraphUrl = (zoneId, campusIds, campusId, amount,empId) => {
   if (amount != null && amount !== "") {
     params.append("amount", String(amount));
   }
+  if(empId  != "null" && empId!==""){
+    params.append("empId", String(empId));
+  }
 
   const queryString = params.toString();
   const finalUrl = queryString ? `${baseUrl}?${queryString}` : baseUrl;

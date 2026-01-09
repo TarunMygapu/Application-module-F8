@@ -810,7 +810,7 @@ const AccordiansContainer = () => {
   const hasEntity = !!selectedEntity.id;
   const hasAmount = !!selectedAmount;
   const shouldFetch = hasEntity || hasAmount;
-  const employeeId = sessionStorage.getItem("empId");
+  const employeeId = localStorage.getItem("empId");
 
   const flexibleGraphQuery = useGetFlexibleGraph(zoneId, campusIds, campusId, amount, employeeId, {
     enabled: shouldFetch, // Enable when entity OR amount is selected

@@ -157,9 +157,13 @@ export const BackendPatcher = ({
     }
   };
  
-  useEffect(() => patchNumber("issuedToEmpId", backendValues.issuedToEmpId), [
-    backendValues.issuedToEmpId,
-  ]);
+  useEffect(() => {
+  if (backendValues.issuedToEmpId != null) {
+    if (values.issuedToEmpId !== backendValues.issuedToEmpId) {
+      setFieldValue("issuedToEmpId", backendValues.issuedToEmpId, false);
+    }
+  }
+}, [backendValues.issuedToEmpId, values.issuedToEmpId, setFieldValue]);
   useEffect(() => patchNumber("academicYearId", backendValues.academicYearId), [
     backendValues.academicYearId,
   ]);
@@ -192,8 +196,43 @@ useEffect(() => {
 }, [backendValues.zoneName, values.zoneName, setFieldValue]);
 
 useEffect(() => {
+  if (backendValues.campusName != null) {
+    if (values.campusName !== backendValues.campusName) {
+      setFieldValue("campusName", backendValues.campusName, false);
+    }
+  }
+}, [backendValues.campusName, values.campusName, setFieldValue]);
+
+useEffect(() => {
+  if (backendValues.issuedName != null) {
+    if (values.issuedName !== backendValues.issuedName) {
+      setFieldValue("issuedName", backendValues.issuedName, false);
+    }
+  }
+}, [backendValues.issuedName, values.issuedName, setFieldValue]);
+
+
+  useEffect(() => {
+  if (backendValues.campaignDistrictId != null) {
+    if (values.campaignDistrictId !== backendValues.campaignDistrictId) {
+      setFieldValue("campaignDistrictId", backendValues.campaignDistrictId, false);
+    }
+  }
+}, [backendValues.campaignDistrictId, values.campaignDistrictId, setFieldValue]);
+
+useEffect(() => {
+  if (backendValues.campaignDistrictName != null) {
+    if (values.campaignDistrictName !== backendValues.campaignDistrictName) {
+      setFieldValue("campaignDistrictName", backendValues.campaignDistrictName, false);
+    }
+  }
+}, [backendValues.campaignDistrictName, values.campaignDistrictName, setFieldValue]);
+
+
+
+useEffect(() => {
   if (backendValues.cityId != null) {
-    if (values.campusId !== backendValues.cityId) {
+    if (values.cityId !== backendValues.cityId) {
       setFieldValue("cityId", backendValues.cityId, false);
     }
   }
@@ -207,19 +246,34 @@ useEffect(() => {
   }
 }, [backendValues.zoneId, values.zoneId, setFieldValue]);
 
-  useEffect(() => patchNumber("campusId", backendValues.campusId), [
-    backendValues.campusId,
-  ]);
-  useEffect(
-    () => patchNumber("campaignDistrictId", backendValues.campaignDistrictId),
-    [backendValues.campaignDistrictId]
-  );
+  useEffect(() => {
+  if (backendValues.campusId != null) {
+    if (values.campusId !== backendValues.campusId) {
+      setFieldValue("campusId", backendValues.campusId, false);
+      
+    }
+  }
+}, [backendValues.campusId, values.campusId, setFieldValue]);
+
+
+  // useEffect(
+  //   () => patchNumber("campaignDistrictId", backendValues.campaignDistrictId),
+  //   [backendValues.campaignDistrictId]
+  // );
   useEffect(() => patchNumber("campaignId", backendValues.campaignId), [
     backendValues.campaignId,
   ]);
-  useEffect(() => patchNumber("issuedToId", backendValues.issuedToId), [
-    backendValues.issuedToId,
-  ]);
+
+  useEffect(() => {
+  if (backendValues.issuedTo != null) {
+    if (values.issuedTo !== backendValues.issuedTo) {
+      setFieldValue("issuedTo", backendValues.issuedTo, false);
+    }
+  }
+}, [backendValues.issuedTo, values.issuedTo, setFieldValue]);
+  // useEffect(() => patchNumber("issuedToId", backendValues.issuedToId), [
+  //   backendValues.issuedToId,
+  // ]);
   useEffect(
     () =>
       patchNumber(

@@ -74,7 +74,7 @@ const createValidationSchema = (formType) => {
  
     // DGM/Campus-specific
     campusName: (isDgm || isCampus)
-      ? Yup.string().required("Campus Name is required")
+      ? Yup.string().required("Branch Name is required")
       : Yup.string().notRequired(),
  
     // Campus-specific

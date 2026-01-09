@@ -44,15 +44,19 @@ const CampusTable = ({ onSelectionChange,callTable,tableTrigger }) => {
         amount: item.amount,
         issuedName: item.issuedToName,
         campusName: item.campusName,
-        campaignDistrictName: item.districtName,
-        cityName: item.cityName,
-        campaignAreaName: item.campaignAreaName,
+        campaignDistrictName: item.districtname,
+        cityName: item.cityname,
          applicationFee: item.amount,
         applicationSeries: item.displaySeries,
         applicationCount: item.totalAppCount,
-        campaignDistrictName:item.districtname,
         cityName:item.cityname,
         mobileNumber:item.mobileNumber,
+        academicYearId: item.acdc_year_id,
+        cityId : item.city_id,
+        campusId : item.cmps_id,
+        issuedTo : item.issued_to_emp_id,
+        issuedToEmpId : item.issued_to_emp_id,
+        campaignDistrictId:item.district_id
       })),
     [tableData]
   );
