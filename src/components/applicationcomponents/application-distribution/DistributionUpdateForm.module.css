@@ -10,6 +10,7 @@
   align-items: center; /* Center vertically */
   background-color: rgba(0, 0, 0, 0.5); /* Add a semi-transparent background */
   z-index: 999; /* Ensure it appears above other content */
+   backdrop-filter: blur(5px);
 }
  
 /* Modal box styles */

@@ -135,8 +135,9 @@ const CampusTable = ({ onSelectionChange,callTable,tableTrigger }) => {
               ...item,
               applicationForm:
                 updatedRow.applicationNoFrom || item.applicationForm,
-              issuedName: updatedRow.issuedTo || item.issuedName,
+              issuedName: updatedRow.issuedName || item.issuedName,
               campusName: updatedRow.campusName || item.campusName,
+              issuedTo : updatedRow.issuedId || item.issuedTo,
               academicYear: updatedRow.academicYear || item.academicYear,
               cityName: updatedRow.cityName || item.cityName,
               zoneName: updatedRow.zoneName || item.zoneName,

@@ -144,7 +144,7 @@ useEffect(() => {
     cityName: initialValues.cityName ?? "",
     zoneName: initialValues.zoneName ?? "",
     campusName: initialValues.campusName ?? "",
-    issuedTo: initialValues.issuedTo ?? "",
+    issuedTo: initialValues.issuedName ?? "",
     applicationFee: initialValues.applicationFee ?? "",
     applicationSeries: initialValues.applicationSeries ?? "",
   }));
@@ -348,7 +348,7 @@ const handleValuesChange = (values, setFieldValue) => {
       zoneId: initialValues.zoneId,
       campusId: initialValues.campusId,
       issuedToEmpId: initialValues.issuedToEmpId,
-      issuedTo: initialValues.issuedToEmpId,
+      issuedTo: initialValues.issuedName,
       cityName: initialValues.cityName,
       zoneName: initialValues.zoneName,
       campusName: initialValues.campusName,
@@ -357,7 +357,6 @@ const handleValuesChange = (values, setFieldValue) => {
       applicationNoFrom: initialValues.applicationNoFrom,
       availableAppNoFrom: initialValues.availableAppNoFrom,
       availableAppNoTo: initialValues.availableAppNoTo,
-      issuedName: initialValues.issuedName,
     };
   }
 

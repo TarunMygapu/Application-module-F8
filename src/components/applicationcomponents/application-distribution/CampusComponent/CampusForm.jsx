@@ -194,7 +194,7 @@ const CampusForm = ({
     campaignDistrictName: initialValues.campaignDistrictName ?? "",
     cityName: initialValues.cityName ?? "",
     campusName: initialValues.campusName ?? "",
-    issuedTo: initialValues.issuedTo ?? "",
+    issuedTo: initialValues.issuedToName ?? "",
     applicationFee: initialValues.applicationFee ?? "",
     applicationSeries: initialValues.applicationSeries ?? "",
   }));
@@ -385,7 +385,7 @@ const handleValuesChange = (values, setFieldValue) => {
       campusId: initialValues.campusId,
       campaignDistrictId: initialValues.campaignDistrictId,
       issuedToEmpId: initialValues.issuedToEmpId,
-      issuedTo: initialValues.issuedToEmpId,
+      issuedTo: initialValues.issuedName,
       cityName: initialValues.cityName,
       campusName: initialValues.campusName,
       campusName: initialValues.campusName,
