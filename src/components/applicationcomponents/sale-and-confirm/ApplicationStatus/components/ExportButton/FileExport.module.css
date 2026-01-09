@@ -40,13 +40,13 @@
 
 .fileTypeLabel {
   font-size: 12px;
-  font-weight: 400;
-  color: #000;
+  font-weight: 400px;
+  color: #000000;
 }
 
 .fileTypeOptions {
   display: flex;
-  background: #f1f3f6;
+  background: #f0f0f0;
   border-radius: 10px;
   padding: 2px;
   gap: 6px;
@@ -61,7 +61,7 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  color: #555;
+  color: #616161;
   line-height: 20px;
   letter-spacing: -0.23px;
 }

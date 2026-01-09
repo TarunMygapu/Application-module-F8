@@ -640,6 +640,7 @@ const PaymentPopup = ({
   const [submitError, setSubmitError] = useState(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [formErrors, setFormErrors] = useState({});
+  const [minimumAmount, setMinimumAmount] = useState(0); // Store the auto-populated minimum amount
 
   // Set current date when component mounts - for all payment modes
   useEffect(() => {
@@ -810,6 +811,10 @@ const PaymentPopup = ({
         source: applicationDetailsData ? 'applicationDetailsData' : 'detailsObject'
       });
 
+      // Store the minimum amount (auto-populated value that user cannot go below)
+      setMinimumAmount(totalAmount);
+      console.log("✅ Minimum amount set to:", totalAmount);
+
       // Set amount for all payment types
       setPaymentFormData((prev) => ({
         ...prev,
@@ -852,6 +857,32 @@ const PaymentPopup = ({
           [name]: "Pre Printed Receipt No is required"
         }));
       }
+    } else if (["amount", "dd_amount", "cheque_amount", "card_amount"].includes(name)) {
+      // Validate amount fields - must not be less than auto-populated minimum
+      const parsedAmount = parseFloat(value);
+      if (value === "" || value === null || value === undefined) {
+        setFormErrors((prev) => ({
+          ...prev,
+          [name]: "Amount is required"
+        }));
+      } else if (isNaN(parsedAmount) || parsedAmount < 0) {
+        setFormErrors((prev) => ({
+          ...prev,
+          [name]: "Amount must be at least 0"
+        }));
+      } else if (minimumAmount > 0 && parsedAmount < minimumAmount) {
+        setFormErrors((prev) => ({
+          ...prev,
+          [name]: `Amount cannot be less than ₹${minimumAmount}`
+        }));
+      } else {
+        // Clear error if valid
+        setFormErrors((prev) => {
+          const updated = { ...prev };
+          delete updated[name];
+          return updated;
+        });
+      }
     } else {
       // Clear error for other fields
       if (formErrors[name]) {
@@ -886,6 +917,14 @@ const PaymentPopup = ({
 
       if (isNaN(parsedAmount) || parsedAmount < 0) {
         const errorMsg = "Amount must be at least 0";
+        setFormErrors({ [amountFieldName]: errorMsg });
+        setSubmitError(errorMsg);
+        return;
+      }
+
+      // Check if entered amount is less than the auto-populated minimum amount
+      if (minimumAmount > 0 && parsedAmount < minimumAmount) {
+        const errorMsg = `Amount cannot be less than the auto-populated amount (₹${minimumAmount})`;
         setFormErrors({ [amountFieldName]: errorMsg });
         setSubmitError(errorMsg);
         return;

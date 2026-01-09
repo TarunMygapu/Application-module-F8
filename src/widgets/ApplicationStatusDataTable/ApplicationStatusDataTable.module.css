@@ -221,9 +221,9 @@ table tbody tr:nth-child(odd) {
  
 /* Fast Sold */
 .confirmed {
-  border: 1px solid #61660D;
-  background: #DBFFD8;
-  color: #61660D;
+  border: 1px solid #FFFFFF;
+  background: #3ECA72;
+  color: #FFFFFF;
 }
  
 /* Unavailable */
