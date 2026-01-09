@@ -748,12 +748,12 @@ const DamagedForm = () => {
     const errors = {};
 
     if (!values.applicationNo)
-      errors.applicationNo = "Please enter Application Number";
+      errors.applicationNo = "Please Enter Application Number";
     if (!values.applicationStatus)
-      errors.applicationStatus = "Please select Application Status";
-    if (!values.reason) errors.reason = "Please enter Reason";
+      errors.applicationStatus = "Please Select Application Status";
+    if (!values.reason) errors.reason = "Please Enter Reason";
     if (!applicationIds.statusId)
-      errors.applicationStatus = "Please select a valid status";
+      errors.applicationStatus = "Please Select a Valid Status";
 
     if (Object.keys(errors).length) {
       setValidationErrors(errors);

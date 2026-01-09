@@ -16,6 +16,7 @@
 //   ];
 
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ApplicationSearchHeader from "../../../../components/applicationcomponents/application-analytics/application-search-components/application-search-header-component/ApplicationSearchHeader";
 import ApplicationSearchBar from "../../../../widgets/application-search-bar-component/ApplicationSearchBar";
 import SearchCards from "../../../../components/applicationcomponents/sale-and-confirm/SearchResultCardWithStatus/SearchResultCardWithStatus";
@@ -24,6 +25,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 const ApplicationSearchContainer = () => {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filteredData, setFilteredData] = useState([]);
   const empId = localStorage.getItem("empId");
@@ -83,6 +85,42 @@ const ApplicationSearchContainer = () => {
 
 
 console.log("Filtered Data →", filteredData);
+
+  // Handle card click navigation - same behavior as Sale & Confirm tab
+  const handleCardClick = (item) => {
+    const applicationNo = item?.applicationNo;
+    const displayStatus = item?.displayStatus;
+    const normalizedCategory = campusCategory?.toLowerCase()?.trim();
+    
+    if (applicationNo) {
+      let route;
+      
+      // Determine route based on status and category
+      if (displayStatus === "Sold" || displayStatus === "Not Confirmed" || displayStatus === "Confirmed") {
+        // For confirmation: use category-specific route
+        if (normalizedCategory === 'college') {
+          route = "college-confirmation";
+        } else {
+          route = "school-confirmation";
+        }
+      } else {
+        // For sale (PRO, With Pro, or other unsold statuses): use category-specific route
+        if (normalizedCategory === 'college') {
+          route = "college-sale";
+        } else {
+          route = "school-sale";
+        }
+      }
+      
+      // Navigate with applicationData in state
+      navigate(`/scopes/application/status/${applicationNo}/${route}`, {
+        state: {
+          applicationData: item,
+        },
+      });
+    }
+  };
+
   // ✅ Conditional rendering inside JSX instead of early return
   return (
     <>
@@ -106,7 +144,7 @@ console.log("Filtered Data →", filteredData);
             data={filteredData}
             maxResults={5}
             category={campusCategory}
-            onCardClick={(item) => console.log("Card clicked:", item)}
+            onCardClick={handleCardClick}
           />
         </div>
       )}
