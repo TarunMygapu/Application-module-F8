@@ -65,6 +65,8 @@ const PercentBox = ({ items = [] }) => (
             color: borderColor,
             // fontFamily:"Plus Jakarta Sans",
              ...(isIssued ? issuedStyles : soldStyles),
+                   opacity: 1, // Ensure opacity is set for transitions
+            transition: "opacity 0.3s ease-out", // Smooth fade-in/out
           }}
         >
           {`${sign}${absValue}%`}

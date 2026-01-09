@@ -2,6 +2,7 @@ import React from "react";
 import styles from "./CollegeOverviewOrientInfo.module.css";
 
 const CollegeOverviewOrientInfo = ({ data }) => {
+  const isCampus = sessionStorage.getItem("campusCategory");
   return (
     <div className={styles.wrapper}>
       {/* Title + Divider */}

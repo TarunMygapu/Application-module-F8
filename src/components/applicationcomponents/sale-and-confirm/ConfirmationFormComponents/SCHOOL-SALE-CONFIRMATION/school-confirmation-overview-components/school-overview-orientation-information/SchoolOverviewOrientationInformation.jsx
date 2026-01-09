@@ -34,7 +34,7 @@ const SchoolOverviewOrientationInformation = ({ overviewData }) => {
         </div>
 
         <div className={styles.infoItem}>
-          <span className={styles.label}>Course Name</span>
+          <span className={styles.label}>Orientation Name</span>
           <span className={styles.value}>{overviewData?.orientationName || '-'}</span>
         </div>
 
