@@ -76,7 +76,7 @@ const DistributionUpdateForm = ({
       case "dgm":
         return "Update Distribution To DGM";
       case "campus":
-        return "Update Distribution To Campus";
+        return "Update Distribution To Branch";
       default:
         return "Update Distribution";
     }
@@ -89,7 +89,7 @@ const DistributionUpdateForm = ({
       case "dgm":
         return "Distribute Applications To All DGM.";
       case "campus":
-        return "Distribute Applications To All Campuses.";
+        return "Distribute Applications To All Branches.";
       default:
         return "Update the distribution details.";
     }

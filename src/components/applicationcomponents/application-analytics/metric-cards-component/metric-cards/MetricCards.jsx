@@ -643,8 +643,8 @@ const MetricCards = () => {
                   >
                     <path
                       d={arrowDirection}
-                      stroke={isPositive ? "#22C55E" : isNegative ? "#EF4444" : "#000000"}
-                      strokeWidth="1.5"
+                      stroke={isPositive ? "#22C55E" : isNegative ? "#C52222" : "#000000"}
+                      strokeWidth="1.2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />

@@ -150,23 +150,9 @@ const CampusTable = ({ onSelectionChange,callTable,tableTrigger }) => {
       )
     );
   };
-const { data: seriesData, refetch: refetchApplicationSeries} = useGetApplicationSeriesForEmpId(
-      null, // receiverId (dynamic)
-      null, // academicYear (dynamic)
-      null, // amount (dynamic)
-      false // isPro default
-    );
- 
-const {data:distributionId,refetch: refetchDistributionId} = useGetDistributionId(
-  null,
-  null,
-  null,
-  null,
-  false,
-)
  
   // Modal wiring (outside TableWidget)
-    const [openingForm, setOpeningForm] = useState(false);
+  const [openingForm, setOpeningForm] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const handleRowUpdateClick = async (row) => {

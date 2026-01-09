@@ -141,7 +141,7 @@ const TableWidget = ({
 
         <div className={styles.pagination_content_right}>
           <span className={styles.pagination_info}>
-            Page <strong>{total === 0 ? 0 : pageIndex + 1}-{Math.min(end, total)}</strong> of {totalPages}
+            Page <strong>{total === 0 ? 0 : pageIndex + 1}</strong> of {totalPages}
           </span>
 
           <div className={styles.pagination_buttons}>

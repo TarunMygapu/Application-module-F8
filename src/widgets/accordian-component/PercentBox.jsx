@@ -3,8 +3,8 @@ import styles from "./PercentBox.module.css"
 
 
 const getArrowPath = (percent) => {
-  if (percent > 0) return "M5 2 L2.5 5.5 M5 2 L7.5 5.5 M5 2 V9"; // up
-  if (percent < 0) return "M5 9 L2.5 5.5 M5 9 L7.5 5.5 M5 2 V9"; // down
+  if (percent > 0) return "M2.08337 4.66667L5.00004 1.75M5.00004 1.75L7.91671 4.66667M5.00004 1.75V9.25"; // up
+  if (percent < 0) return "M7.91671 6.33333L5.00004 9.25M5.00004 9.25L2.08337 6.33333M5.00004 9.25V1.75"; // down
   return "M2 5.5 L8 5.5"; // flat
 };
 
@@ -24,21 +24,21 @@ const PercentBox = ({ items = [] }) => (
       const bgColor = isIssued ? "#fff3f0" : "#eefaf1";
 
        const issuedStyles = {
-        border: "1px solid transparent",
-        background: `
-          linear-gradient(#fff3f0, #fff3f0) padding-box,
-          linear-gradient(to bottom, #F31616, #8D0D6F) border-box
-        `,
-        color: "#F31616",
+        border: "1px solid #B51919",
+        // background: `
+        //   linear-gradient(#fff3f0, #fff3f0) padding-box,
+        //   linear-gradient(to bottom, #F31616, #8D0D6F) border-box
+        // `,
+        backgroundColor:"#FFFAF5",
       };
 
       const soldStyles = {
-        border: "1px solid transparent",
-        background: `
-          linear-gradient(#eefaf1, #eefaf1) padding-box,
-          linear-gradient(to bottom, #45D92E, #07968F) border-box
-        `,
-        color: "#22C55E",
+        border: "1px solid #36B422",
+        // background: `
+        //   linear-gradient(#eefaf1, #eefaf1) padding-box,
+        //   linear-gradient(to bottom, #45D92E, #07968F) border-box
+        // `,
+        backgroundColor: "#F8FFF7",
       };
 
       const arrowColor = isIssued
@@ -46,8 +46,8 @@ const PercentBox = ({ items = [] }) => (
   : "#EF4444";  // 🟢 Sold → always green
 
      const arrowPercentColor = percentValue > 0 || percentValue < 0 ? (isIssued
-  ? "#22C55E"   // 🔴 Issued → always red
-  : "#EF4444") : "#000000"
+  ? "#FC0B0B"   // 🔴 Issued → always red
+  : "#25D433") : "#000000"
       return (
         <span
           key={index}
@@ -72,7 +72,7 @@ const PercentBox = ({ items = [] }) => (
             <path
               d={getArrowPath(percentValue)}
               stroke={arrowPercentColor}
-              strokeWidth="1.5"
+              strokeWidth="1.2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />

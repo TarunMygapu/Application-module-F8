@@ -103,7 +103,7 @@ const DistributeTab = () => {
     if (currentLocation.includes("dgm"))
       return "Distribute Applications To All DGMs.";
     if (currentLocation.includes("campus"))
-      return "Distribute Applications To All Campuses.";
+      return "Distribute Applications To All Branches.";
     return null;
   }
 

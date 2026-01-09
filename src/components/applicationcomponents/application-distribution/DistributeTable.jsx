@@ -34,7 +34,7 @@ const DistributeTable = ({ callTable,tableTrigger }) => {
     if (pathname.includes("dgm"))
       return "List Of All The Distributed Application To DGM";
     if (pathname.includes("campus"))
-      return "List Of All The Distributed Application To Campus";
+      return "List Of All The Distributed Application To Branch";
     return null;
   };
 
