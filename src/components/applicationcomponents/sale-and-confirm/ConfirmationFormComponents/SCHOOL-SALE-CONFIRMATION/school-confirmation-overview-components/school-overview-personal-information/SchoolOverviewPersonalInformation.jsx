@@ -4,6 +4,7 @@ import styles from "./SchoolOverviewPersonalInformation.module.css";
 import UploadPicture from '../../../../../../../widgets/UploadPicture/UploadPicture';
 
 const SchoolOverviewPersonalInformation = ({ overviewData }) => {
+  console.log('Component - overviewData:', overviewData);
   return (
     <div className={styles.wrapper}>
       {/* LEFT: Profile Image */}
@@ -43,7 +44,7 @@ const SchoolOverviewPersonalInformation = ({ overviewData }) => {
           </div>
 
           <div className={styles.infoItem}>
-            <span className={styles.label}>Last Name</span>
+            <span className={styles.label}>Sur Name/Last Name</span>
             <span className={styles.value}>{overviewData?.lastName || '-'}</span>
           </div>
 
@@ -64,11 +65,14 @@ const SchoolOverviewPersonalInformation = ({ overviewData }) => {
           </div>
 
           <div className={styles.infoItem}>
-            <span className={styles.label}>Admission Referred by / Quota</span>
-            <span className={styles.value}>{overviewData?.admissionReferredByName || '-'}</span>
+            <span className={styles.label}>Quota / Admission Referred by</span>
+            <span className={styles.value}>{overviewData?.quotaName || '-'}</span>
           </div>
-
-         
+          {overviewData?.admissionReferredByName && 
+          <div className={styles.infoItem}>
+            <span className={styles.label}>PRO Name</span>
+            <span className={styles.value}>{overviewData?.admissionReferredByName - overviewData?.admissionReferredById || '-'}</span>
+          </div>}
           {/* ROW 3 */}
           <div className={styles.infoItem}>
             <span className={styles.label}>Aadhar Card No</span>
@@ -80,10 +84,10 @@ const SchoolOverviewPersonalInformation = ({ overviewData }) => {
             <span className={styles.value}>{overviewData?.admissionTypeName || '-'}</span>
           </div>
 
-          <div className={styles.infoItem}>
+          { overviewData?.proReceiptNo !== 0 &&<div className={styles.infoItem}>
             <span className={styles.label}>PRO Receipt No</span>
             <span className={styles.value}>{overviewData?.proReceiptNo ?? '-'}</span>
-          </div>
+          </div>}
         </div>
       </div>
     </div>
