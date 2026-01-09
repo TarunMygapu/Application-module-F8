@@ -29,7 +29,7 @@ const FilterSearch = ({ suggestions = [], onItemClick }) => {
           >
             <span>{item?.name}</span>
             {item?.type && (
-              <span className={styles.item_type}> ({item.type})</span>
+              <span className={styles.item_type}> ({item.type === "Campus" || item.type === "CAMPUS" ? "Branch": item.type})</span>
             )}
           </li>
         ))}

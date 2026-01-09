@@ -305,8 +305,9 @@ const AnalyticsHeader = ({ onTabChange, activeTab }) => {
           onClick={handleSearchBarClick}
           onChange={handleInputChange}
           value={searchTerm}
-          inputRule="text"
-          maxLength="undefined"
+          inputRule="alphaNumericHyphen"
+          maxLength="45"
+          minLength = "3"
         />
 
         {showSuggestions && <FilterSearch suggestions={suggestions} onItemClick={handleSearchItemClick} />}

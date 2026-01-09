@@ -130,6 +130,8 @@ console.log("Filtered Data →", filteredData);
           placeholderText="Search for Application"
           value={search}
           onChange={handleSearchChange}
+          maxLength={"9"}
+          minLength={"3"}
         />
       </div>
 

@@ -7,6 +7,7 @@ const patterns = {
   digitsMax9: /^$|^[0-9]{0,9}$/,      // numbers max 9
   alpha: /^[A-Za-z ]*$/,              // letters + space
   alphanumeric: /^[A-Za-z0-9 ]*$/,    // letters + numbers
+  alphaNumericHyphen: /^[A-Za-z0-9-]*$/,
   none: /.*/,                         // allow anything
 };
 
