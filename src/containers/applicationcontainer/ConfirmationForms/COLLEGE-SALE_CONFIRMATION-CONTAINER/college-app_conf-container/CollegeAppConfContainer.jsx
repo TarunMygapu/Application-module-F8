@@ -34,6 +34,7 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
     cityId: null,
     branchId: null,
     joiningClassId: null,
+    selectedClassName: null, // Store joining class name for concession form
     orientationId: null,
     courseNameId: null,
     studentTypeId: null,
@@ -178,6 +179,7 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
         prev.cityId !== data.cityId ||
         prev.branchId !== data.branchId ||
         prev.joiningClassId !== data.joiningClassId ||
+        prev.selectedClassName !== data.selectedClassName ||
         prev.orientationId !== data.orientationId ||
         prev.courseNameId !== data.courseNameId ||
         prev.studentTypeId !== data.studentTypeId ||
@@ -202,10 +204,11 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
       delete newErrors.firstYearConcession;
       delete newErrors.secondYearConcession;
       delete newErrors.referredBy;
-  delete newErrors.reason;
+      delete newErrors.reason;
       delete newErrors.concessionReason;
       delete newErrors.authorizedBy;
       delete newErrors.concessionAmount;
+      delete newErrors.concessionReferredBy;
       
       // Add new errors if validation fails
       if (concessionErrors.firstYearConcession) {
@@ -228,6 +231,9 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
       }
       if (concessionErrors.concessionAmount) {
         newErrors.concessionAmount = concessionErrors.concessionAmount;
+      }
+      if (concessionErrors.concessionReferredBy) {
+        newErrors.concessionReferredBy = concessionErrors.concessionReferredBy;
       }
       
       // Show snackbar with first error if any errors exist
@@ -253,7 +259,7 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
       return newErrors;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.firstYearConcession, formData.secondYearConcession, formData.referredBy, formData.concessionReason, formData.authorizedBy, formData.description, formData.concessionWrittenOnApplication, formData.concessionAmount, academicFormData.courseFee]);
+  }, [formData.firstYearConcession, formData.secondYearConcession, formData.referredBy, formData.concessionReason, formData.authorizedBy, formData.description, formData.concessionWrittenOnApplication, formData.concessionAmount, formData.concessionReferredBy, formData.reason, academicFormData.courseFee]);
 
   const closeSnackbar = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
@@ -328,6 +334,7 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
           academicYearId={detailsObject?.academicYearId}
           overviewData={overviewData}
           errors={validationErrors}
+          joiningClassName={academicFormData?.selectedClassName || overviewData?.className || overviewData?.joiningClassName || ""}
         />
 
         {/* Bottom Action Buttons */}

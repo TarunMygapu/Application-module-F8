@@ -202,13 +202,14 @@ export default function useOrientationFormState({ academicYear, onDataChange, ov
       cityId: selectedCityId,
       branchId: selectedCampusId,
       joiningClassId: selectedClassId,
+      selectedClassName: selectedClassName, // Include joining class name for concession form
       orientationId: selectedOrientationId,
       courseNameId: selectedOrientationId,
       studentTypeId,
       courseFee, // Include course fee (orientation fee)
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCityId, selectedCampusId, selectedClassId, selectedOrientationId, selectedStudentType, courseFee]);
+  }, [selectedCityId, selectedCampusId, selectedClassId, selectedClassName, selectedOrientationId, selectedStudentType, courseFee]);
 
   // Deep auto-population from overviewData
   useEffect(() => {
@@ -255,13 +256,80 @@ export default function useOrientationFormState({ academicYear, onDataChange, ov
           }
         }
 
-        if (overviewData.studentTypeName && !selectedStudentType && studentTypes?.length > 0 && selectedOrientationId && selectedCampusId) {
-          const exact = studentTypes.find((t) => getStudentTypeDisplay(t) === overviewData.studentTypeName);
+        // Auto-populate student type from overviewData
+        // Try to populate even if orientation isn't selected yet, as long as we have class and campus
+        if (overviewData.studentTypeName && !selectedStudentType && studentTypes?.length > 0 && selectedClassId && selectedCampusId) {
+          // Try exact match first
+          const exact = studentTypes.find((t) => {
+            const display = getStudentTypeDisplay(t);
+            return display === overviewData.studentTypeName;
+          });
+          
           if (exact) {
             setSelectedStudentType(overviewData.studentTypeName);
+            // Trigger onDataChange to pass studentTypeId to parent
+            const studentTypeId = exact.studentTypeId || exact.id;
+            if (studentTypeId && onDataChange) {
+              onDataChange({
+                cityId: selectedCityId,
+                branchId: selectedCampusId,
+                joiningClassId: selectedClassId,
+                selectedClassName: selectedClassName,
+                orientationId: selectedOrientationId,
+                courseNameId: selectedOrientationId,
+                studentTypeId: studentTypeId,
+                courseFee,
+              });
+            }
           } else {
-            const ci = studentTypes.find((t) => getStudentTypeDisplay(t)?.toLowerCase?.() === overviewData.studentTypeName.toLowerCase());
-            if (ci) setSelectedStudentType(overviewData.studentTypeName);
+            // Try case-insensitive match
+            const caseInsensitive = studentTypes.find((t) => {
+              const display = getStudentTypeDisplay(t);
+              return display?.toLowerCase() === overviewData.studentTypeName?.toLowerCase();
+            });
+            
+            if (caseInsensitive) {
+              const matchedDisplay = getStudentTypeDisplay(caseInsensitive);
+              setSelectedStudentType(matchedDisplay);
+              // Trigger onDataChange to pass studentTypeId to parent
+              const studentTypeId = caseInsensitive.studentTypeId || caseInsensitive.id;
+              if (studentTypeId && onDataChange) {
+                onDataChange({
+                  cityId: selectedCityId,
+                  branchId: selectedCampusId,
+                  joiningClassId: selectedClassId,
+                  selectedClassName: selectedClassName,
+                  orientationId: selectedOrientationId,
+                  courseNameId: selectedOrientationId,
+                  studentTypeId: studentTypeId,
+                  courseFee,
+                });
+              }
+            } else if (overviewData.studentTypeId) {
+              // If we have studentTypeId from overview, try to find by ID
+              const byId = studentTypes.find((t) => {
+                const id = t.studentTypeId || t.id;
+                return id === overviewData.studentTypeId || String(id) === String(overviewData.studentTypeId);
+              });
+              
+              if (byId) {
+                const matchedDisplay = getStudentTypeDisplay(byId);
+                setSelectedStudentType(matchedDisplay);
+                // Trigger onDataChange to pass studentTypeId to parent
+                if (onDataChange) {
+                  onDataChange({
+                    cityId: selectedCityId,
+                    branchId: selectedCampusId,
+                    joiningClassId: selectedClassId,
+                    selectedClassName: selectedClassName,
+                    orientationId: selectedOrientationId,
+                    courseNameId: selectedOrientationId,
+                    studentTypeId: overviewData.studentTypeId,
+                    courseFee,
+                  });
+                }
+              }
+            }
           }
         }
       } catch (e) {
@@ -286,6 +354,8 @@ export default function useOrientationFormState({ academicYear, onDataChange, ov
     selectedCampusId,
     selectedClassId,
     selectedOrientationId,
+    onDataChange,
+    courseFee,
   ]);
 
   // Populate course dates and fee directly from overviewData if present

@@ -1,13 +1,37 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import Inputbox from "../../../../../../../widgets/Inputbox/InputBox";
 import Dropdown from "../../../../../../../widgets/Dropdown/Dropdown";
 import styles from "./CollegeConceInfoForms.module.css";
 import useCollegeConcessionFormState from "./hooks/useCollegeConcessionFormState";
 import ButtonRightArrow from "../../../../../../../assets/applicationassets/application-status/school-sale-conf-assets/ButtonRightArrow";
 
-const CollegeConceInfoForms = ({ formData, onChange, academicYear, academicYearId, overviewData, errors = {} }) => {
-  console.log("Form data in CollegeConceInfoForms:", formData);
-  const state = useCollegeConcessionFormState({ formData, onChange, academicYear, academicYearId, overviewData });
+const CollegeConceInfoForms = ({ formData, onChange, academicYear, academicYearId, overviewData, errors = {}, joiningClassName = "" }) => {
+  const state = useCollegeConcessionFormState({ formData, onChange, academicYear, academicYearId, overviewData, joiningClassName });
+  
+  // Get joining class from multiple sources (prop, overviewData, formData)
+  // Priority: prop > overviewData > formData
+  // Use useMemo to recalculate when joiningClassName or overviewData changes
+  const shouldHideFirstYear = useMemo(() => {
+    const actualClassName = joiningClassName || overviewData?.className || overviewData?.joiningClassName || formData?.joiningClass || "";
+    
+    if (!actualClassName) return false;
+    
+    // Check if joining class is INTER 2 - hide 1st year concession in that case
+    // Handle variations: "INTER2", "INTER 2", "Inter 2", "inter2", "INTER-2", etc.
+    // Remove all spaces, hyphens, underscores, and any other non-alphanumeric chars, convert to uppercase
+    const normalizedClassName = String(actualClassName)
+      .toUpperCase()
+      .trim()
+      .replace(/\s+/g, "")
+      .replace(/-/g, "")
+      .replace(/_/g, "")
+      .replace(/[^A-Z0-9]/g, "");
+    
+    // Check if it contains "INTER2" (in case there are extra characters)
+    const isInter2 = normalizedClassName === "INTER2" || normalizedClassName.includes("INTER2");
+    
+    return isInter2;
+  }, [joiningClassName, overviewData?.className, overviewData?.joiningClassName, formData?.joiningClass]);
 
   // Track if user has manually edited any Concession Written on Application fields
   const userEdited = useRef({});
@@ -24,6 +48,27 @@ const CollegeConceInfoForms = ({ formData, onChange, academicYear, academicYearI
       onChange({ target: { name: "reason", value: overviewData.reason } });
     }
   }, [overviewData]);
+
+  // Apply concession amount to 2nd year when 1st year is hidden (INTER 2) and checkbox is checked
+  // BUT only if secondYearConcession is not already populated from overview data
+  useEffect(() => {
+    if (shouldHideFirstYear && formData?.concessionWrittenOnApplication && formData?.concessionAmount) {
+      // Only apply if secondYearConcession is empty (not already populated from overview)
+      // This prevents overwriting the correct 2nd year concession amount from overview
+      if (!formData?.secondYearConcession || formData.secondYearConcession === "") {
+        const digitsOnly = String(formData.concessionAmount).replace(/\D/g, "");
+        if (digitsOnly) {
+          onChange({ target: { name: "secondYearConcession", value: digitsOnly } });
+          // Set 2nd year concession type ID
+          const typeId = state.getConcessionTypeIdByLabel?.("2nd year");
+          if (typeId !== undefined) {
+            onChange({ target: { name: "secondYearConcessionTypeId", value: typeId } });
+          }
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldHideFirstYear, formData?.concessionWrittenOnApplication, formData?.concessionAmount, formData?.secondYearConcession]);
 
   // Mark user edit on change
   const handleFieldChange = (e) => {
@@ -42,6 +87,21 @@ const CollegeConceInfoForms = ({ formData, onChange, academicYear, academicYearI
         },
       };
       onChange(filteredEvent);
+      
+      // If 1st year is hidden (INTER 2), apply the amount to 2nd year concession
+      // BUT only if secondYearConcession is not already populated from overview data
+      if (shouldHideFirstYear && formData?.concessionWrittenOnApplication && digitsOnly) {
+        // Only apply if secondYearConcession is empty (not already populated from overview)
+        if (!formData?.secondYearConcession || formData.secondYearConcession === "") {
+          // Apply to 2nd year concession
+          onChange({ target: { name: "secondYearConcession", value: digitsOnly } });
+          // Set 2nd year concession type ID
+          const typeId = state.getConcessionTypeIdByLabel?.("2nd year");
+          if (typeId !== undefined) {
+            onChange({ target: { name: "secondYearConcessionTypeId", value: typeId } });
+          }
+        }
+      }
     } else {
       onChange(e);
     }
@@ -57,19 +117,21 @@ const CollegeConceInfoForms = ({ formData, onChange, academicYear, academicYearI
 
       {/* Row 1 */}
       <div className={styles.grid}>
-        <div>
-          <Inputbox
-            label="1st Year Concession"
-            name="firstYearConcession"
-            placeholder="Enter 1st Year Concession"
-            value={formData?.firstYearConcession || ""}
-            onChange={state.handleFirstYearConcessionChange}
-            type="tel"
-          />
-          {errors.firstYearConcession && (
-            <span className={styles.errorMessage}>{errors.firstYearConcession}</span>
-          )}
-        </div>
+        {!shouldHideFirstYear && (
+          <div>
+            <Inputbox
+              label="1st Year Concession"
+              name="firstYearConcession"
+              placeholder="Enter 1st Year Concession"
+              value={formData?.firstYearConcession || ""}
+              onChange={state.handleFirstYearConcessionChange}
+              type="tel"
+            />
+            {errors.firstYearConcession && (
+              <span className={styles.errorMessage}>{errors.firstYearConcession}</span>
+            )}
+          </div>
+        )}
 
         <div>
           <Inputbox
@@ -179,13 +241,16 @@ const CollegeConceInfoForms = ({ formData, onChange, academicYear, academicYearI
             onChange={state.handleConcessionReferredByChange}
             value={state.selectedConcessionReferredBy ?? formData?.concessionReferredBy ?? overviewData?.concessionReferredBy ?? ""}
           />
+          {errors.concessionReferredBy && (
+            <span className={styles.errorMessage}>{errors.concessionReferredBy}</span>
+          )}
         </div>
         <div>
           <Inputbox
             label="Reason"
             name="reason"
             placeholder="Enter Reason"
-            value={formData?.reason ?? overviewData?.reason ?? "Special Concession"}
+            value={formData?.reason ?? overviewData?.reason ?? ""}
             onChange={handleFieldChange}
           />
           {errors.reason && (

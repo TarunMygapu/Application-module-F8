@@ -2,10 +2,18 @@ import React from "react";
 import styles from "./CollegeOverviewConWrtAppl.module.css";
 
 const CollegeOverviewConWrtAppl = ({ data }) => {
-  console.log('📝 CollegeOverviewConWrtAppl - Received data:', data);
+  // Find the concession object that has pro concession data (proAmount, proReason, proGivenById)
+  const concessions = data?.concessions || [];
+  const proConcessionData = concessions.find(concession => 
+    concession?.proAmount !== null && 
+    concession?.proAmount !== undefined && 
+    concession?.proAmount !== 0
+  ) || {};
   
-  // Access the concessions array and get the second concession (index 1)
-  const concessionData = data?.concessions?.[1] || {};
+  // Extract pro concession fields
+  const concessionAmount = proConcessionData?.proAmount || '-';
+  const concessionReferredBy = proConcessionData?.proGivenByName || proConcessionData?.proGivenById || '-';
+  const reason = proConcessionData?.proReason || '-';
   
   return (
     <div className={styles.wrapper}>
@@ -19,17 +27,17 @@ const CollegeOverviewConWrtAppl = ({ data }) => {
       <div className={styles.infoGrid}>
         <div className={styles.infoItem}>
           <span className={styles.label}>Concession Amount</span>
-          <span className={styles.value}>{concessionData?.amount || '-'}</span>
+          <span className={styles.value}>{concessionAmount}</span>
         </div>
 
         <div className={styles.infoItem}>
           <span className={styles.label}>Concession Referred By</span>
-          <span className={styles.value}>{concessionData?.concReferedByName || '-'}</span>
+          <span className={styles.value}>{concessionReferredBy}</span>
         </div>
 
         <div className={styles.infoItem}>
           <span className={styles.label}>Reason</span>
-          <span className={styles.value}>{concessionData?.reasonName || '-'}</span>
+          <span className={styles.value}>{reason}</span>
         </div>
       </div>
     </div>

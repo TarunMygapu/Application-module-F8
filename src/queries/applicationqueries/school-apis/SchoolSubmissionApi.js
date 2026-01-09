@@ -211,7 +211,7 @@ export const mapFormDataToPayload = (formData, siblings, paymentData, detailsObj
     concessions.push({
       concessionTypeId: toNumber(formData.admissionConcessionTypeId),
       concessionAmount: toNumber(formData.admissionConcession),
-      givenById: 0, // Add if available
+      givenById: toNumber(formData.referredBy || 0), // Use referredBy value as givenById
       authorizedById: toNumber(formData.authorizedBy),
       reasonId: toNumber(formData.concessionReason),
       comments: toString(formData.concessionDescription),
@@ -225,7 +225,7 @@ export const mapFormDataToPayload = (formData, siblings, paymentData, detailsObj
     concessions.push({
       concessionTypeId: toNumber(formData.tuitionConcessionTypeId),
       concessionAmount: toNumber(formData.tuitionConcession),
-      givenById: 0, // Add if available
+      givenById: toNumber(formData.referredBy || 0), // Use referredBy value as givenById
       authorizedById: toNumber(formData.authorizedBy),
       reasonId: toNumber(formData.concessionReason),
       comments: toString(formData.concessionDescription),

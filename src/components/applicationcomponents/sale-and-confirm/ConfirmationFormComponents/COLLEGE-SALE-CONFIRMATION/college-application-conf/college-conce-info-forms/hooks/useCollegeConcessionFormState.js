@@ -9,7 +9,10 @@ import {
   findOptionByFuzzyText,
 } from "../utils/concessionHelpers";
 
-export default function useCollegeConcessionFormState({ formData, onChange, academicYear, academicYearId, overviewData }) {
+export default function useCollegeConcessionFormState({ formData, onChange, academicYear, academicYearId, overviewData, joiningClassName = "" }) {
+  // Check if joining class is INTER 2 - hide 1st year concession in that case
+  const isInter2 = joiningClassName && (joiningClassName.toUpperCase().trim() === "INTER 2" || joiningClassName.toUpperCase().trim() === "INTER2");
+  const shouldHideFirstYear = isInter2;
   const [isChecked, setIsChecked] = useState(formData?.concessionWrittenOnApplication || false);
 
   // Always sync isChecked with parent form value
@@ -200,63 +203,180 @@ export default function useCollegeConcessionFormState({ formData, onChange, acad
         onChange({ target: { name: 'reason', value: overviewData.reason } });
       }
     } else if (concessions.length > 0) {
-      // Fallback to concessions array if overview fields are not present
+      // Always populate 1st and 2nd year concessions from concessions array (regardless of pro concession)
       const firstYear = findConcessionByType(concessions, ["1st", "first", "1st year", "first year"]);
       const secondYear = findConcessionByType(concessions, ["2nd", "second", "2nd year", "second year"]);
       const thirdYear = findConcessionByType(concessions, ["3rd", "third", "3rd year", "third year"]);
-      const primary = firstYear || secondYear || thirdYear || concessions[0];
+      
+      // Use 2nd year as primary if it exists, otherwise use first year or first concession
+      const primary = secondYear || firstYear || thirdYear || concessions[0];
 
+      // Auto-populate 1st year concession
       if (firstYear && isValidValue(firstYear.amount) && !formData?.firstYearConcession) {
         onChange({ target: { name: "firstYearConcession", value: firstYear.amount } });
       }
+      
+      // Auto-populate 2nd year concession - use the amount field from the 2nd year concession object
       if (secondYear && isValidValue(secondYear.amount) && !formData?.secondYearConcession) {
-        onChange({ target: { name: "secondYearConcession", value: secondYear.amount } });
+        // Convert to string and ensure it's the numeric value from amount field
+        const secondYearAmount = String(secondYear.amount).replace(/\D/g, "");
+        if (secondYearAmount) {
+          onChange({ target: { name: "secondYearConcession", value: secondYearAmount } });
+        }
       }
-      if (primary && isValidValue(primary.comments) && !formData?.description) {
-        onChange({ target: { name: "description", value: primary.comments } });
+      
+      // Auto-populate description from primary concession (2nd year if available)
+      const descriptionValue = primary?.comments || primary?.description;
+      if (descriptionValue && isValidValue(descriptionValue) && !formData?.description) {
+        onChange({ target: { name: "description", value: descriptionValue } });
       }
-      if (primary && isValidValue(primary.amount) && !formData?.concessionAmount) {
-        onChange({ target: { name: "concessionAmount", value: primary.amount } });
+      
+      // Auto-populate Referred By - check multiple field names from API
+      const referredByName = primary?.givenByName || primary?.concReferedByName || primary?.referredBy || primary?.givenBy;
+      if (referredByName && !formData?.referredBy && (authorizedByList?.length || 0) > 0) {
+        const match = findOptionByFuzzyText(authorizedByList, referredByName);
+        if (match) {
+          setSelectedReferredBy(match.displayText);
+          onChange({ target: { name: "referredBy", value: match.id } });
+          // Also set referredById if available
+          if (match.id) {
+            onChange({ target: { name: "referredById", value: match.id } });
+          }
+        } else {
+          // Try to find by ID if we have givenById
+          const givenById = primary?.givenById || primary?.concReferedBy;
+          if (givenById) {
+            const byIdMatch = authorizedByList.find(emp => String(emp.id) === String(givenById));
+            if (byIdMatch) {
+              setSelectedReferredBy(byIdMatch.displayText);
+              onChange({ target: { name: "referredBy", value: byIdMatch.id } });
+              onChange({ target: { name: "referredById", value: byIdMatch.id } });
+            } else {
+              // Fallback: set the name directly
+              setSelectedReferredBy(referredByName);
+              onChange({ target: { name: "referredBy", value: referredByName } });
+            }
+          } else {
+            setSelectedReferredBy(referredByName);
+            onChange({ target: { name: "referredBy", value: referredByName } });
+          }
+        }
+      }
+      
+      // Auto-populate Authorized By - check multiple field names from API
+      const authorizedByName = primary?.authorizedByName || primary?.authorizedBy;
+      if (authorizedByName && !formData?.authorizedBy && (authorizedByList?.length || 0) > 0) {
+        const match = findOptionByFuzzyText(authorizedByList, authorizedByName);
+        if (match) {
+          setSelectedAuthorizedBy(match.displayText);
+          onChange({ target: { name: "authorizedBy", value: match.id } });
+          // Also set authorizedById if available
+          if (match.id) {
+            onChange({ target: { name: "authorizedById", value: match.id } });
+          }
+        } else {
+          // Try to find by ID if we have authorizedById
+          const authorizedById = primary?.authorizedById;
+          if (authorizedById) {
+            const byIdMatch = authorizedByList.find(emp => String(emp.id) === String(authorizedById));
+            if (byIdMatch) {
+              setSelectedAuthorizedBy(byIdMatch.displayText);
+              onChange({ target: { name: "authorizedBy", value: byIdMatch.id } });
+              onChange({ target: { name: "authorizedById", value: byIdMatch.id } });
+            } else {
+              // Fallback: set the name directly
+              setSelectedAuthorizedBy(authorizedByName);
+              onChange({ target: { name: "authorizedBy", value: authorizedByName } });
+            }
+          } else {
+            setSelectedAuthorizedBy(authorizedByName);
+            onChange({ target: { name: "authorizedBy", value: authorizedByName } });
+          }
+        }
+      }
+      
+      // Auto-populate Concession Referred By (for pro concession section)
+      if (referredByName && !formData?.concessionReferredBy) {
+        setSelectedConcessionReferredBy(referredByName);
+        onChange({ target: { name: "concessionReferredBy", value: referredByName } });
+      }
+      
+      // Auto-populate Concession Reason - check multiple field names from API
+      const reasonName = primary?.reasonName || primary?.reason;
+      if (reasonName && !formData?.concessionReason && (concessionReasonList?.length || 0) > 0) {
+        const match = findOptionByFuzzyText(concessionReasonList, reasonName);
+        if (match) {
+          setSelectedConcessionReason(match.displayText);
+          onChange({ target: { name: "concessionReason", value: match.id } });
+          // Also set concessionReasonId if available
+          if (match.id) {
+            onChange({ target: { name: "concessionReasonId", value: match.id } });
+          }
+        } else {
+          // Try to find by ID if we have reasonId
+          const reasonId = primary?.reasonId;
+          if (reasonId) {
+            const byIdMatch = concessionReasonList.find(reason => String(reason.id) === String(reasonId));
+            if (byIdMatch) {
+              setSelectedConcessionReason(byIdMatch.displayText);
+              onChange({ target: { name: "concessionReason", value: byIdMatch.id } });
+              onChange({ target: { name: "concessionReasonId", value: byIdMatch.id } });
+            } else {
+              // Fallback: set the name directly
+              setSelectedConcessionReason(reasonName);
+              onChange({ target: { name: "concessionReason", value: reasonName } });
+            }
+          } else {
+            setSelectedConcessionReason(reasonName);
+            onChange({ target: { name: "concessionReason", value: reasonName } });
+          }
+        }
+      }
+      
+      // Check for pro concession fields in concessions array (separate from regular concessions)
+      // Pro concession is the "Concession Written on Application" - should only use proAmount, not regular amount
+      const proConcession = concessions.find(concession => 
+        concession?.proAmount !== null && 
+        concession?.proAmount !== undefined && 
+        concession?.proAmount !== 0
+      );
+      
+      if (proConcession) {
+        // Auto-populate from pro concession fields ONLY
         if (!formData?.concessionWrittenOnApplication) {
           setIsChecked(true);
           onChange({ target: { name: "concessionWrittenOnApplication", type: "checkbox", checked: true } });
         }
+        // Only populate concessionAmount from proAmount - this is the "Concession Written on Application" amount
+        if (!formData?.concessionAmount && proConcession.proAmount) {
+          const proAmountValue = String(proConcession.proAmount).replace(/\D/g, "");
+          if (proAmountValue) {
+            onChange({ target: { name: 'concessionAmount', value: proAmountValue } });
+          }
+        }
+        if (!formData?.concessionReferredBy && (proConcession.proGivenByName || proConcession.proGivenById)) {
+          // Prefer name, fallback to ID
+          const referredByValue = proConcession.proGivenByName || String(proConcession.proGivenById);
+          onChange({ target: { name: 'concessionReferredBy', value: referredByValue } });
+          // Also set proConcessionGivenById if we have the ID
+          if (proConcession.proGivenById) {
+            onChange({ target: { name: 'proConcessionGivenById', value: proConcession.proGivenById } });
+          }
+        }
+        if (!formData?.reason && proConcession.proReason) {
+          onChange({ target: { name: 'reason', value: String(proConcession.proReason) } });
+          // Also set proConcessionReasonId if proReason is an ID
+          if (proConcession.proReason) {
+            onChange({ target: { name: 'proConcessionReasonId', value: String(proConcession.proReason) } });
+          }
+        }
       }
+      // DO NOT use primary.amount as fallback for concessionAmount
+      // concessionAmount should ONLY come from proConcession.proAmount
+      // The 2nd year concession amount is separate and comes from secondYear.amount
+      
       if (primary && isValidValue(primary.reasonName) && !formData?.reason) {
         onChange({ target: { name: "reason", value: primary.reasonName } });
-      }
-
-      // Dropdowns: fuzzy match against displayText list
-      if (primary?.referredBy && !formData?.referredBy && (authorizedByList?.length || 0) > 0) {
-        const match = findOptionByFuzzyText(authorizedByList, primary.referredBy);
-        if (match) {
-          setSelectedReferredBy(match.displayText);
-          onChange({ target: { name: "referredBy", value: match.id } });
-        } else {
-          onChange({ target: { name: "referredBy", value: primary.referredBy } });
-        }
-      }
-      if (primary?.authorizedBy && !formData?.authorizedBy && (authorizedByList?.length || 0) > 0) {
-        const match = findOptionByFuzzyText(authorizedByList, primary.authorizedBy);
-        if (match) {
-          setSelectedAuthorizedBy(match.displayText);
-          onChange({ target: { name: "authorizedBy", value: match.id } });
-        } else {
-          onChange({ target: { name: "authorizedBy", value: primary.authorizedBy } });
-        }
-      }
-      if (primary?.referredBy && !formData?.concessionReferredBy) {
-        setSelectedConcessionReferredBy(primary.referredBy);
-        onChange({ target: { name: "concessionReferredBy", value: primary.referredBy } });
-      }
-      if (primary?.reasonName && !formData?.concessionReason && (concessionReasonList?.length || 0) > 0) {
-        const match = findOptionByFuzzyText(concessionReasonList, primary.reasonName);
-        if (match) {
-          setSelectedConcessionReason(match.displayText);
-          onChange({ target: { name: "concessionReason", value: match.id } });
-        } else {
-          onChange({ target: { name: "concessionReason", value: primary.reasonName } });
-        }
       }
     }
     console.log("formData after:", formData);
@@ -296,5 +416,6 @@ export default function useCollegeConcessionFormState({ formData, onChange, acad
 
     // misc
     hasValidConcessionData,
+    getConcessionTypeIdByLabel, // Export for use in parent component
   };
 }

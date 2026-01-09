@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useFormikContext } from "formik";
 import styles from "./ExtraConcession.module.css";
  
@@ -14,11 +14,22 @@ import {toTitleCase} from "../../../../../utils/toTitleCase";
 const ExtraConcession = () => {
   const formik = useFormikContext();
   const { values, setFieldValue, errors, touched, submitCount } = formik;
-  const [showConcessionFields, setShowConcessionFields] = useState(false);
- 
+  // Initialize from Formik value if available, otherwise default to false
+  const [showConcessionFields, setShowConcessionFields] = useState(values.concessionWrittenOnApplication || false);
+  
+  // Sync local state with Formik value when it changes externally
+  useEffect(() => {
+    if (values.concessionWrittenOnApplication !== undefined) {
+      setShowConcessionFields(values.concessionWrittenOnApplication);
+    }
+  }, [values.concessionWrittenOnApplication]);
+
   // Toggle
   const handleToggleConcession = () => {
-    setShowConcessionFields((prev) => !prev);
+    const newValue = !showConcessionFields;
+    setShowConcessionFields(newValue);
+    // Update Formik value so API mapping can access it
+    setFieldValue("concessionWrittenOnApplication", newValue);
   };
  
   /* ----------------------------------

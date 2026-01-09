@@ -17,6 +17,27 @@ const ConcessionInformation = () => {
   const formik = useFormikContext();
   const { values, setFieldValue, setFieldTouched, setFieldError, errors, touched, submitCount, handleBlur } = formik;
 
+  // Check if joining class is INTER 2 - hide 1st year concession in that case
+  // Handle variations: "INTER2", "INTER 2", "Inter 2", "inter2", "INTER-2", etc.
+  const shouldHideFirstYear = useMemo(() => {
+    const joiningClass = values.joiningClass || "";
+    if (!joiningClass) return false;
+    
+    // Remove all spaces, hyphens, underscores, and any other non-alphanumeric chars, convert to uppercase
+    const normalizedClassName = String(joiningClass)
+      .toUpperCase()
+      .trim()
+      .replace(/\s+/g, "")
+      .replace(/-/g, "")
+      .replace(/_/g, "")
+      .replace(/[^A-Z0-9]/g, "");
+    
+    // Check if it contains "INTER2" (in case there are extra characters)
+    const isInter2 = normalizedClassName === "INTER2" || normalizedClassName.includes("INTER2");
+    
+    return isInter2;
+  }, [values.joiningClass]);
+
   /* -------------------------
       API: Get Employees
   ------------------------- */
@@ -281,11 +302,30 @@ const ConcessionInformation = () => {
   };
 
   /* -------------------------
+      Clear 1st Year Concession when INTER2 is selected
+  ------------------------- */
+  useEffect(() => {
+    if (shouldHideFirstYear) {
+      // Clear 1st year concession and its type ID when INTER2 is selected
+      if (values.firstYearConcession) {
+        setFieldValue("firstYearConcession", "");
+      }
+      if (values.firstYearConcessionTypeId) {
+        setFieldValue("firstYearConcessionTypeId", null);
+      }
+      // Clear any errors related to firstYearConcession
+      if (errors.firstYearConcession) {
+        setFieldError("firstYearConcession", undefined);
+      }
+    }
+  }, [shouldHideFirstYear, setFieldValue, setFieldError, values.firstYearConcession, values.firstYearConcessionTypeId, errors.firstYearConcession]);
+
+  /* -------------------------
       Sync concession type IDs when values are present but IDs are missing
   ------------------------- */
   useEffect(() => {
-    // Sync firstYearConcessionTypeId
-    if (values.firstYearConcession && (!values.firstYearConcessionTypeId || values.firstYearConcessionTypeId === 0)) {
+    // Only sync firstYearConcessionTypeId if INTER2 is NOT selected
+    if (!shouldHideFirstYear && values.firstYearConcession && (!values.firstYearConcessionTypeId || values.firstYearConcessionTypeId === 0)) {
       const firstYearTypeId = getConcessionTypeIdByLabel("1st year");
       if (firstYearTypeId !== undefined) {
         setFieldValue("firstYearConcessionTypeId", firstYearTypeId);
@@ -355,7 +395,7 @@ const ConcessionInformation = () => {
         }
       }
     }
-  }, [values.firstYearConcession, values.secondYearConcession, values.firstYearConcessionTypeId, values.secondYearConcessionTypeId, values.concessionReason, values.concessionReasonId, values.authorizedBy, values.authorizedById, values.referredBy, values.referredById, getConcessionTypeIdByLabel, concessionReasonNameToId, employeeNameToId, setFieldValue, concessionReasonsRaw, employeesRaw]);
+  }, [values.firstYearConcession, values.secondYearConcession, values.firstYearConcessionTypeId, values.secondYearConcessionTypeId, values.concessionReason, values.concessionReasonId, values.authorizedBy, values.authorizedById, values.referredBy, values.referredById, getConcessionTypeIdByLabel, concessionReasonNameToId, employeeNameToId, setFieldValue, concessionReasonsRaw, employeesRaw, shouldHideFirstYear]);
 
   /* -------------------------
       Build final field map
@@ -390,7 +430,15 @@ const ConcessionInformation = () => {
       <div className={styles.clgAppSaleConcessionInfoBottom}>
         {concessionInformationFieldsLayout.map((row) => (
           <div key={row.id} className={styles.clgAppSalerow}>
-            {row.fields.map((fname) => {
+            {row.fields
+              .filter((fname) => {
+                // Hide 1st Year Concession field when INTER2 is selected
+                if (shouldHideFirstYear && fname === "firstYearConcession") {
+                  return false;
+                }
+                return true;
+              })
+              .map((fname) => {
               // Custom onChange handlers for concession amount fields, reason, and employee fields
               let onChangeHandler = (e) => setFieldValue(fname, e.target.value);
 

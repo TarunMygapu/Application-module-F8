@@ -308,24 +308,30 @@ const clgActualSaleValidationSchema = () =>
       ),
 
     // Concession Amount (in "Concession Written on Application") - should not exceed Course Fee
-    // Also, the sum of 1st Year Concession + Concession Amount should not exceed Course Fee
+    // If INTER2 is selected (1st year hidden), validate against 2nd Year Concession
+    // If 1st year is visible, validate against 1st Year Concession
     concessionAmount: Yup.string()
       .nullable()
       .matches(digitsOnlyRegex, "Only digits allowed")
       .test(
         "concession-amount-check",
         function (value) {
-          const { orientationFee, firstYearConcession } = this.parent;
+          const { orientationFee, firstYearConcession, secondYearConcession, joiningClass } = this.parent;
 
           // Skip if concessionAmount is empty
           if (!value || value.trim() === "") return true;
 
           const concessionAmountValue = parseFormattedNumber(value);
           const fee = parseFormattedNumber(orientationFee);
-          const firstYearConcessionValue = parseFormattedNumber(firstYearConcession) || 0;
 
           // Skip if Course Fee is not available
           if (!fee || fee <= 0) return true;
+
+          // Check if joining class is INTER2 (normalize to handle variations)
+          const normalizedJoiningClass = joiningClass 
+            ? String(joiningClass).toUpperCase().trim().replace(/\s+/g, "").replace(/-/g, "").replace(/_/g, "")
+            : "";
+          const isInter2 = normalizedJoiningClass === "INTER2" || normalizedJoiningClass.includes("INTER2");
 
           // Check if concessionAmount individually exceeds Course Fee
           if (concessionAmountValue > fee) {
@@ -334,12 +340,24 @@ const clgActualSaleValidationSchema = () =>
             });
           }
 
-          // Check if sum of 1st Year Concession + Concession Amount exceeds Course Fee
-          const total = firstYearConcessionValue + concessionAmountValue;
-          if (total > fee) {
-            return this.createError({
-              message: `Total of 1st Year Concession (${firstYearConcessionValue}) + Concession Amount (${concessionAmountValue}) = ${total} cannot exceed Course Fee (${fee})`,
-            });
+          // If INTER2 is selected (1st year hidden), validate against 2nd Year Concession
+          if (isInter2) {
+            const secondYearConcessionValue = parseFormattedNumber(secondYearConcession) || 0;
+            const total = secondYearConcessionValue + concessionAmountValue;
+            if (total > fee) {
+              return this.createError({
+                message: `Total of 2nd Year Concession (${secondYearConcessionValue}) + Concession Amount (${concessionAmountValue}) = ${total} cannot exceed Course Fee (${fee})`,
+              });
+            }
+          } else {
+            // If 1st year is visible, validate against 1st Year Concession (original behavior)
+            const firstYearConcessionValue = parseFormattedNumber(firstYearConcession) || 0;
+            const total = firstYearConcessionValue + concessionAmountValue;
+            if (total > fee) {
+              return this.createError({
+                message: `Total of 1st Year Concession (${firstYearConcessionValue}) + Concession Amount (${concessionAmountValue}) = ${total} cannot exceed Course Fee (${fee})`,
+              });
+            }
           }
           return true;
         }

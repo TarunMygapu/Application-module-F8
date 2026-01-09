@@ -19,14 +19,40 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
   const formik = useFormikContext();
   const { values } = formik;
  
-  const [localValues, setLocalValues] = useState({
-    fullName: "",
-    relationType: "",
-    relationTypeId: null,
-    selectClass: "",
-    classId: null,
-    schoolName: "",
-  });
+  // Initialize local values from existing sibling data if available
+  const getInitialValues = () => {
+    const currentSiblings = Array.isArray(formik.values.siblings) ? formik.values.siblings : [];
+    const existingSibling = currentSiblings[siblingIndex];
+    
+    if (existingSibling) {
+      return {
+        fullName: existingSibling.fullName || "",
+        relationType: existingSibling.relationType || "",
+        relationTypeId: existingSibling.relationTypeId || null,
+        selectClass: existingSibling.selectClass || "",
+        classId: existingSibling.classId || null,
+        schoolName: existingSibling.schoolName || "",
+      };
+    }
+    
+    return {
+      fullName: "",
+      relationType: "",
+      relationTypeId: null,
+      selectClass: "",
+      classId: null,
+      schoolName: "",
+    };
+  };
+
+  const [localValues, setLocalValues] = useState(getInitialValues);
+
+  // Update local values when siblingIndex changes or when siblings array changes
+  useEffect(() => {
+    const newValues = getInitialValues();
+    setLocalValues(newValues);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [siblingIndex, formik.values.siblings]);
  
   const setLocalFieldValue = (field, value) => {
     setLocalValues((prev) => ({ ...prev, [field]: value }));
@@ -109,15 +135,19 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
       schoolName: "",
     });
    
-    // Also remove this sibling from Formik if it exists
+    // Remove only this specific sibling from Formik by index
     const currentSiblings = Array.isArray(formik.values.siblings) ? formik.values.siblings : [];
-    // Since we're clearing, we'll remove the first sibling (assuming this form is for the first sibling)
-    // Or we could remove all siblings - let's remove all for simplicity
-    formik.setFieldValue("siblings", [], false);
+    if (siblingIndex < currentSiblings.length) {
+      const updatedSiblings = currentSiblings.filter((_, index) => index !== siblingIndex);
+      formik.setFieldValue("siblings", updatedSiblings, false);
+    }
   };
  
   // Automatically add/update sibling in Formik when required fields are filled
   useEffect(() => {
+    // Get current siblings from Formik
+    const currentSiblings = Array.isArray(formik.values.siblings) ? formik.values.siblings : [];
+    
     // Only auto-add if required fields are filled
     const hasRequiredFields = localValues.fullName && localValues.fullName.trim() &&
                               localValues.relationType && localValues.relationType.trim();
@@ -126,7 +156,7 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
       // Get IDs for relation and class
       const relationTypeId = relationNameToId.get(localValues.relationType) || null;
       const classId = classNameToId.get(localValues.selectClass) || null;
- 
+
       // Create sibling object
       const siblingObject = {
         fullName: localValues.fullName.trim(),
@@ -136,22 +166,15 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
         classId: classId,
         schoolName: localValues.schoolName || "",
       };
- 
-      // Get current siblings from Formik
-      const currentSiblings = Array.isArray(formik.values.siblings) ? formik.values.siblings : [];
-     
-      // Check if a sibling with the same fullName already exists (update it) or add new one
-      const existingIndex = currentSiblings.findIndex(
-        s => s.fullName && s.fullName.trim().toLowerCase() === localValues.fullName.trim().toLowerCase()
-      );
-     
+
+      // Update sibling at this specific index
       let updatedSiblings;
-      if (existingIndex >= 0) {
-        // Update existing sibling
+      if (siblingIndex < currentSiblings.length) {
+        // Update existing sibling at this index
         updatedSiblings = [...currentSiblings];
-        updatedSiblings[existingIndex] = siblingObject;
+        updatedSiblings[siblingIndex] = siblingObject;
       } else {
-        // Add new sibling
+        // Add new sibling at the end
         updatedSiblings = [...currentSiblings, siblingObject];
       }
      
@@ -162,15 +185,15 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
         formik.setFieldValue("siblings", updatedSiblings, false);
       }
     } else {
-      // If required fields are not filled, remove siblings from Formik
-      const currentSiblings = Array.isArray(formik.values.siblings) ? formik.values.siblings : [];
-      if (currentSiblings.length > 0 && (!localValues.fullName || !localValues.fullName.trim())) {
-        // Only clear if fullName is empty (user cleared it)
-        formik.setFieldValue("siblings", [], false);
+      // If required fields are not filled, remove only this specific sibling by index
+      if (siblingIndex < currentSiblings.length && (!localValues.fullName || !localValues.fullName.trim())) {
+        // Only remove this sibling if fullName is empty (user cleared it)
+        const updatedSiblings = currentSiblings.filter((_, index) => index !== siblingIndex);
+        formik.setFieldValue("siblings", updatedSiblings, false);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localValues.fullName, localValues.relationType, localValues.selectClass, localValues.schoolName, relationNameToId, classNameToId]);
+  }, [localValues.fullName, localValues.relationType, localValues.selectClass, localValues.schoolName, relationNameToId, classNameToId, siblingIndex]);
  
   return (
     <div className={styles.siblingInformationWrapper}>

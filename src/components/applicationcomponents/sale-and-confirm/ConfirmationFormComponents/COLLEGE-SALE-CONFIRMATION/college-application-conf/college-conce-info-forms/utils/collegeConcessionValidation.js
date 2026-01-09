@@ -88,25 +88,67 @@ export function validateCollegeConcessionInfo(formData, academicFormData) {
     }
   }
 
-  // If Concession Written on Application amount is provided, make 'reason' mandatory
-  const rawConcessionWritten = safeTrim(formData?.concessionAmount);
-  if (rawConcessionWritten !== "") {
-    const reasonForWritten = safeTrim(formData?.reason);
-    if (!reasonForWritten) {
-      errors.reason = "Reason is required when Concession Written on Application amount is entered";
+  // If Concession Written on Application checkbox is checked AND amount is provided, make 'concessionReferredBy' and 'reason' mandatory
+  if (formData?.concessionWrittenOnApplication) {
+    const rawConcessionWritten = safeTrim(formData?.concessionAmount);
+    const concessionAmountValue = safeToNumber(formData?.concessionAmount || 0);
+    
+    // Check if concession amount is entered (either as string or number > 0)
+    if (rawConcessionWritten !== "" || concessionAmountValue > 0) {
+      const reasonForWritten = safeTrim(formData?.reason);
+      const concessionReferredBy = safeTrim(formData?.concessionReferredBy);
+      
+      // Check if reason is empty or just placeholder/default value
+      // Remove default placeholder values like "Special Concession" if user hasn't actually entered a value
+      const isReasonEmpty = !reasonForWritten || 
+                           reasonForWritten === "" || 
+                           reasonForWritten === "Special Concession" ||
+                           reasonForWritten === "-";
+      
+      if (isReasonEmpty) {
+        errors.reason = "Reason is required when Concession Written on Application amount is entered";
+      }
+      
+      // Check if concessionReferredBy is empty
+      const isConcessionReferredByEmpty = !concessionReferredBy || 
+                                         concessionReferredBy === "" || 
+                                         concessionReferredBy === "Select Concession Referred By" ||
+                                         concessionReferredBy === "-";
+      
+      if (isConcessionReferredByEmpty) {
+        errors.concessionReferredBy = "Concession Referred By is required when Concession Written on Application amount is entered";
+      }
     }
   }
 
   // Validate "Concession Written on Application" - Concession Amount
-  // Limit: Orientation Fee - 1st Year Concession
+  // If INTER2 is selected (1st year hidden), validate against 2nd Year Concession
+  // If 1st year is visible, validate against 1st Year Concession
   if (formData?.concessionWrittenOnApplication) {
     const concessionAmount = safeToNumber(formData?.concessionAmount || 0);
     
     if (orientationFee > 0) {
-      const availableAmount = orientationFee - firstYearConcession;
+      // Check if joining class is INTER2 (from academicFormData or formData)
+      const joiningClassName = academicFormData?.selectedClassName || formData?.joiningClassName || "";
+      const normalizedJoiningClass = joiningClassName 
+        ? String(joiningClassName).toUpperCase().trim().replace(/\s+/g, "").replace(/-/g, "").replace(/_/g, "")
+        : "";
+      const isInter2 = normalizedJoiningClass === "INTER2" || normalizedJoiningClass.includes("INTER2");
       
-      if (concessionAmount > availableAmount) {
-        errors.concessionAmount = `Concession Amount (${concessionAmount}) cannot exceed available amount (${availableAmount} = Orientation Fee ${orientationFee} - 1st Year Concession ${firstYearConcession})`;
+      if (isInter2) {
+        // If INTER2 is selected (1st year hidden), validate against 2nd Year Concession
+        const availableAmount = orientationFee - secondYearConcession;
+        
+        if (concessionAmount > availableAmount) {
+          errors.concessionAmount = `Concession Amount (${concessionAmount}) cannot exceed available amount (${availableAmount} = Orientation Fee ${orientationFee} - 2nd Year Concession ${secondYearConcession})`;
+        }
+      } else {
+        // If 1st year is visible, validate against 1st Year Concession (original behavior)
+        const availableAmount = orientationFee - firstYearConcession;
+        
+        if (concessionAmount > availableAmount) {
+          errors.concessionAmount = `Concession Amount (${concessionAmount}) cannot exceed available amount (${availableAmount} = Orientation Fee ${orientationFee} - 1st Year Concession ${firstYearConcession})`;
+        }
       }
     }
   }

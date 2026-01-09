@@ -679,85 +679,140 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
     }
   };
 
-  // Map siblings array
-  console.log('🔍 ===== SIBLINGS DATA MAPPING (Complete Sale) =====');
-  console.log('  - formData.siblings:', formData.siblings);
-  console.log('  - formData.siblings type:', typeof formData.siblings);
-  console.log('  - formData.siblings is array?', Array.isArray(formData.siblings));
-  console.log('  - formData.siblings length:', formData.siblings?.length || 0);
-  if (formData.siblings && formData.siblings.length > 0) {
-    console.log('  - First sibling:', formData.siblings[0]);
+  // Map siblings array - CRITICAL: Ensure we capture ALL siblings
+  // Ensure siblings is always an array
+  let siblingsArray = formData.siblings;
+  if (!Array.isArray(siblingsArray)) {
+    if (siblingsArray && typeof siblingsArray === 'object') {
+      // If it's an object, try to convert to array
+      siblingsArray = [siblingsArray];
+    } else {
+      siblingsArray = [];
+    }
   }
-  console.log('====================================================');
 
-  const siblings = (formData.siblings || []).map(sibling => ({
-    fullName: toString(sibling.fullName),
-    schoolName: toString(sibling.schoolName),
-    classId: toNumber(sibling.classId),
-    relationTypeId: toNumber(sibling.relationTypeId),
-    createdBy: loggedInEmpId
-  }));
-
-  console.log('✅ Mapped siblings array:', siblings);
-  console.log('  - Mapped siblings count:', siblings.length);
-  console.log('====================================================');
+  // Map all siblings - filter out any invalid entries but keep all valid ones
+  const siblings = siblingsArray
+    .filter((sibling) => {
+      // Only include siblings with at least fullName (required field)
+      return sibling && sibling.fullName && sibling.fullName.trim();
+    })
+    .map((sibling) => ({
+      fullName: toString(sibling.fullName),
+      schoolName: toString(sibling.schoolName || ''),
+      classId: toNumber(sibling.classId),
+      relationTypeId: toNumber(sibling.relationTypeId),
+      createdBy: loggedInEmpId
+    }));
 
   // Map concessions array
   const concessions = [];
 
-  // Log concession data for debugging
-  console.log('🔍 ===== CONCESSION DATA MAPPING (Complete Sale) =====');
-  console.log('  - firstYearConcession:', formData.firstYearConcession);
-  console.log('  - firstYearConcessionTypeId:', formData.firstYearConcessionTypeId);
-  console.log('  - secondYearConcession:', formData.secondYearConcession);
-  console.log('  - secondYearConcessionTypeId:', formData.secondYearConcessionTypeId);
-  console.log('  - concessionReason:', formData.concessionReason);
-  console.log('  - authorizedBy:', formData.authorizedBy);
-  console.log('  - referredBy:', formData.referredBy);
-  console.log('  - description:', formData.description);
-  console.log('====================================================');
+  // Helper function to extract employee ID from formData
+  // Handles both ID format (number) and name format (string)
+  const getEmployeeId = (employeeValue, employeeIdValue) => {
+    // Priority 1: Use stored ID if available
+    if (employeeIdValue !== null && employeeIdValue !== undefined && employeeIdValue !== "" && employeeIdValue !== 0) {
+      return toNumber(employeeIdValue);
+    }
+    // Priority 2: Try to convert employeeValue directly to number (if it's already an ID)
+    if (employeeValue && typeof employeeValue === 'number') {
+      return toNumber(employeeValue);
+    }
+    // Priority 3: If employeeValue is a string, try to extract ID from "name - id" format
+    if (employeeValue && typeof employeeValue === 'string' && employeeValue.includes(' - ')) {
+      const parts = employeeValue.split(' - ');
+      if (parts.length >= 2) {
+        const extractedId = parts[parts.length - 1].trim();
+        const num = Number(extractedId);
+        if (!isNaN(num)) {
+          return num;
+        }
+      }
+    }
+    // Priority 4: Try to convert employeeValue string to number (if it's a numeric string)
+    if (employeeValue) {
+      const num = Number(employeeValue);
+      if (!isNaN(num) && num !== 0) {
+        return num;
+      }
+    }
+    return 0;
+  };
+
 
   // First Year Concession - Add if amount and typeId exist
   if (formData.firstYearConcession && formData.firstYearConcessionTypeId) {
-    console.log('✅ First Year Concession found - processing...');
-
     // Prioritize concessionReasonId if it exists, otherwise try to extract from concessionReason
     let reasonId = 0;
     if (formData.concessionReasonId !== null && formData.concessionReasonId !== undefined && formData.concessionReasonId !== "" && formData.concessionReasonId !== 0) {
       reasonId = toNumber(formData.concessionReasonId);
-      console.log('  - Using concessionReasonId from formData:', reasonId);
     } else if (formData.concessionReason) {
       if (typeof formData.concessionReason === 'string' && formData.concessionReason.includes(' - ')) {
         const parts = formData.concessionReason.split(' - ');
         if (parts.length >= 2) {
           reasonId = Number(parts[parts.length - 1].trim());
-          console.log('  - Extracted reasonId from "name - id" format:', reasonId);
         }
       } else {
         reasonId = toNumber(formData.concessionReason);
-        console.log('  - Converted concessionReason directly to number:', reasonId);
       }
-    } else {
-      console.error('  - ❌ ERROR: concessionReasonId is missing! This is required by the database.');
-      console.error('     formData.concessionReasonId:', formData.concessionReasonId);
-      console.error('     formData.concessionReason:', formData.concessionReason);
     }
 
     // Only add concession if reasonId is valid (required by database)
     if (reasonId > 0) {
-      // Get pro concession fields if "Concession Written on Application" is checked
-      const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount
-        ? toNumber(formData.concessionAmount)
-        : 0;
-      // Use proConcessionReasonId if available (ID from dropdown), otherwise try to extract from reason field
+      // Extract employee IDs - PRIORITY: Use direct ID fields first, then helper function
+      let authorizedById = 0;
+      let referredById = 0;
+
+      // Extract authorizedById - Priority: direct ID > helper function
+      if (formData.authorizedById !== null && formData.authorizedById !== undefined && formData.authorizedById !== "" && formData.authorizedById !== 0) {
+        authorizedById = toNumber(formData.authorizedById);
+      } else {
+        authorizedById = getEmployeeId(formData.authorizedBy, formData.authorizedById);
+      }
+
+      // Extract referredById - Priority: direct ID > helper function  
+      if (formData.referredById !== null && formData.referredById !== undefined && formData.referredById !== "" && formData.referredById !== 0) {
+        referredById = toNumber(formData.referredById);
+      } else {
+        referredById = getEmployeeId(formData.referredBy, formData.referredById);
+      }
+
+      // Get pro concession fields - check direct fields first, then fallback to conditional fields
+      // proConcessionAmount: Check direct field first, then concessionAmount if checkbox is checked
+      // Handle formatted numbers (remove commas, spaces, etc.)
+      let proConcessionAmount = 0;
+      if (formData.proConcessionAmount !== null && formData.proConcessionAmount !== undefined && formData.proConcessionAmount !== "" && formData.proConcessionAmount !== 0) {
+        // Remove commas and other formatting, then convert to number
+        const cleanedAmount = String(formData.proConcessionAmount).replace(/,/g, '').trim();
+        proConcessionAmount = toNumber(cleanedAmount);
+      } else if (formData.concessionWrittenOnApplication) {
+        // Check if concessionAmount exists and has a valid value
+        const concessionAmountValue = formData.concessionAmount;
+        if (concessionAmountValue !== null && concessionAmountValue !== undefined && concessionAmountValue !== "" && concessionAmountValue !== 0) {
+          // Remove commas and other formatting, then convert to number
+          const cleanedAmount = String(concessionAmountValue).replace(/,/g, '').trim();
+          // Only proceed if cleaned amount is not empty
+          if (cleanedAmount !== "") {
+            const numAmount = toNumber(cleanedAmount);
+            // Only use if the converted number is greater than 0
+            if (numAmount > 0) {
+              proConcessionAmount = numAmount;
+            }
+          }
+        }
+      }
+      
+      // proConcessionReason: Check proConcessionReasonId first, then reason if checkbox is checked
       // proConcessionReason should be the ID as string (per swagger type: "string")
-      const proConcessionReason = formData.concessionWrittenOnApplication && formData.proConcessionReasonId
+      const proConcessionReason = (formData.proConcessionReasonId !== null && formData.proConcessionReasonId !== undefined && formData.proConcessionReasonId !== "" && formData.proConcessionReasonId !== 0)
         ? String(formData.proConcessionReasonId)
         : (formData.concessionWrittenOnApplication && formData.reason
           ? String(toNumber(formData.reason))
           : "");
-      // Use proConcessionGivenById if available, otherwise extract from concessionReferredBy
-      const proConcessionGivenBy = formData.concessionWrittenOnApplication && formData.proConcessionGivenById
+      
+      // proConcessionGivenBy: Check proConcessionGivenById first, then concessionReferredBy if checkbox is checked
+      const proConcessionGivenBy = (formData.proConcessionGivenById !== null && formData.proConcessionGivenById !== undefined && formData.proConcessionGivenById !== "" && formData.proConcessionGivenById !== 0)
         ? toNumber(formData.proConcessionGivenById)
         : (formData.concessionWrittenOnApplication && formData.concessionReferredBy
           ? toNumber(formData.concessionReferredBy)
@@ -766,72 +821,93 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
       const concession = {
         concessionTypeId: toNumber(formData.firstYearConcessionTypeId),
         concessionAmount: toNumber(formData.firstYearConcession),
-        givenById: 0,
-        authorizedById: toNumber(formData.authorizedBy || 0),
+        givenById: referredById, // Use referredBy value as givenById
+        authorizedById: authorizedById, // Use authorizedBy value
         reasonId: reasonId, // Required field - must not be 0 or null
         comments: toString(formData.description || ''),
         createdBy: loggedInEmpId,
-        concReferedBy: toNumber(formData.referredBy || 0),
+        concReferedBy: referredById,
         proConcessionAmount: proConcessionAmount,
         proConcessionReason: proConcessionReason,
         proConcessionGivenBy: proConcessionGivenBy
       };
 
       concessions.push(concession);
-      console.log('✅ First Year Concession added:', concession);
-    } else {
-      console.warn('⚠️ First Year Concession SKIPPED: reasonId is required but is 0 or null');
-      console.warn('   - reasonId value:', reasonId);
-      console.warn('   - concessionReasonId from formData:', formData.concessionReasonId);
-      console.warn('   - concessionReason from formData:', formData.concessionReason);
     }
-  } else {
-    console.log('ℹ️ First Year Concession not added - missing amount or typeId');
-    console.log('   - Has amount?', !!formData.firstYearConcession, 'Value:', formData.firstYearConcession);
-    console.log('   - Has typeId?', !!formData.firstYearConcessionTypeId, 'Value:', formData.firstYearConcessionTypeId);
   }
 
   // Second Year Concession - Add if amount and typeId exist
   if (formData.secondYearConcession && formData.secondYearConcessionTypeId) {
-    console.log('✅ Second Year Concession found - processing...');
-
     // Prioritize concessionReasonId if it exists, otherwise try to extract from concessionReason
     let reasonId = 0;
     if (formData.concessionReasonId !== null && formData.concessionReasonId !== undefined && formData.concessionReasonId !== "" && formData.concessionReasonId !== 0) {
       reasonId = toNumber(formData.concessionReasonId);
-      console.log('  - Using concessionReasonId from formData:', reasonId);
     } else if (formData.concessionReason) {
       if (typeof formData.concessionReason === 'string' && formData.concessionReason.includes(' - ')) {
         const parts = formData.concessionReason.split(' - ');
         if (parts.length >= 2) {
           reasonId = Number(parts[parts.length - 1].trim());
-          console.log('  - Extracted reasonId from "name - id" format:', reasonId);
         }
       } else {
         reasonId = toNumber(formData.concessionReason);
-        console.log('  - Converted concessionReason directly to number:', reasonId);
       }
-    } else {
-      console.error('  - ❌ ERROR: concessionReasonId is missing! This is required by the database.');
-      console.error('     formData.concessionReasonId:', formData.concessionReasonId);
-      console.error('     formData.concessionReason:', formData.concessionReason);
     }
 
     // Only add concession if reasonId is valid (required by database)
     if (reasonId > 0) {
-      // Get pro concession fields if "Concession Written on Application" is checked
-      const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount
-        ? toNumber(formData.concessionAmount)
-        : 0;
-      // Use proConcessionReasonId if available (ID from dropdown), otherwise try to extract from reason field
+      // Extract employee IDs - PRIORITY: Use direct ID fields first, then helper function
+      let authorizedById = 0;
+      let referredById = 0;
+
+      // Extract authorizedById - Priority: direct ID > helper function
+      if (formData.authorizedById !== null && formData.authorizedById !== undefined && formData.authorizedById !== "" && formData.authorizedById !== 0) {
+        authorizedById = toNumber(formData.authorizedById);
+      } else {
+        authorizedById = getEmployeeId(formData.authorizedBy, formData.authorizedById);
+      }
+
+      // Extract referredById - Priority: direct ID > helper function  
+      if (formData.referredById !== null && formData.referredById !== undefined && formData.referredById !== "" && formData.referredById !== 0) {
+        referredById = toNumber(formData.referredById);
+      } else {
+        referredById = getEmployeeId(formData.referredBy, formData.referredById);
+      }
+
+      // Get pro concession fields - check direct fields first, then fallback to conditional fields
+      // proConcessionAmount: Check direct field first, then concessionAmount if checkbox is checked
+      // Handle formatted numbers (remove commas, spaces, etc.)
+      let proConcessionAmount = 0;
+      if (formData.proConcessionAmount !== null && formData.proConcessionAmount !== undefined && formData.proConcessionAmount !== "" && formData.proConcessionAmount !== 0) {
+        // Remove commas and other formatting, then convert to number
+        const cleanedAmount = String(formData.proConcessionAmount).replace(/,/g, '').trim();
+        proConcessionAmount = toNumber(cleanedAmount);
+      } else if (formData.concessionWrittenOnApplication) {
+        // Check if concessionAmount exists and has a valid value
+        const concessionAmountValue = formData.concessionAmount;
+        if (concessionAmountValue !== null && concessionAmountValue !== undefined && concessionAmountValue !== "" && concessionAmountValue !== 0) {
+          // Remove commas and other formatting, then convert to number
+          const cleanedAmount = String(concessionAmountValue).replace(/,/g, '').trim();
+          // Only proceed if cleaned amount is not empty
+          if (cleanedAmount !== "") {
+            const numAmount = toNumber(cleanedAmount);
+            // Only use if the converted number is greater than 0
+            if (numAmount > 0) {
+              proConcessionAmount = numAmount;
+            }
+          }
+        }
+      }
+      
+      // proConcessionReason: Check proConcessionReasonId first, then reason if checkbox is checked
       // proConcessionReason should be the ID as string (per swagger type: "string")
-      const proConcessionReason = formData.concessionWrittenOnApplication && formData.proConcessionReasonId
+      const proConcessionReason = (formData.proConcessionReasonId !== null && formData.proConcessionReasonId !== undefined && formData.proConcessionReasonId !== "" && formData.proConcessionReasonId !== 0)
         ? String(formData.proConcessionReasonId)
         : (formData.concessionWrittenOnApplication && formData.reason
           ? String(toNumber(formData.reason))
           : "");
-      // Use proConcessionGivenById if available, otherwise extract from concessionReferredBy
-      const proConcessionGivenBy = formData.concessionWrittenOnApplication && formData.proConcessionGivenById
+      
+      // proConcessionGivenBy: Check proConcessionGivenById first, then concessionReferredBy if checkbox is checked
+      const proConcessionGivenBy = (formData.proConcessionGivenById !== null && formData.proConcessionGivenById !== undefined && formData.proConcessionGivenById !== "" && formData.proConcessionGivenById !== 0)
         ? toNumber(formData.proConcessionGivenById)
         : (formData.concessionWrittenOnApplication && formData.concessionReferredBy
           ? toNumber(formData.concessionReferredBy)
@@ -840,33 +916,20 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
       const concession = {
         concessionTypeId: toNumber(formData.secondYearConcessionTypeId),
         concessionAmount: toNumber(formData.secondYearConcession),
-        givenById: 0,
-        authorizedById: toNumber(formData.authorizedBy || 0),
+        givenById: referredById, // Use referredBy value as givenById
+        authorizedById: authorizedById, // Use authorizedBy value
         reasonId: reasonId, // Required field - must not be 0 or null
         comments: toString(formData.description || ''),
         createdBy: loggedInEmpId,
-        concReferedBy: toNumber(formData.referredBy || 0),
+        concReferedBy: referredById,
         proConcessionAmount: proConcessionAmount,
         proConcessionReason: proConcessionReason,
         proConcessionGivenBy: proConcessionGivenBy
       };
 
       concessions.push(concession);
-      console.log('✅ Second Year Concession added:', concession);
-    } else {
-      console.warn('⚠️ Second Year Concession SKIPPED: reasonId is required but is 0 or null');
-      console.warn('   - reasonId value:', reasonId);
-      console.warn('   - concessionReasonId from formData:', formData.concessionReasonId);
-      console.warn('   - concessionReason from formData:', formData.concessionReason);
     }
-  } else {
-    console.log('ℹ️ Second Year Concession not added - missing amount or typeId');
-    console.log('   - Has amount?', !!formData.secondYearConcession, 'Value:', formData.secondYearConcession);
-    console.log('   - Has typeId?', !!formData.secondYearConcessionTypeId, 'Value:', formData.secondYearConcessionTypeId);
   }
-
-  console.log('📊 Total Concessions:', concessions.length);
-  console.log('====================================================');
 
   // Map address details
   const addressDetails = {
@@ -1303,36 +1366,62 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
       reasonId = toNumber(formData.concessionReason);
     }
 
-    // Extract employee IDs
-    const authorizedById = getEmployeeId(formData.authorizedBy, formData.authorizedById);
-    const referredById = getEmployeeId(formData.referredBy, formData.referredById);
+    // Extract employee IDs - PRIORITY: Use direct ID fields first, then helper function
+    let authorizedById = 0;
+    let referredById = 0;
 
-    console.log('📋 First Year Concession - Employee IDs:', {
-      authorizedBy: formData.authorizedBy,
-      authorizedById: formData.authorizedById,
-      authorizedByIdFinal: authorizedById,
-      referredBy: formData.referredBy,
-      referredById: formData.referredById,
-      referredByIdFinal: referredById
-    });
+    // Extract authorizedById - Priority: direct ID > helper function
+    if (formData.authorizedById !== null && formData.authorizedById !== undefined && formData.authorizedById !== "" && formData.authorizedById !== 0) {
+      authorizedById = toNumber(formData.authorizedById);
+    } else {
+      authorizedById = getEmployeeId(formData.authorizedBy, formData.authorizedById);
+    }
 
-    // Get pro concession fields if "Concession Written on Application" is checked
-    const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount
-      ? toNumber(formData.concessionAmount)
-      : 0;
-    const proConcessionReason = formData.concessionWrittenOnApplication && formData.reason
-      ? toString(formData.reason)
-      : "";
-    // Get employee ID from concessionReferredBy (handle "name - id" format or direct ID)
-    const proConcessionGivenBy = formData.concessionWrittenOnApplication && formData.concessionReferredBy
-      ? toNumber(formData.concessionReferredBy)
-      : 0;
+    // Extract referredById - Priority: direct ID > helper function  
+    if (formData.referredById !== null && formData.referredById !== undefined && formData.referredById !== "" && formData.referredById !== 0) {
+      referredById = toNumber(formData.referredById);
+    } else {
+      referredById = getEmployeeId(formData.referredBy, formData.referredById);
+    }
+
+    // Get pro concession fields - check direct fields first, then fallback to conditional fields
+    // proConcessionAmount: Check direct field first, then concessionAmount if checkbox is checked
+    // Handle formatted numbers (remove commas, spaces, etc.)
+    let proConcessionAmount = 0;
+    if (formData.proConcessionAmount !== null && formData.proConcessionAmount !== undefined && formData.proConcessionAmount !== "" && formData.proConcessionAmount !== 0) {
+      // Remove commas and other formatting, then convert to number
+      const cleanedAmount = String(formData.proConcessionAmount).replace(/,/g, '').trim();
+      proConcessionAmount = toNumber(cleanedAmount);
+    } else if (formData.concessionWrittenOnApplication && formData.concessionAmount !== null && formData.concessionAmount !== undefined && formData.concessionAmount !== "" && formData.concessionAmount !== 0) {
+      // Remove commas and other formatting, then convert to number
+      const cleanedAmount = String(formData.concessionAmount).replace(/,/g, '').trim();
+      const numAmount = toNumber(cleanedAmount);
+      // Only use if the converted number is greater than 0
+      if (numAmount > 0) {
+        proConcessionAmount = numAmount;
+      }
+    }
+    
+    // proConcessionReason: Check proConcessionReasonId first, then reason if checkbox is checked
+    // proConcessionReason should be the ID as string (per swagger type: "string")
+    const proConcessionReason = (formData.proConcessionReasonId !== null && formData.proConcessionReasonId !== undefined && formData.proConcessionReasonId !== "" && formData.proConcessionReasonId !== 0)
+      ? String(formData.proConcessionReasonId)
+      : (formData.concessionWrittenOnApplication && formData.reason
+        ? String(toNumber(formData.reason))
+        : "");
+    
+    // proConcessionGivenBy: Check proConcessionGivenById first, then concessionReferredBy if checkbox is checked
+    const proConcessionGivenBy = (formData.proConcessionGivenById !== null && formData.proConcessionGivenById !== undefined && formData.proConcessionGivenById !== "" && formData.proConcessionGivenById !== 0)
+      ? toNumber(formData.proConcessionGivenById)
+      : (formData.concessionWrittenOnApplication && formData.concessionReferredBy
+        ? toNumber(formData.concessionReferredBy)
+        : 0);
 
     concessions.push({
       concessionTypeId: toNumber(formData.firstYearConcessionTypeId),
       concessionAmount: toNumber(formData.firstYearConcession),
-      givenById: 0,
-      authorizedById: authorizedById,
+      givenById: referredById, // Use referredBy value as givenById
+      authorizedById: authorizedById, // Use authorizedBy value
       reasonId: reasonId,
       comments: toString(formData.description || ''),
       createdBy: loggedInEmpId,
@@ -1352,36 +1441,62 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
       reasonId = toNumber(formData.concessionReason);
     }
 
-    // Extract employee IDs
-    const authorizedById = getEmployeeId(formData.authorizedBy, formData.authorizedById);
-    const referredById = getEmployeeId(formData.referredBy, formData.referredById);
+    // Extract employee IDs - PRIORITY: Use direct ID fields first, then helper function
+    let authorizedById = 0;
+    let referredById = 0;
 
-    console.log('📋 Second Year Concession - Employee IDs:', {
-      authorizedBy: formData.authorizedBy,
-      authorizedById: formData.authorizedById,
-      authorizedByIdFinal: authorizedById,
-      referredBy: formData.referredBy,
-      referredById: formData.referredById,
-      referredByIdFinal: referredById
-    });
+    // Extract authorizedById - Priority: direct ID > helper function
+    if (formData.authorizedById !== null && formData.authorizedById !== undefined && formData.authorizedById !== "" && formData.authorizedById !== 0) {
+      authorizedById = toNumber(formData.authorizedById);
+    } else {
+      authorizedById = getEmployeeId(formData.authorizedBy, formData.authorizedById);
+    }
 
-    // Get pro concession fields if "Concession Written on Application" is checked
-    const proConcessionAmount = formData.concessionWrittenOnApplication && formData.concessionAmount
-      ? toNumber(formData.concessionAmount)
-      : 0;
-    const proConcessionReason = formData.concessionWrittenOnApplication && formData.reason
-      ? toString(formData.reason)
-      : "";
-    // Get employee ID from concessionReferredBy (handle "name - id" format or direct ID)
-    const proConcessionGivenBy = formData.concessionWrittenOnApplication && formData.concessionReferredBy
-      ? toNumber(formData.concessionReferredBy)
-      : 0;
+    // Extract referredById - Priority: direct ID > helper function  
+    if (formData.referredById !== null && formData.referredById !== undefined && formData.referredById !== "" && formData.referredById !== 0) {
+      referredById = toNumber(formData.referredById);
+    } else {
+      referredById = getEmployeeId(formData.referredBy, formData.referredById);
+    }
+
+    // Get pro concession fields - check direct fields first, then fallback to conditional fields
+    // proConcessionAmount: Check direct field first, then concessionAmount if checkbox is checked
+    // Handle formatted numbers (remove commas, spaces, etc.)
+    let proConcessionAmount = 0;
+    if (formData.proConcessionAmount !== null && formData.proConcessionAmount !== undefined && formData.proConcessionAmount !== "" && formData.proConcessionAmount !== 0) {
+      // Remove commas and other formatting, then convert to number
+      const cleanedAmount = String(formData.proConcessionAmount).replace(/,/g, '').trim();
+      proConcessionAmount = toNumber(cleanedAmount);
+    } else if (formData.concessionWrittenOnApplication && formData.concessionAmount !== null && formData.concessionAmount !== undefined && formData.concessionAmount !== "" && formData.concessionAmount !== 0) {
+      // Remove commas and other formatting, then convert to number
+      const cleanedAmount = String(formData.concessionAmount).replace(/,/g, '').trim();
+      const numAmount = toNumber(cleanedAmount);
+      // Only use if the converted number is greater than 0
+      if (numAmount > 0) {
+        proConcessionAmount = numAmount;
+      }
+    }
+    
+    // proConcessionReason: Check proConcessionReasonId first, then reason if checkbox is checked
+    // proConcessionReason should be the ID as string (per swagger type: "string")
+    const proConcessionReason = (formData.proConcessionReasonId !== null && formData.proConcessionReasonId !== undefined && formData.proConcessionReasonId !== "" && formData.proConcessionReasonId !== 0)
+      ? String(formData.proConcessionReasonId)
+      : (formData.concessionWrittenOnApplication && formData.reason
+        ? String(toNumber(formData.reason))
+        : "");
+    
+    // proConcessionGivenBy: Check proConcessionGivenById first, then concessionReferredBy if checkbox is checked
+    const proConcessionGivenBy = (formData.proConcessionGivenById !== null && formData.proConcessionGivenById !== undefined && formData.proConcessionGivenById !== "" && formData.proConcessionGivenById !== 0)
+      ? toNumber(formData.proConcessionGivenById)
+      : (formData.concessionWrittenOnApplication && formData.concessionReferredBy
+        ? toNumber(formData.concessionReferredBy)
+        : 0);
 
     concessions.push({
       concessionTypeId: toNumber(formData.secondYearConcessionTypeId),
       concessionAmount: toNumber(formData.secondYearConcession),
-      givenById: 0,
-      authorizedById: authorizedById,
+      givenById: referredById, // Use referredBy value as givenById
+      authorizedById: authorizedById, // Use authorizedBy value
       reasonId: reasonId,
       comments: toString(formData.description || ''),
       createdBy: loggedInEmpId,

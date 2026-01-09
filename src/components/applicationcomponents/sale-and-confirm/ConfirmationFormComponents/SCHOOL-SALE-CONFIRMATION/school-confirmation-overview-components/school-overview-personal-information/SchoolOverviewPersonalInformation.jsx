@@ -71,7 +71,7 @@ const SchoolOverviewPersonalInformation = ({ overviewData }) => {
           {overviewData?.admissionReferredByName && 
           <div className={styles.infoItem}>
             <span className={styles.label}>PRO Name</span>
-            <span className={styles.value}>{overviewData?.admissionReferredByName - overviewData?.admissionReferredById || '-'}</span>
+            <span className={styles.value}>{overviewData?.admissionReferredByName || '-'}</span>
           </div>}
           {/* ROW 3 */}
           <div className={styles.infoItem}>
