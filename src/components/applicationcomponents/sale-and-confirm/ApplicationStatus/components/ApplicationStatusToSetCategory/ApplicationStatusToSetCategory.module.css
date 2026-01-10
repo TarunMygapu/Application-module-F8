@@ -57,7 +57,7 @@
 
 /* ---------- Search ---------- */
 .application-status__search {
-  border: 1px solid #dde2e4;
+  border: 1px solid rgba(220, 220, 220, 1);
   border-radius: 8px;
   background: #fff;
   display: flex;
@@ -83,6 +83,7 @@
   height: 100%;
   padding: 0;
   line-height: 1.2;
+  color: rgba(156, 156, 156, 1);
 }
 
 .application-status__search input::placeholder {

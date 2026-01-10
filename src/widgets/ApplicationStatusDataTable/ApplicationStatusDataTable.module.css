@@ -1,6 +1,7 @@
 .table_wrapper {
   border-radius: 6px;
-  overflow-x: auto;
+  /* prevent horizontal scrolling; table will truncate cells instead */
+  overflow-x: hidden;
   overflow-y: hidden;
   position: relative;
   z-index: 1;
@@ -36,6 +37,9 @@
   border-bottom: 2px solid #E6E4F0;
   text-align: left;      
   vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
  
 .table_header_empty {
@@ -56,6 +60,11 @@
   /* text-align: left; */
   vertical-align: middle;
   padding: 7px 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* Default (mobile/small screens): truncate after ~8-10 characters */
+  max-width: 8ch;
 }
  
 .table_cell {
@@ -68,6 +77,61 @@
   line-height: 24px;
   vertical-align: middle;
   padding: 7px 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* Default (mobile/small screens): truncate after ~8-10 characters */
+  max-width: 8ch;
+}
+
+/* Exceptions: Application No (2), Date (7), Status (8) - do not truncate; give them enough space */
+.table tbody tr td:nth-child(2),
+.table tbody tr td:nth-child(7),
+.table tbody tr td:nth-child(8) {
+  max-width: none;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.table thead tr th:nth-child(2),
+.table thead tr th:nth-child(7),
+.table thead tr th:nth-child(8) {
+  max-width: none;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+/* Exempt the actions column (empty header) from truncation */
+.table thead tr th.table_header_empty,
+.table thead tr th:last-child {
+  max-width: none;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+/* Exempt the actions cell (last cell) from truncation so buttons are intact */
+.table tbody tr td:last-child {
+  max-width: none;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/* Medium screens: between 769px and 1365px */
+@media (min-width: 769px) and (max-width: 1365px) {
+  .table_cell,
+  .table_body td {
+    max-width: 12ch; /* show ~12 characters */
+  }
+}
+
+/* Large screens: 1366px and up */
+@media (min-width: 1366px) {
+  .table_cell,
+  .table_body td {
+    max-width: 16ch; /* show ~16 characters */
+  }
 }
  
 .table th:first-child,

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styles from "./FileExport.module.css";
+import ConfirmationModal from "./ConfirmationModal";
 import {
   exportToPDF,
   exportToXLS,
@@ -10,36 +11,50 @@ import {
  
 const FileExport = ({ onExport,exportConfig, data = [], position = "middle" }) => {
   const [selectedType, setSelectedType] = useState("");
-  const fileTypes = ["PDF", ".xls", "doc"];
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingType, setPendingType] = useState(null);
+  const fileTypes = ["PDF", ".XLS", ".DOC"];
  
   const handleSelect = (type) => {
-  setSelectedType(type);
- 
-  console.log("Rows received for export:", data);
- 
-  if (!data.length) {
-    alert("No rows selected for export!");
+    setSelectedType(type);
+
+    console.log("Rows received for export:", data);
+
+    if (!data || data.length === 0) {
+      alert("No rows selected for export!");
+      return;
+    }
+
+    // Normalize and show confirmation modal for any file type
+    const normalized = String(type).toLowerCase();
+    setPendingType(normalized);
+    setShowConfirmModal(true);
     return;
-  }
- 
-  const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, "-");
-  const filename = `application-status-${timestamp}`;
-  const { headers, fields } = exportConfig;
- 
-  switch (type) {
-    case "PDF":
+  };
+
+  const handleConfirmExport = () => {
+    const { headers, fields } = exportConfig || {};
+    if (!pendingType) return;
+
+    if (pendingType === "pdf") {
       exportToPDF(data, headers, fields);
-      break;
-    case ".xls":
+      onExport?.("PDF", data);
+    } else if (pendingType === "xls") {
       exportToXLS(data, headers, fields);
-      break;
-    case "doc":
+      onExport?.("XLS", data);
+    } else if (pendingType === "doc") {
       exportToDOC(data, headers, fields);
-      break;
-  }
- 
-  onExport?.(type, data);
-};
+      onExport?.("DOC", data);
+    }
+
+    setShowConfirmModal(false);
+    setPendingType(null);
+  };
+
+  const handleCancelExport = () => {
+    setShowConfirmModal(false);
+    setPendingType(null);
+  };
  
  
   const hasSelection = data.length > 0;
@@ -71,6 +86,14 @@ const FileExport = ({ onExport,exportConfig, data = [], position = "middle" }) =
           ))}
         </div>
       </div>
+      {/* Confirmation modal for PDF export */}
+      <ConfirmationModal
+        open={showConfirmModal}
+        title="Download PDF"
+        message="Downloading PDF. Press OK to continue."
+        onConfirm={handleConfirmExport}
+        onCancel={handleCancelExport}
+      />
     </div>
   );
 };
