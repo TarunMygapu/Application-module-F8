@@ -38,6 +38,7 @@ const DgmTable = ({ onSelectionChange, callTable, tableTrigger }) => {
         zoneId: item.zone_id,
         campusId: item.cmps_id,
         issuedToEmpId: item.issued_to_emp_id,
+        issuedToId: item.issued_to_emp_id ?? item.issuedToId, // ✅ Ensure issuedToId is set (needed for dgmFormDTO)
         academicYearId : item.acdc_year_id,
         academicYear: item.academicYear,
         issuedName:item.issuedToName,
