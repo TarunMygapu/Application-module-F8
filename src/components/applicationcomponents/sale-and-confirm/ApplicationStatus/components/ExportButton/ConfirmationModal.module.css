@@ -1,0 +1,75 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 180ms ease-in-out;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: #ffffff; /* keep bg color as white */
+  padding: 20px;
+  border-radius: 8px;
+  width: 320px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  transform-origin: center center;
+  animation: popIn 220ms cubic-bezier(.2,.9,.2,1);
+}
+
+.title {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #111827;
+}
+
+.message {
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 16px;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.confirmBtn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cancelBtn {
+  background: transparent;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.95) translateY(6px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

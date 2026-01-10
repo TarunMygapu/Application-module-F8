@@ -56,7 +56,9 @@ const CampusTable = ({ onSelectionChange,callTable,tableTrigger }) => {
         campusId : item.cmps_id,
         issuedTo : item.issued_to_emp_id,
         issuedToEmpId : item.issued_to_emp_id,
-        campaignDistrictId:item.district_id
+        campaignDistrictId:item.district_id,
+        academicYearId: item.acdc_year_id,
+        academicYear: item.academicYear,
       })),
     [tableData]
   );

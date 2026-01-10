@@ -35,9 +35,11 @@ export const exportToXLS = (records, headers, fields) => {
       fields.map((f) => `"${r[f] ?? ""}"`).join(",")
     ),
   ].join("\n");
- 
-  const blob = new Blob([rows], { type: "text/csv" });
-  download(blob, "application-distribution.csv");
+
+  // Use a spreadsheet-compatible mime type and .xls filename so browsers
+  // will offer the file as an Excel document. Content is CSV-style.
+  const blob = new Blob([rows], { type: "application/vnd.ms-excel" });
+  download(blob, "application-distribution.xls");
 };
  
  

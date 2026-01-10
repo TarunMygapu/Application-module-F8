@@ -82,12 +82,15 @@
 .rightBlock {
   display: flex;
   align-items: center;
-  background: #FFFBEB;
+  background: #FFFEEC;
   padding: 9px 10px 9px 10px;
   border-radius: 8px;
   gap: 15px;
   border: 1px solid #F6F6F6;
+  max-width:573px;
 }
+
+
 
 .infoItem {
   display: flex;
@@ -106,4 +109,61 @@
   font-weight: 700;
   color: #323232;
 
+}
+
+#branchValue{
+   font-size: 16px;
+  font-weight: 700;
+  color: #000000;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  /* Required for positioning */
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  max-width: 184px;
+}
+
+/* Tooltip */
+#branchValue::after {
+  content: attr(data-fulltext);
+  position: absolute;
+  bottom: 100%;             /* appears above the element */
+  left: 50%;
+  transform: translateX(-50%);
+  
+  /* Positioning & size */
+  margin-bottom: 8px;       /* space between text and tooltip */
+  padding: 6px 10px;
+  max-width: 320px;         /* ← very important! */
+  width: max-content;
+  
+  /* Style */
+  background-color: #2d2d2d;
+  color: white;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 100;
+  
+  /* Animation */
+  opacity: 0;
+  visibility: hidden;
+  transition: 
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  transform: translateX(-50%) translateY(4px); /* small offset for animation */
+}
+
+/* Hover state */
+#branchValue:hover::after,
+#branchValue:focus::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
 }

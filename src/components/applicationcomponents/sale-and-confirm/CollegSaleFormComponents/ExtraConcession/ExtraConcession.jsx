@@ -66,6 +66,18 @@ const ExtraConcession = () => {
     }
     return [];
   }, [concessionReasonsRaw]);
+
+  // Ensure Formik has the validation keys present so global setTouched covers them
+  useEffect(() => {
+    if (showConcessionFields) {
+      if (formik.values.concessionReason === undefined) {
+        setFieldValue("concessionReason", values.reason ?? "");
+      }
+      if (formik.values.referredBy === undefined) {
+        setFieldValue("referredBy", values.concessionReferredBy ?? "");
+      }
+    }
+  }, [showConcessionFields]);
  
   const employeeOptions = useMemo(
     () => employeesRaw.map((e) => toTitleCase(e?.name ?? "")),  
@@ -92,7 +104,10 @@ const ExtraConcession = () => {
   ---------------------------------- */
   const handleReasonChange = (e) => {
     const { name, value } = e.target;
+    // Keep the original field name for UI, but also set the validation key
+    // Validation schema expects `concessionReason` while our field is named `reason`.
     setFieldValue(name, value);
+    setFieldValue("concessionReason", value);
    
     // Store proConcessionReasonId when reason is selected
     if (value && concessionReasonNameToId.has(value)) {
@@ -108,7 +123,10 @@ const ExtraConcession = () => {
   ---------------------------------- */
   const handleConcessionReferredByChange = (e) => {
     const { name, value } = e.target;
+    // Keep the original field name for UI, but also set the validation key
+    // Validation schema expects `referredBy` while our field is named `concessionReferredBy`.
     setFieldValue(name, value);
+    setFieldValue("referredBy", value);
    
     // Store employee ID when employee is selected
     if (value && employeeNameToId.has(value)) {
@@ -180,10 +198,18 @@ const ExtraConcession = () => {
                   onChangeHandler = handleConcessionReferredByChange;
                 }
                
+                // Map UI field names to validation schema keys
+                const validationKeyMap = {
+                  reason: "concessionReason",
+                  concessionReferredBy: "referredBy",
+                };
+
+                const validationKey = validationKeyMap[fname] || fname;
+
                 // Check if field is touched or if there's an error (for validation on change)
-                const isTouched = touched[fname] || submitCount > 0;
-                const hasError = errors[fname];
-               
+                const isTouched = touched[validationKey] || submitCount > 0;
+                const hasError = errors[validationKey];
+
                 // Show error if field is touched/submitted OR if there are validation errors present
                 const shouldShowError = isTouched || hasError;
                 const fieldError = shouldShowError && hasError ? String(hasError) : null;

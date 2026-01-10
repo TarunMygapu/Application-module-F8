@@ -1567,6 +1567,7 @@ const SchoolSale = () => {
                 buttonname={"Update"}
                 variant={"primary"}
                 type="button"
+                lefticon={applicationSaleicon}
                 onClick={async () => {
                   try {
                     // Validate form
