@@ -9,7 +9,7 @@ import styles from "./DistributeTable.module.css";
 import FileExport from "../sale-and-confirm/ApplicationStatus/components/ExportButton/FileExport";
 import { EXPORT_CONFIG } from "../sale-and-confirm/ApplicationStatus/components/ExportButton/utils/exportConfig";
 
-const DistributeTable = ({ callTable,tableTrigger }) => {
+const DistributeTable = ({ callTable, tableTrigger, setTableTrigger }) => {
   const { pathname } = useLocation();
 
   const [showExport, setShowExport] = useState(false);
@@ -44,12 +44,12 @@ const DistributeTable = ({ callTable,tableTrigger }) => {
   const renderTable = () => {
     if (pathname.includes("zone"))
       return (
-        <ZoneTable onSelectionChange={setSelectedRows} callTable={callTable} tableTrigger={tableTrigger} />
+        <ZoneTable onSelectionChange={setSelectedRows} callTable={callTable} tableTrigger={tableTrigger} setTableTrigger={setTableTrigger} />
       );
 
     if (pathname.includes("dgm"))
       return (
-        <DgmTable onSelectionChange={setSelectedRows} callTable={callTable} tableTrigger={tableTrigger} />
+        <DgmTable onSelectionChange={setSelectedRows} callTable={callTable} tableTrigger={tableTrigger} setTableTrigger={setTableTrigger} />
       );
 
     if (pathname.includes("campus"))
@@ -58,6 +58,7 @@ const DistributeTable = ({ callTable,tableTrigger }) => {
           onSelectionChange={setSelectedRows}
           callTable={callTable}
           tableTrigger={tableTrigger}
+          setTableTrigger={setTableTrigger}
         />
       );
 
@@ -65,12 +66,12 @@ const DistributeTable = ({ callTable,tableTrigger }) => {
   };
 
   const exportType = pathname.includes("zone")
-  ? "zone"
-  : pathname.includes("dgm")
-  ? "dgm"
-  : pathname.includes("campus")
-  ? "campus"
-  : null;
+    ? "zone"
+    : pathname.includes("dgm")
+      ? "dgm"
+      : pathname.includes("campus")
+        ? "campus"
+        : null;
 
   return (
     <>
@@ -95,7 +96,7 @@ const DistributeTable = ({ callTable,tableTrigger }) => {
             <div style={{ position: "absolute", top: "97.5%", right: 0 }}>
               <FileExport
                 data={selectedRows}
-                exportConfig = {EXPORT_CONFIG[exportType]}
+                exportConfig={EXPORT_CONFIG[exportType]}
                 position="right"
                 onExport={() => setShowExport(false)}
               />

@@ -21,7 +21,7 @@ const fieldMapping = {
 };
 
 // 🔑 Accept onSelectionChange prop
-const CampusTable = ({ onSelectionChange, callTable, tableTrigger }) => {
+const CampusTable = ({ onSelectionChange, callTable, tableTrigger, setTableTrigger }) => {
 
   const empId = localStorage.getItem("empId");
 
@@ -213,6 +213,7 @@ const CampusTable = ({ onSelectionChange, callTable, tableTrigger }) => {
         fieldMapping={fieldMapping}
         onSubmit={handleUpdate}
         forms={{ campus: CampusForm }}
+        setTableTrigger={setTableTrigger}
       />
     </>
   );

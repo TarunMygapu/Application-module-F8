@@ -24,7 +24,24 @@ import {
 import { buildInitialValues } from "./buildInitialValuesForDistribution";
 
 import Popup from "../../../widgets/PopupWidgets/Popup";
-import {useRole} from "../../../hooks/useRole";
+import { useRole } from "../../../hooks/useRole";
+import { useCallback, useRef } from "react"; // Added useCallback, useRef
+
+// Throttling Hook
+const useThrottle = (callback, delay) => {
+  const lastCall = useRef(0);
+  return useCallback(
+    (...args) => {
+      const now = new Date().getTime();
+      if (now - lastCall.current < delay) {
+        return;
+      }
+      lastCall.current = now;
+      return callback(...args);
+    },
+    [callback, delay]
+  );
+};
 
 
 const normalizeOptions = (options) =>
@@ -80,17 +97,17 @@ const DistributeForm = ({
   onSeriesSelect,
   applicationSeriesList,
   setCallTable,
-   setTableTrigger,
+  setTableTrigger,
 }) => {
   const employeeId = localStorage.getItem("empId");
   const category = localStorage.getItem("campusCategory");
-  const {hasRole : isUserAdmin } = useRole("ADMIN");
+  const { hasRole: isUserAdmin } = useRole("ADMIN");
   const [showPopup, setShowPopup] = useState(false);
   const [pendingValues, setPendingValues] = useState(null);
   const [apiLoading, setApiLoading] = useState(false);
 
   const [formError, setFormError] = useState(null);
-  const restrictDropdown = isUserAdmin ? false: true;
+  const restrictDropdown = isUserAdmin ? false : true;
   console.log("Form Type:", formType);
   const fieldsForType = useMemo(() => getFieldsForType(formType), [formType]);
   const fieldMap = useMemo(() => {
@@ -181,7 +198,9 @@ const DistributeForm = ({
 
   const callSubmitApi = async () => {
     if (!pendingValues) return;
+    if (apiLoading) return; // double check
 
+    setApiLoading(true); // Start loading
     console.log("🟡 CONFIRMED — Proceeding with API call...");
     console.log("🚀 API CALL TRIGGERED with values:", pendingValues);
 
@@ -204,6 +223,7 @@ const DistributeForm = ({
 
         onSubmit?.({ ...values, id: editId, _mode: "update" });
         setIsInsertClicked?.(false);
+        setTableTrigger(prev => prev + 1); // ✅ Trigger table refresh after update
       } else {
         console.log("🆕 CREATE API CALL INITIATED...");
 
@@ -219,7 +239,7 @@ const DistributeForm = ({
         onSubmit?.({ ...values, _mode: "create" });
         setIsInsertClicked?.(true);
         // setCallTable(prev => !prev);
-        setTableTrigger(prev => prev + 1); 
+        setTableTrigger(prev => prev + 1);
       }
 
       console.log("🎉 FORM SUBMISSION SUCCESS — Closing popup...");
@@ -229,8 +249,13 @@ const DistributeForm = ({
       console.error("❌ API FAILED — Error:", err);
       setFormError(extractApiError(err));
       setShowPopup(false);
+    } finally {
+      setApiLoading(false); // Stop loading
     }
   };
+
+  // Throttle the API call (2 seconds)
+  const throttledCallSubmitApi = useThrottle(callSubmitApi, 2000);
 
   const beforeSubmit = (values) => {
     console.log("🔥 BEFORE POPUP — Form Values:", values);
@@ -238,6 +263,9 @@ const DistributeForm = ({
     setPendingValues(values);
     setShowPopup(true); // show confirmation popup
   };
+
+  // Throttle the initial button click (1.5 seconds)
+  const throttledBeforeSubmit = useThrottle(beforeSubmit, 1500);
 
   const renderField = (name, values, setFieldValue, touched, errors) => {
     const cfg = fieldMap[name];
@@ -263,8 +291,8 @@ const DistributeForm = ({
     const options = normalizeOptions(rawOptions);
     if (hasDropdownConfig) {
       const isLockedonUpdate =
-        restrictDropdown && 
-        (cfg.name === "cityName" || cfg.name === "zoneName" || cfg.name === "campaignDistrictName") || 
+        restrictDropdown &&
+        (cfg.name === "cityName" || cfg.name === "zoneName" || cfg.name === "campaignDistrictName") ||
         isUpdate && (cfg.name === "applicationSeries" || cfg.name === "applicationFee" || cfg.name === "academicYear");
       const dropdownDisabled =
         !!cfg.disabled || isLockedonUpdate || options.length === 0;
@@ -352,7 +380,8 @@ const DistributeForm = ({
         isOpen={showPopup}
         name={buttonLabel}
         onClose={() => setShowPopup(false)}
-        onConfirm={callSubmitApi}
+        onConfirm={throttledCallSubmitApi}
+        isLoading={apiLoading}
       />
       <Formik
         initialValues={formInitialValues}
@@ -364,7 +393,7 @@ const DistributeForm = ({
             console.log("❌ Validation errors — popup blocked:", errors);
             return; // ⛔ DO NOT OPEN POPUP
           }
-          beforeSubmit(values); // ✅ open popup only if valid
+          throttledBeforeSubmit(values); // ✅ open popup only if valid (throttled)
         }}
         enableReinitialize={false}
       >
@@ -396,11 +425,11 @@ const DistributeForm = ({
             </div>
             <Button
               type="submit"
-              buttonname={buttonLabel}
+              buttonname={apiLoading ? "Processing..." : buttonLabel}
               righticon={rightarrow}
               margin={"0"}
               variant="primary"
-              disabled={false}
+              disabled={apiLoading}
             />
             {formError && <div className={styles.error}>{formError}</div>}
           </Form>

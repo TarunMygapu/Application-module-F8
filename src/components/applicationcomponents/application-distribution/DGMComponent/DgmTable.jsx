@@ -2,21 +2,21 @@ import React, { useEffect, useMemo, useState } from "react";
 import TableWidget from "../../../../widgets/Table/TableWidget";
 import DgmForm from "./DgmForm";
 import DistributionUpdateForm from "../DistributionUpdateForm";
-import { useGetTableDetailsByEmpId,useGetApplicationSeriesForEmpId} from "../../../../queries/applicationqueries/application-distribution/dropdownqueries";
+import { useGetTableDetailsByEmpId, useGetApplicationSeriesForEmpId } from "../../../../queries/applicationqueries/application-distribution/dropdownqueries";
 import Spinner from "../../../commoncomponents/Spinner";
 
 // 🔑 Accept onSelectionChange prop
-const DgmTable = ({ onSelectionChange, callTable, tableTrigger }) => {
- 
+const DgmTable = ({ onSelectionChange, callTable, tableTrigger, setTableTrigger }) => {
+
   const empId = localStorage.getItem("empId");
- 
+
   const {
     data: tableData,
     isLoading,
     error,
-  } = useGetTableDetailsByEmpId(empId,3,tableTrigger);
+  } = useGetTableDetailsByEmpId(empId, 3, tableTrigger);
   console.log("Table Data: ", tableData);
- 
+
   // Normalize API -> table rows
   const transformedData = useMemo(
     () =>
@@ -28,24 +28,24 @@ const DgmTable = ({ onSelectionChange, callTable, tableTrigger }) => {
         amount: item.amount,
         issuedTo: item.issuedToName,
         campusName: item.campusName,
-         applicationFee: item.amount,
+        applicationFee: item.amount,
         applicationSeries: item.displaySeries,
         applicationCount: item.totalAppCount,
-        cityName:item.cityname,
-        zoneName:item.zoneName,
-        mobileNumber:item.mobileNmuber,
+        cityName: item.cityname,
+        zoneName: item.zoneName,
+        mobileNumber: item.mobileNmuber,
         cityId: item.city_id,
         zoneId: item.zone_id,
         campusId: item.cmps_id,
         issuedToEmpId: item.issued_to_emp_id,
         issuedToId: item.issued_to_emp_id ?? item.issuedToId, // ✅ Ensure issuedToId is set (needed for dgmFormDTO)
-        academicYearId : item.acdc_year_id,
+        academicYearId: item.acdc_year_id,
         academicYear: item.academicYear,
-        issuedName:item.issuedToName,
+        issuedName: item.issuedToName,
       })),
     [tableData]
   );
- 
+
   const columns = [
     {
       accessorKey: "applicationForm",
@@ -79,104 +79,104 @@ const DgmTable = ({ onSelectionChange, callTable, tableTrigger }) => {
       cell: ({ row }) => row.original.campusName,
     },
   ];
- 
+
   // Local table state
   const [data, setData] = useState(transformedData);
   const [pageIndex, setPageIndex] = useState(0);
   const pageSize = 10;
   const [openingForm, setOpeningForm] = useState(false);
   // 🔑 No longer need selectedRows state here, it's handled in handleSelectRow
- 
+
   // Keep local rows in sync when API data changes
   useEffect(() => {
     setData(transformedData);
     setPageIndex(0); // reset to first page on fresh data
   }, [transformedData]);
- 
+
   // 🔑 FIXED: Row selection logic using functional update
   const handleSelectRow = (rowData, checked) => {
     // Use functional update to prevent stale state issue during bulk selection
     setData(prevData => {
-        const updatedData = prevData.map((item) =>
-            item.id === rowData.id ? { ...item, isSelected: checked } : item
-        );
- 
-        // Find all selected rows in the calculated next state
-        const selected = updatedData.filter((item) => item.isSelected);
- 
-        // Send selected rows back to parent
-        if (onSelectionChange) {
-            onSelectionChange(selected);
-        }
-       
-        return updatedData; // Return the new state
+      const updatedData = prevData.map((item) =>
+        item.id === rowData.id ? { ...item, isSelected: checked } : item
+      );
+
+      // Find all selected rows in the calculated next state
+      const selected = updatedData.filter((item) => item.isSelected);
+
+      // Send selected rows back to parent
+      if (onSelectionChange) {
+        onSelectionChange(selected);
+      }
+
+      return updatedData; // Return the new state
     });
   };
- 
+
   // Apply updates returning from the form
   const handleUpdate = (updatedRow) => {
     setData((prev) =>
       prev.map((item) =>
         item.id === updatedRow.id
           ? {
-              ...item,
-              applicationForm:
-                updatedRow.applicationNoFrom || item.applicationForm,
-              issuedName: updatedRow.issuedTo || item.issuedName,
-              campusName: updatedRow.campusName || item.campusName,
-              academicYear: updatedRow.academicYear || item.academicYear,
-              cityName: updatedRow.cityName || item.cityName,
-              zoneName: updatedRow.zoneName || item.zoneName,
-              range: updatedRow.range || item.range,
-              applicationNoTo:
-                updatedRow.applicationNoTo || item.applicationNoTo,
-              issueDate: updatedRow.issueDate || item.issueDate,
-              mobileNumber: updatedRow.mobileNumber || item.mobileNumber,
-              cityId : updatedRow.cityId || item.city_id,
-              zoneId : updatedRow.zoneId || item.zone_id,
-              campusId : updatedRow.cmps_id || item.cmps_id,
-            }
+            ...item,
+            applicationForm:
+              updatedRow.applicationNoFrom || item.applicationForm,
+            issuedName: updatedRow.issuedTo || item.issuedName,
+            campusName: updatedRow.campusName || item.campusName,
+            academicYear: updatedRow.academicYear || item.academicYear,
+            cityName: updatedRow.cityName || item.cityName,
+            zoneName: updatedRow.zoneName || item.zoneName,
+            range: updatedRow.range || item.range,
+            applicationNoTo:
+              updatedRow.applicationNoTo || item.applicationNoTo,
+            issueDate: updatedRow.issueDate || item.issueDate,
+            mobileNumber: updatedRow.mobileNumber || item.mobileNumber,
+            cityId: updatedRow.cityId || item.city_id,
+            zoneId: updatedRow.zoneId || item.zone_id,
+            campusId: updatedRow.cmps_id || item.cmps_id,
+          }
           : item
       )
     );
   };
- 
+
   // Modal wiring (outside TableWidget)
   const [open, setOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
-   const handleRowUpdateClick = async (row) => {
-  console.log("Row Selected:", row);
-  setOpeningForm(true);
-  setSelectedRow(row);
- 
-  setOpen(true);
-  setOpeningForm(false);
-};
+  const handleRowUpdateClick = async (row) => {
+    console.log("Row Selected:", row);
+    setOpeningForm(true);
+    setSelectedRow(row);
+
+    setOpen(true);
+    setOpeningForm(false);
+  };
   // Map table fields -> form fields
   const fieldMapping = {
-  cityName: "cityName",
-  cityId: "cityId",
+    cityName: "cityName",
+    cityId: "cityId",
 
-  zoneName: "zoneName",
-  zoneId: "zoneId",
+    zoneName: "zoneName",
+    zoneId: "zoneId",
 
-  campusName: "campusName",
-  campusId: "campusId",
+    campusName: "campusName",
+    campusId: "campusId",
 
-  issuedName: "issuedName",
-  issuedToEmpId: "issuedToEmpId",
-  issuedToId : "issuedToId",
-  issuedName :"issuedName",
-  applicationForm: "applicationNoFrom",
-  applicationTo: "applicationNoTo",
-  applicationSeries: "applicationSeries",
-  applicationCount: "applicationCount",
-  mobileNumber: "mobileNumber",
-};
+    issuedName: "issuedName",
+    issuedToEmpId: "issuedToEmpId",
+    issuedToId: "issuedToId",
+    issuedName: "issuedName",
+    applicationForm: "applicationNoFrom",
+    applicationTo: "applicationNoTo",
+    applicationSeries: "applicationSeries",
+    applicationCount: "applicationCount",
+    mobileNumber: "mobileNumber",
+  };
 
 
   // console.log("Values to the Form: ",fieldMapping);
- 
+
   // Loading & error states
   if (isLoading) return <div style={{ padding: 16 }}>Table data is loading…</div>;
   if (error)
@@ -185,10 +185,10 @@ const DgmTable = ({ onSelectionChange, callTable, tableTrigger }) => {
         Failed to load table data.
       </div>
     );
- 
+
   return (
     <>
-    {openingForm && (
+      {openingForm && (
         <div
           style={{
             height: "200px",
@@ -211,7 +211,7 @@ const DgmTable = ({ onSelectionChange, callTable, tableTrigger }) => {
           onRowUpdateClick={handleRowUpdateClick}
         />
       )}
- 
+
       <DistributionUpdateForm
         open={open}
         onClose={() => setOpen(false)}
@@ -219,9 +219,10 @@ const DgmTable = ({ onSelectionChange, callTable, tableTrigger }) => {
         fieldMapping={fieldMapping}
         onSubmit={handleUpdate}
         forms={{ dgm: DgmForm }}
+        setTableTrigger={setTableTrigger}
       />
     </>
   );
 };
- 
+
 export default DgmTable;

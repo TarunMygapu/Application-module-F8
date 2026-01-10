@@ -110,7 +110,7 @@ const DistributeTab = () => {
 
   const handleDistributeButton = () => {
     setIsInsertClicked((prev) => !prev);
-    
+
   };
 
   // 🚫 If no tabs are visible, render a "No Access" message for this section.
@@ -125,12 +125,12 @@ const DistributeTab = () => {
   }
 
   const displayFilterOptions = () => {
-       if (!clickedFilterButton) {
+    if (!clickedFilterButton) {
       setClickedFilterButton(true);
     }
   }
 
-      const closeFilterOptions = () => {
+  const closeFilterOptions = () => {
     setClickedFilterButton(false);  // Close when CostSelectionForGraph is closed
   };
 
@@ -200,8 +200,8 @@ const DistributeTab = () => {
                   <Route
                     path="zone"
                     element={
-                      <ZoneForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable} 
-                      setTableTrigger={setTableTrigger}
+                      <ZoneForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable}
+                        setTableTrigger={setTableTrigger}
                       />
                     }
                   />
@@ -210,8 +210,8 @@ const DistributeTab = () => {
                   <Route
                     path="dgm"
                     element={
-                      <DgmForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable} 
-                       setTableTrigger={setTableTrigger}
+                      <DgmForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable}
+                        setTableTrigger={setTableTrigger}
                       />
                     }
                   />
@@ -220,8 +220,8 @@ const DistributeTab = () => {
                   <Route
                     path="campus"
                     element={
-                      <CampusForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable} 
-                       setTableTrigger={setTableTrigger}
+                      <CampusForm setIsInsertClicked={setIsInsertClicked} setCallTable={setCallTable}
+                        setTableTrigger={setTableTrigger}
                       />
                     }
                   />
@@ -252,7 +252,7 @@ const DistributeTab = () => {
                     onClick={displayFilterOptions}
                   />
                   {clickedFilterButton && (
-                    <CostSelectionForGraph onClose={closeFilterOptions} 
+                    <CostSelectionForGraph onClose={closeFilterOptions}
                       onApply={() => setIsFilterApplied(true)}
                       onClear={() => setIsFilterApplied(false)}
                     />
@@ -276,7 +276,7 @@ const DistributeTab = () => {
 
       {/* You might also want to secure the table component */}
       <div className={styles.distribute_tab_table}>
-        <DistributeTable callTable={callTable} tableTrigger={tableTrigger}/>
+        <DistributeTable callTable={callTable} tableTrigger={tableTrigger} setTableTrigger={setTableTrigger} />
       </div>
     </>
   );
