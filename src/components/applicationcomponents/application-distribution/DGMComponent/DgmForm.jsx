@@ -52,6 +52,8 @@ const DgmForm = ({
   const prevZoneNameRef = useRef(null);
   const prevCampusNameRef = useRef(null);
   const initialValuesLockedRef = useRef(false);
+  const isProcessingChangeRef = useRef(false); // Track if we're processing a dropdown change
+  const lastProcessedValuesRef = useRef({}); // Track last processed values to prevent duplicate processing
 
   // ---------------- SELECTED VALUES ----------------
   const [selectedAcademicYearId, setSelectedAcademicYearId] = useState(null);
@@ -125,8 +127,11 @@ const DgmForm = ({
   updateHydratedRef.current = false;
   hydratedRef.current = false;
   isHydratingRef.current = true;
+  initialValuesLockedRef.current = false; // ✅ Reset lock to allow re-hydration
+  isProcessingChangeRef.current = false; // Reset processing flag
+  lastProcessedValuesRef.current = {}; // Reset last processed values
 
-}, [editId]);
+}, [editId, isUpdate]);
 
   useEffect(() => {
   if (isUpdate) return;               // 🔒 do not touch update
@@ -153,7 +158,7 @@ const hydratedRef = useRef(false);
 
 const updateHydratedRef = useRef(false);
 
-useEffect(() => {
+  useEffect(() => {
   if (!isUpdate || !editId) return;
   if (initialValuesLockedRef.current) return;
 
@@ -161,16 +166,21 @@ useEffect(() => {
 
   isHydratingRef.current = true;
 
+  setSelectedAcademicYearId(initialValues.academicYearId ?? null);
   setSelectedCityId(initialValues.cityId ?? null);
   setSelectedZoneId(initialValues.zoneId ?? null);
   setSelectedCampusId(initialValues.campusId ?? null);
-  setIssuedToId(initialValues.issuedToEmpId ?? null);
+  // ✅ Use issuedToId if available, otherwise fallback to issuedToEmpId
+  const initialIssuedToId = initialValues.issuedToId ?? initialValues.issuedToEmpId;
+  setIssuedToId(initialIssuedToId ?? null);
+  setSelectedFee(initialValues.applicationFee ?? null);
+  setSelectedSeries(initialValues.applicationSeries ?? null);
 
   prevCityNameRef.current = initialValues.cityName ?? null;
   prevZoneNameRef.current = initialValues.zoneName ?? null;
   prevCampusNameRef.current = initialValues.campusName ?? null;
 
-  setSeedInitialValues({
+      setSeedInitialValues({
     academicYear: initialValues.academicYear ?? "",
     cityName: initialValues.cityName ?? "",
     zoneName: initialValues.zoneName ?? "",
@@ -178,15 +188,19 @@ useEffect(() => {
     issuedTo: initialValues.issuedName ?? "",
     applicationFee: initialValues.applicationFee ?? "",
     applicationSeries: initialValues.applicationSeries ?? "",
+    // ✅ Ensure issuedToId is set in Formik initial values
+    issuedToId: initialIssuedToId ?? null,
+    issuedToEmpId: initialIssuedToId ?? null,
   });
 
   initialValuesLockedRef.current = true;
 
   setTimeout(() => {
     isHydratingRef.current = false;
+    updateHydratedRef.current = true; // Mark that initial hydration is complete
   }, 0);
 
-}, [editId]);
+}, [editId, isUpdate]);
 
 useEffect(() => {
   if (isUpdate) return; 
@@ -245,18 +259,18 @@ useEffect(() => {
 
 
   // ---------------- OPTIONS FOR UI ----------------
-  const academicYearNames = years.map(yearLabel);
-  const cityNames = cities.map(cityLabel);
-  const zoneNames = zones.map(zoneLabel);
-  const campusNames = campuses.map(campusLabel);
-  const issuedToNames = employees.map(empLabel);
+  const academicYearNames = useMemo(() => years.map(yearLabel), [years]);
+  const cityNames = useMemo(() => cities.map(cityLabel), [cities]);
+  const zoneNames = useMemo(() => zones.map(zoneLabel), [zones]);
+  const campusNames = useMemo(() => campuses.map(campusLabel), [campuses]);
+  const issuedToNames = useMemo(() => employees.map(empLabel), [employees]);
 
   // ---------------- REVERSE MAPPINGS ----------------
-  const yearMap = new Map(years.map((y) => [yearLabel(y), yearId(y)]));
-  const cityMap = new Map(cities.map((c) => [cityLabel(c), cityId(c)]));
-  const zoneMap = new Map(zones.map((z) => [zoneLabel(z), zoneId(z)]));
-  const campusMap = new Map(campuses.map((c) => [campusLabel(c), campusId(c)]));
-  const empMap = new Map(employees.map((e) => [empLabel(e), empId(e)]));
+  const yearMap = useMemo(() => new Map(years.map((y) => [yearLabel(y), yearId(y)])), [years]);
+  const cityMap = useMemo(() => new Map(cities.map((c) => [cityLabel(c), cityId(c)])), [cities]);
+  const zoneMap = useMemo(() => new Map(zones.map((z) => [zoneLabel(z), zoneId(z)])), [zones]);
+  const campusMap = useMemo(() => new Map(campuses.map((c) => [campusLabel(c), campusId(c)])), [campuses]);
+  const empMap = useMemo(() => new Map(employees.map((e) => [empLabel(e), empId(e)])), [employees]);
 
   // ---------------- DEFAULT ACADEMIC YEAR ----------------
   useEffect(() => {
@@ -272,31 +286,54 @@ useEffect(() => {
   }, [years]);
 
   // ---------------- RESET ON CHANGE ----------------
-const handleValuesChange = (values, setFieldValue) => {
+const handleValuesChange = React.useCallback((values, setFieldValue) => {
   if (!setFieldValue) return;
+  
+  // Don't process changes during initial hydration
+  if (isHydratingRef.current && !updateHydratedRef.current) return;
+  
+  // Prevent processing if we're already processing a change (prevents infinite loops)
+  if (isProcessingChangeRef.current) return;
+  
+  // Create a key from current values to detect actual changes
+  const valuesKey = `${values.cityName}-${values.zoneName}-${values.campusName}-${values.academicYear}-${values.issuedTo}-${values.applicationFee}-${values.applicationSeries}`;
+  
+  // Skip if we've already processed these exact values
+  if (lastProcessedValuesRef.current.key === valuesKey) {
+    return;
+  }
+  
+  // Update the last processed key
+  lastProcessedValuesRef.current.key = valuesKey;
 
   /* ================= ACADEMIC YEAR ================= */
 if (values.academicYear && yearMap.has(values.academicYear)) {
   const id = yearMap.get(values.academicYear);
 
   if (id !== selectedAcademicYearId) {
+    isProcessingChangeRef.current = true;
     setSelectedAcademicYearId(id);
     setSelectedFee(null); // reset dependent data
+    // Reset the flag after state updates
+    setTimeout(() => {
+      isProcessingChangeRef.current = false;
+    }, 0);
   }
 }
 
  /* ================= CITY ================= */
 if (
-  !isHydratingRef.current &&
   values.cityName &&
   cityMap.has(values.cityName)
 ) {
   const newCityId = cityMap.get(values.cityName);
 
   if (newCityId !== selectedCityId) {
-    setFieldValue("zoneName", "");
-    setFieldValue("campusName", "");
-    setFieldValue("issuedTo", "");
+    isProcessingChangeRef.current = true;
+    
+    setFieldValue("zoneName", "", false); // Set validate to false to prevent re-render loops
+    setFieldValue("campusName", "", false);
+    setFieldValue("issuedTo", "", false);
 
     setSelectedZoneId(null);
     setSelectedCampusId(null);
@@ -304,6 +341,12 @@ if (
     setSelectedFee(null);
 
     setSelectedCityId(newCityId);
+    prevCityNameRef.current = values.cityName;
+    
+    // Reset the flag after a short delay to allow API calls to complete
+    setTimeout(() => {
+      isProcessingChangeRef.current = false;
+    }, 100);
   }
 }
 
@@ -312,11 +355,12 @@ if (
 if (values.zoneName && zoneMap.has(values.zoneName)) {
   const newZoneId = zoneMap.get(values.zoneName);
 
-  if (newZoneId !== selectedZoneId) {
+  if (newZoneId !== selectedZoneId && !isProcessingChangeRef.current) {
+    isProcessingChangeRef.current = true;
 
     // 🔥 ONLY reset children, not parent state
-    setFieldValue("campusName", "");
-    setFieldValue("issuedTo", "");
+    setFieldValue("campusName", "", false);
+    setFieldValue("issuedTo", "", false);
 
     setSelectedCampusId(null);
     setIssuedToId(null);
@@ -325,6 +369,10 @@ if (values.zoneName && zoneMap.has(values.zoneName)) {
     // ✅ ALWAYS allow change
     setSelectedZoneId(newZoneId);
     prevZoneNameRef.current = values.zoneName;
+    
+    setTimeout(() => {
+      isProcessingChangeRef.current = false;
+    }, 100);
   }
 }
 
@@ -332,14 +380,20 @@ if (values.zoneName && zoneMap.has(values.zoneName)) {
   if (values.campusName && campusMap.has(values.campusName)) {
   const newCampusId = campusMap.get(values.campusName);
 
-  if (newCampusId !== selectedCampusId) {
-    setFieldValue("issuedTo", "");
+  if (newCampusId !== selectedCampusId && !isProcessingChangeRef.current) {
+    isProcessingChangeRef.current = true;
+    
+    setFieldValue("issuedTo", "", false);
     setIssuedToId(null);
     setSelectedFee(null);
 
     // ✅ allow update
     setSelectedCampusId(newCampusId);
     prevCampusNameRef.current = values.campusName;
+    
+    setTimeout(() => {
+      isProcessingChangeRef.current = false;
+    }, 100);
   }
 }
 
@@ -363,7 +417,26 @@ if (values.zoneName && zoneMap.has(values.zoneName)) {
       setFieldValue("applicationNoFrom", "");
     }
   }
-};
+  
+  /* ================= APPLICATION SERIES ================= */
+  if (values.applicationSeries && values.applicationSeries !== selectedSeries) {
+    setSelectedSeries(values.applicationSeries);
+  }
+}, [
+  yearMap,
+  cityMap,
+  zoneMap,
+  campusMap,
+  empMap,
+  selectedAcademicYearId,
+  selectedCityId,
+  selectedZoneId,
+  selectedCampusId,
+  issuedToId,
+  selectedFee,
+  selectedSeries,
+  isUpdate,
+]);
 
 
 
@@ -377,30 +450,109 @@ if (values.zoneName && zoneMap.has(values.zoneName)) {
   }, [selectedSeries, applicationSeries]);
 
   // ---------------- BACKEND VALUES (MATCHES ZoneForm) ----------------
+  // Use refs to track previous computed values to prevent unnecessary recalculations
+  const backendValuesRef = useRef({});
+  const prevBackendValuesKeyRef = useRef("");
+  
   const backendValues = useMemo(() => {
-
-    if (isUpdate && initialValues) {
-    return {
-      academicYearId: initialValues.academicYearId,
-      academicYear: initialValues.academicYear,
-      cityId: initialValues.cityId,
-      zoneId: initialValues.zoneId,
-      campusId: initialValues.campusId,
-      issuedToEmpId: initialValues.issuedToEmpId,
-      issuedTo: initialValues.issuedTo,
-      cityName: initialValues.cityName,
-      zoneName: initialValues.zoneName,
-      campusName: initialValues.campusName,
-      applicationSeries: initialValues.applicationSeries,
-      applicationCount: initialValues.applicationCount,
-      applicationNoFrom: initialValues.applicationNoFrom,
-      availableAppNoFrom: initialValues.availableAppNoFrom,
-      availableAppNoTo: initialValues.availableAppNoTo,
-    };
-  }
+    // Create a key from the actual values that matter, not array references
+    const valuesKey = `${isUpdate}-${selectedAcademicYearId}-${selectedCityId}-${selectedZoneId}-${selectedCampusId}-${issuedToId}-${selectedSeries}-${selectedFee}-${mobileNo}`;
+    
+    // If values haven't actually changed, return cached object
+    if (valuesKey === prevBackendValuesKeyRef.current && backendValuesRef.current) {
+      return backendValuesRef.current;
+    }
 
     const obj = {};
 
+    // In update mode, merge initial values with new selections
+    if (isUpdate && initialValues) {
+      // Start with initial values as base, but override with new selections
+      obj.academicYearId = selectedAcademicYearId ?? initialValues.academicYearId;
+      obj.academicYear = seedInitialValues.academicYear || initialValues.academicYear;
+      obj.cityId = selectedCityId ?? initialValues.cityId;
+      obj.zoneId = selectedZoneId ?? initialValues.zoneId;
+      obj.campusId = selectedCampusId ?? initialValues.campusId;
+      
+      // ✅ CRITICAL: Set issuedToId properly - this becomes dgmEmployeeId in the DTO
+      // Use current selected value, or fallback to initial
+      const finalIssuedToId = issuedToId ?? initialValues.issuedToId ?? initialValues.issuedToEmpId;
+      // ⛔ Prevent 0 or null - this causes "Employee ID: 0" error
+      if (finalIssuedToId && finalIssuedToId !== 0) {
+        obj.issuedToEmpId = finalIssuedToId;
+        obj.issuedToId = finalIssuedToId; // ✅ Required for dgmFormDTO - this maps to dgmEmployeeId
+      } else {
+        // If still null/0, use initial values
+        obj.issuedToEmpId = initialValues.issuedToEmpId ?? initialValues.issuedToId;
+        obj.issuedToId = initialValues.issuedToId ?? initialValues.issuedToEmpId;
+      }
+      obj.issuedTo = initialValues.issuedTo;
+      
+      // ✅ CRITICAL: Add applicationFee - required for application_Amount in DTO
+      const finalApplicationFee = selectedFee ?? initialValues.applicationFee ?? seedInitialValues.applicationFee;
+      if (finalApplicationFee != null) {
+        obj.applicationFee = Number(finalApplicationFee); // Ensure it's a number
+      }
+      
+      // Get names from maps if IDs are selected, otherwise use initial values
+      // Only compute names if we have the data and IDs are set
+      let computedCityName = prevCityNameRef.current || initialValues.cityName;
+      let computedZoneName = prevZoneNameRef.current || initialValues.zoneName;
+      let computedCampusName = prevCampusNameRef.current || initialValues.campusName;
+      
+      if (selectedCityId && cities.length > 0) {
+        const city = cities.find(c => cityId(c) === selectedCityId);
+        if (city) {
+          computedCityName = cityLabel(city);
+          prevCityNameRef.current = computedCityName;
+        }
+      }
+      
+      if (selectedZoneId && zones.length > 0) {
+        const zone = zones.find(z => zoneId(z) === selectedZoneId);
+        if (zone) {
+          computedZoneName = zoneLabel(zone);
+          prevZoneNameRef.current = computedZoneName;
+        }
+      }
+      
+      if (selectedCampusId && campuses.length > 0) {
+        const campus = campuses.find(c => campusId(c) === selectedCampusId);
+        if (campus) {
+          computedCampusName = campusLabel(campus);
+          prevCampusNameRef.current = computedCampusName;
+        }
+      }
+      
+      obj.cityName = computedCityName;
+      obj.zoneName = computedZoneName;
+      obj.campusName = computedCampusName;
+      
+      // Use new series if selected, otherwise keep initial
+      if (seriesObj) {
+        obj.applicationSeries = seriesObj.displaySeries;
+        obj.applicationCount = seriesObj.availableCount;
+        obj.availableAppNoFrom = seriesObj.masterStartNo;
+        obj.availableAppNoTo = seriesObj.masterEndNo;
+        obj.applicationNoFrom = seriesObj.startNo;
+      } else {
+        obj.applicationSeries = seedInitialValues.applicationSeries || initialValues.applicationSeries;
+        obj.applicationCount = initialValues.applicationCount;
+        obj.applicationNoFrom = initialValues.applicationNoFrom;
+        obj.availableAppNoFrom = initialValues.availableAppNoFrom;
+        obj.availableAppNoTo = initialValues.availableAppNoTo;
+      }
+      
+      // Add mobile number if available
+      if (mobileNo != null) obj.mobileNumber = String(mobileNo);
+      
+      // Cache the result
+      backendValuesRef.current = obj;
+      prevBackendValuesKeyRef.current = valuesKey;
+      return obj;
+    }
+
+    // Create mode - original logic
     if (mobileNo != null) obj.mobileNumber = String(mobileNo);
 
     if (seriesObj) {
@@ -428,8 +580,13 @@ if (values.zoneName && zoneMap.has(values.zoneName)) {
       obj.issuedToId = issuedToId;
     }
 
+    // Cache and return for create mode too
+    backendValuesRef.current = obj;
+    prevBackendValuesKeyRef.current = valuesKey;
     return obj;
   }, [
+    isUpdate,
+    initialValues,
     mobileNo,
     seriesObj,
     selectedAcademicYearId,
@@ -438,12 +595,17 @@ if (values.zoneName && zoneMap.has(values.zoneName)) {
     selectedCampusId,
     issuedToId,
     applicationFee,
-    applicationSeries,
     locationData,
+    seedInitialValues,
+    selectedSeries,
+    selectedFee, // Add selectedFee to dependencies
+    cities, // Needed for name lookup but changes are controlled
+    zones, // Needed for name lookup but changes are controlled
+    campuses, // Needed for name lookup but changes are controlled
   ]);
 
   // ---------------- DYNAMIC OPTIONS ----------------
-  const dynamicOptions = {
+  const dynamicOptions = useMemo(() => ({
     academicYear: academicYearNames,
     cityName: cityNames,
     zoneName: zoneNames,
@@ -459,7 +621,15 @@ if (values.zoneName && zoneMap.has(values.zoneName)) {
     applicationSeries: Array.isArray(applicationSeries)
       ? applicationSeries.map((s) => s.displaySeries)
       : [],
-  };
+  }), [
+    academicYearNames,
+    cityNames,
+    zoneNames,
+    campusNames,
+    issuedToNames,
+    applicationFee,
+    applicationSeries,
+  ]);
 
   return (
     <DistributeForm

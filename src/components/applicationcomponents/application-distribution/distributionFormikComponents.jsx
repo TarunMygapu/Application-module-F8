@@ -165,6 +165,15 @@ export const BackendPatcher = ({
   }
 }, [backendValues.issuedToEmpId, values.issuedToEmpId, setFieldValue]);
 
+// ✅ CRITICAL: Also patch issuedToId (needed for DGM form - maps to dgmEmployeeId)
+useEffect(() => {
+  if (backendValues.issuedToId != null) {
+    if (values.issuedToId !== backendValues.issuedToId) {
+      setFieldValue("issuedToId", backendValues.issuedToId, false);
+    }
+  }
+}, [backendValues.issuedToId, values.issuedToId, setFieldValue]);
+
 useEffect(() => {
   if (backendValues.academicYearId != null) {
     if (values.academicYearId !== backendValues.academicYearId) {
