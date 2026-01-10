@@ -152,8 +152,8 @@ export const mapCollegeFormDataToPayload = (formData, academicFormData, paymentD
       }
     }
 
-    console.log("Values matching with middleware object:",{
-      "concessionTypeId":formData.concessionTypeId,
+    console.log("Values matching with middleware object:", {
+      "concessionTypeId": formData.concessionTypeId,
       "concessionAmount": formData.concessionAmount,
       "givenById": "what we have to set here?",
       "authorizedById": 0,
@@ -802,7 +802,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
           }
         }
       }
-     
+
       // proConcessionReason: Check proConcessionReasonId first, then reason if checkbox is checked
       // proConcessionReason should be the ID as string (per swagger type: "string")
       const proConcessionReason = (formData.proConcessionReasonId !== null && formData.proConcessionReasonId !== undefined && formData.proConcessionReasonId !== "" && formData.proConcessionReasonId !== 0)
@@ -810,7 +810,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
         : (formData.concessionWrittenOnApplication && formData.reason
           ? String(toNumber(formData.reason))
           : "");
-     
+
       // proConcessionGivenBy: Check proConcessionGivenById first, then concessionReferredBy if checkbox is checked
       const proConcessionGivenBy = (formData.proConcessionGivenById !== null && formData.proConcessionGivenById !== undefined && formData.proConcessionGivenById !== "" && formData.proConcessionGivenById !== 0)
         ? toNumber(formData.proConcessionGivenById)
@@ -897,7 +897,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
           }
         }
       }
-     
+
       // proConcessionReason: Check proConcessionReasonId first, then reason if checkbox is checked
       // proConcessionReason should be the ID as string (per swagger type: "string")
       const proConcessionReason = (formData.proConcessionReasonId !== null && formData.proConcessionReasonId !== undefined && formData.proConcessionReasonId !== "" && formData.proConcessionReasonId !== 0)
@@ -905,7 +905,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
         : (formData.concessionWrittenOnApplication && formData.reason
           ? String(toNumber(formData.reason))
           : "");
-     
+
       // proConcessionGivenBy: Check proConcessionGivenById first, then concessionReferredBy if checkbox is checked
       const proConcessionGivenBy = (formData.proConcessionGivenById !== null && formData.proConcessionGivenById !== undefined && formData.proConcessionGivenById !== "" && formData.proConcessionGivenById !== 0)
         ? toNumber(formData.proConcessionGivenById)
@@ -995,11 +995,11 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
   const normalizedJoiningClass = String(joiningClass).toUpperCase().trim().replace(/\s+/g, "").replace(/-/g, "").replace(/_/g, "");
   const isInter1 = normalizedJoiningClass === "INTER1" || normalizedJoiningClass === "INTER1STYEAR" || normalizedJoiningClass.includes("INTER1");
   const isInter2 = normalizedJoiningClass === "INTER2" || normalizedJoiningClass === "INTER2NDYEAR" || normalizedJoiningClass.includes("INTER2");
- 
+
   // Map hall ticket numbers based on joining class
   let hallTicketNumber = "";
   let preHallTicketNo = "";
- 
+
   if (isInter1) {
     // INTER 1: Use hallTicketNo for hallTicketNumber
     hallTicketNumber = toString(formData.hallTicketNo || "");
@@ -1013,7 +1013,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
     hallTicketNumber = toString(formData.hallTicketNo || formData.tenthHallTicketNo || "");
     preHallTicketNo = toString(formData.interFirstYearHallTicketNo || "");
   }
- 
+
   console.log('🔍 ===== HALL TICKET MAPPING (Complete Sale) =====');
   console.log('  - joiningClass:', joiningClass, '(normalized:', normalizedJoiningClass, ')');
   console.log('  - isInter1:', isInter1, 'isInter2:', isInter2);
@@ -1435,7 +1435,7 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
         proConcessionAmount = numAmount;
       }
     }
-   
+
     // proConcessionReason: Check proConcessionReasonId first, then reason if checkbox is checked
     // proConcessionReason should be the ID as string (per swagger type: "string")
     const proConcessionReason = (formData.proConcessionReasonId !== null && formData.proConcessionReasonId !== undefined && formData.proConcessionReasonId !== "" && formData.proConcessionReasonId !== 0)
@@ -1443,7 +1443,7 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
       : (formData.concessionWrittenOnApplication && formData.reason
         ? String(toNumber(formData.reason))
         : "");
-   
+
     // proConcessionGivenBy: Check proConcessionGivenById first, then concessionReferredBy if checkbox is checked
     const proConcessionGivenBy = (formData.proConcessionGivenById !== null && formData.proConcessionGivenById !== undefined && formData.proConcessionGivenById !== "" && formData.proConcessionGivenById !== 0)
       ? toNumber(formData.proConcessionGivenById)
@@ -1510,7 +1510,7 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
         proConcessionAmount = numAmount;
       }
     }
-   
+
     // proConcessionReason: Check proConcessionReasonId first, then reason if checkbox is checked
     // proConcessionReason should be the ID as string (per swagger type: "string")
     const proConcessionReason = (formData.proConcessionReasonId !== null && formData.proConcessionReasonId !== undefined && formData.proConcessionReasonId !== "" && formData.proConcessionReasonId !== 0)
@@ -1518,7 +1518,7 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
       : (formData.concessionWrittenOnApplication && formData.reason
         ? String(toNumber(formData.reason))
         : "");
-   
+
     // proConcessionGivenBy: Check proConcessionGivenById first, then concessionReferredBy if checkbox is checked
     const proConcessionGivenBy = (formData.proConcessionGivenById !== null && formData.proConcessionGivenById !== undefined && formData.proConcessionGivenById !== "" && formData.proConcessionGivenById !== 0)
       ? toNumber(formData.proConcessionGivenById)
@@ -1572,11 +1572,11 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
   const normalizedJoiningClass = String(joiningClass).toUpperCase().trim().replace(/\s+/g, "").replace(/-/g, "").replace(/_/g, "");
   const isInter1 = normalizedJoiningClass === "INTER1" || normalizedJoiningClass === "INTER1STYEAR" || normalizedJoiningClass.includes("INTER1");
   const isInter2 = normalizedJoiningClass === "INTER2" || normalizedJoiningClass === "INTER2NDYEAR" || normalizedJoiningClass.includes("INTER2");
- 
+
   // Map hall ticket numbers based on joining class
   let hallTicketNumber = "";
   let preHallTicketNo = "";
- 
+
   if (isInter1) {
     // INTER 1: Use hallTicketNo for hallTicketNumber
     hallTicketNumber = toString(formData.hallTicketNo || "").substring(0, 15);
@@ -1590,7 +1590,7 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
     hallTicketNumber = toString(formData.hallTicketNo || formData.tenthHallTicketNo || "").substring(0, 15);
     preHallTicketNo = toString(formData.interFirstYearHallTicketNo || "").substring(0, 15);
   }
- 
+
   // Debug Hall Ticket Mapping
   console.log('🔍 ===== HALL TICKET MAPPING (Update) =====');
   console.log('  - joiningClass:', joiningClass, '(normalized:', normalizedJoiningClass, ')');
