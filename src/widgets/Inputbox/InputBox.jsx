@@ -25,7 +25,7 @@ const patterns = {
 
   address: /^[A-Za-z0-9\-\/#& ]*$/, // existing address rule
   none: /.*/, // allow anything
-  hallticket: /^$|^(?!0)[A-Za-z0-9]*$/,
+  hallticket: /^$|^(?!0)[0-9]*$/,  // digits only, first digit cannot be 0
 };
 
 const Inputbox = ({

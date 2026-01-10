@@ -10,7 +10,7 @@ const apiClient = axios.create({
   }
 });
 
-/** 
+/**
  * Submit college application confirmation data
  * @param {Object} payload - The complete payload matching the API structure
  * @returns {Promise} - Axios response
@@ -802,7 +802,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
           }
         }
       }
-      
+     
       // proConcessionReason: Check proConcessionReasonId first, then reason if checkbox is checked
       // proConcessionReason should be the ID as string (per swagger type: "string")
       const proConcessionReason = (formData.proConcessionReasonId !== null && formData.proConcessionReasonId !== undefined && formData.proConcessionReasonId !== "" && formData.proConcessionReasonId !== 0)
@@ -810,7 +810,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
         : (formData.concessionWrittenOnApplication && formData.reason
           ? String(toNumber(formData.reason))
           : "");
-      
+     
       // proConcessionGivenBy: Check proConcessionGivenById first, then concessionReferredBy if checkbox is checked
       const proConcessionGivenBy = (formData.proConcessionGivenById !== null && formData.proConcessionGivenById !== undefined && formData.proConcessionGivenById !== "" && formData.proConcessionGivenById !== 0)
         ? toNumber(formData.proConcessionGivenById)
@@ -897,7 +897,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
           }
         }
       }
-      
+     
       // proConcessionReason: Check proConcessionReasonId first, then reason if checkbox is checked
       // proConcessionReason should be the ID as string (per swagger type: "string")
       const proConcessionReason = (formData.proConcessionReasonId !== null && formData.proConcessionReasonId !== undefined && formData.proConcessionReasonId !== "" && formData.proConcessionReasonId !== 0)
@@ -905,7 +905,7 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
         : (formData.concessionWrittenOnApplication && formData.reason
           ? String(toNumber(formData.reason))
           : "");
-      
+     
       // proConcessionGivenBy: Check proConcessionGivenById first, then concessionReferredBy if checkbox is checked
       const proConcessionGivenBy = (formData.proConcessionGivenById !== null && formData.proConcessionGivenById !== undefined && formData.proConcessionGivenById !== "" && formData.proConcessionGivenById !== 0)
         ? toNumber(formData.proConcessionGivenById)
@@ -990,12 +990,46 @@ export const mapCollegeApplicationSaleCompleteToPayload = (formData, paymentData
     city: toString(paymentData.dd_city || paymentData.cheque_city || '')
   };
 
+  // Determine joining class to map hall ticket numbers correctly
+  const joiningClass = formData.joiningClass || formData.joiningClassName || "";
+  const normalizedJoiningClass = String(joiningClass).toUpperCase().trim().replace(/\s+/g, "").replace(/-/g, "").replace(/_/g, "");
+  const isInter1 = normalizedJoiningClass === "INTER1" || normalizedJoiningClass === "INTER1STYEAR" || normalizedJoiningClass.includes("INTER1");
+  const isInter2 = normalizedJoiningClass === "INTER2" || normalizedJoiningClass === "INTER2NDYEAR" || normalizedJoiningClass.includes("INTER2");
+ 
+  // Map hall ticket numbers based on joining class
+  let hallTicketNumber = "";
+  let preHallTicketNo = "";
+ 
+  if (isInter1) {
+    // INTER 1: Use hallTicketNo for hallTicketNumber
+    hallTicketNumber = toString(formData.hallTicketNo || "");
+    preHallTicketNo = "";
+  } else if (isInter2) {
+    // INTER 2: Use tenthHallTicketNo for hallTicketNumber, interFirstYearHallTicketNo for preHallTicketNo
+    hallTicketNumber = toString(formData.tenthHallTicketNo || "");
+    preHallTicketNo = toString(formData.interFirstYearHallTicketNo || "");
+  } else {
+    // Fallback: Use hallTicketNo if available
+    hallTicketNumber = toString(formData.hallTicketNo || formData.tenthHallTicketNo || "");
+    preHallTicketNo = toString(formData.interFirstYearHallTicketNo || "");
+  }
+ 
+  console.log('🔍 ===== HALL TICKET MAPPING (Complete Sale) =====');
+  console.log('  - joiningClass:', joiningClass, '(normalized:', normalizedJoiningClass, ')');
+  console.log('  - isInter1:', isInter1, 'isInter2:', isInter2);
+  console.log('  - formData.hallTicketNo:', formData.hallTicketNo);
+  console.log('  - formData.tenthHallTicketNo:', formData.tenthHallTicketNo);
+  console.log('  - formData.interFirstYearHallTicketNo:', formData.interFirstYearHallTicketNo);
+  console.log('  - Mapped hallTicketNumber:', hallTicketNumber);
+  console.log('  - Mapped preHallTicketNo:', preHallTicketNo);
+  console.log('==================================================');
+
   // Build the complete payload matching the provided structure
   const payload = {
     studAdmsNo: toNumber(detailsObject?.applicationNo || detailsObject?.studAdmsNo || formData.studAdmsNo || 0),
     createdBy: loggedInEmpId,
-    hallTicketNumber: toString(formData.hallTicketNo),
-    preHallTicketNo: toString(formData.tenthHallTicketNo),
+    hallTicketNumber: hallTicketNumber,
+    preHallTicketNo: preHallTicketNo,
     schoolStateId: (() => {
       // Prioritize schoolStateId if it exists
       if (formData.schoolStateId !== null && formData.schoolStateId !== undefined && formData.schoolStateId !== "" && formData.schoolStateId !== 0) {
@@ -1401,7 +1435,7 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
         proConcessionAmount = numAmount;
       }
     }
-    
+   
     // proConcessionReason: Check proConcessionReasonId first, then reason if checkbox is checked
     // proConcessionReason should be the ID as string (per swagger type: "string")
     const proConcessionReason = (formData.proConcessionReasonId !== null && formData.proConcessionReasonId !== undefined && formData.proConcessionReasonId !== "" && formData.proConcessionReasonId !== 0)
@@ -1409,7 +1443,7 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
       : (formData.concessionWrittenOnApplication && formData.reason
         ? String(toNumber(formData.reason))
         : "");
-    
+   
     // proConcessionGivenBy: Check proConcessionGivenById first, then concessionReferredBy if checkbox is checked
     const proConcessionGivenBy = (formData.proConcessionGivenById !== null && formData.proConcessionGivenById !== undefined && formData.proConcessionGivenById !== "" && formData.proConcessionGivenById !== 0)
       ? toNumber(formData.proConcessionGivenById)
@@ -1476,7 +1510,7 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
         proConcessionAmount = numAmount;
       }
     }
-    
+   
     // proConcessionReason: Check proConcessionReasonId first, then reason if checkbox is checked
     // proConcessionReason should be the ID as string (per swagger type: "string")
     const proConcessionReason = (formData.proConcessionReasonId !== null && formData.proConcessionReasonId !== undefined && formData.proConcessionReasonId !== "" && formData.proConcessionReasonId !== 0)
@@ -1484,7 +1518,7 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
       : (formData.concessionWrittenOnApplication && formData.reason
         ? String(toNumber(formData.reason))
         : "");
-    
+   
     // proConcessionGivenBy: Check proConcessionGivenById first, then concessionReferredBy if checkbox is checked
     const proConcessionGivenBy = (formData.proConcessionGivenById !== null && formData.proConcessionGivenById !== undefined && formData.proConcessionGivenById !== "" && formData.proConcessionGivenById !== 0)
       ? toNumber(formData.proConcessionGivenById)
@@ -1533,21 +1567,46 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
     0
   );
 
+  // Determine joining class to map hall ticket numbers correctly
+  const joiningClass = formData.joiningClass || formData.joiningClassName || "";
+  const normalizedJoiningClass = String(joiningClass).toUpperCase().trim().replace(/\s+/g, "").replace(/-/g, "").replace(/_/g, "");
+  const isInter1 = normalizedJoiningClass === "INTER1" || normalizedJoiningClass === "INTER1STYEAR" || normalizedJoiningClass.includes("INTER1");
+  const isInter2 = normalizedJoiningClass === "INTER2" || normalizedJoiningClass === "INTER2NDYEAR" || normalizedJoiningClass.includes("INTER2");
+ 
+  // Map hall ticket numbers based on joining class
+  let hallTicketNumber = "";
+  let preHallTicketNo = "";
+ 
+  if (isInter1) {
+    // INTER 1: Use hallTicketNo for hallTicketNumber
+    hallTicketNumber = toString(formData.hallTicketNo || "").substring(0, 15);
+    preHallTicketNo = "";
+  } else if (isInter2) {
+    // INTER 2: Use tenthHallTicketNo for hallTicketNumber, interFirstYearHallTicketNo for preHallTicketNo
+    hallTicketNumber = toString(formData.tenthHallTicketNo || "").substring(0, 15);
+    preHallTicketNo = toString(formData.interFirstYearHallTicketNo || "").substring(0, 15);
+  } else {
+    // Fallback: Use hallTicketNo if available
+    hallTicketNumber = toString(formData.hallTicketNo || formData.tenthHallTicketNo || "").substring(0, 15);
+    preHallTicketNo = toString(formData.interFirstYearHallTicketNo || "").substring(0, 15);
+  }
+ 
   // Debug Hall Ticket Mapping
-  console.log('🔍 ===== HALL TICKET MAPPING DEBUG =====');
+  console.log('🔍 ===== HALL TICKET MAPPING (Update) =====');
+  console.log('  - joiningClass:', joiningClass, '(normalized:', normalizedJoiningClass, ')');
+  console.log('  - isInter1:', isInter1, 'isInter2:', isInter2);
   console.log('  - formData.hallTicketNo:', formData.hallTicketNo);
   console.log('  - formData.tenthHallTicketNo:', formData.tenthHallTicketNo);
   console.log('  - formData.interFirstYearHallTicketNo:', formData.interFirstYearHallTicketNo);
   console.log('  - formData.interHallTicketNo:', formData.interHallTicketNo);
-
-  const calculatedHallTicketNo = toString(formData.hallTicketNo || formData.interHallTicketNo || formData.interFirstYearHallTicketNo || formData.tenthHallTicketNo || '').substring(0, 15);
-  console.log('  - Calculated hallTicketNumber:', calculatedHallTicketNo);
-  console.log('========================================');
+  console.log('  - Mapped hallTicketNumber:', hallTicketNumber);
+  console.log('  - Mapped preHallTicketNo:', preHallTicketNo);
+  console.log('===========================================');
 
   const payload = {
     studAdmsNo: studAdmsNoValue, // Use scoreAppNo as studAdmsNo
     createdBy: loggedInEmpId,
-    hallTicketNumber: calculatedHallTicketNo, // Limit to 15 chars
+    hallTicketNumber: hallTicketNumber, // Limit to 15 chars
     schoolStateId: toNumber(formData.schoolStateId || 0),
     schoolDistrictId: toNumber(formData.schoolDistrictId || 0),
     schoolName: toString(formData.schoolName || ''),
@@ -1615,7 +1674,7 @@ export const mapCollegeApplicationSaleUpdateToPayload = (formData, paymentData, 
     preCollegeTypeId: toNumber(formData.preCollegeTypeId || 0),
     preCollegeStateId: toNumber(formData.preCollegeStateId || 0),
     preCollegeDistrictId: toNumber(formData.preCollegeDistrictId || 0),
-    preHallTicketNo: toString(formData.preHallTicketNo || formData.tenthHallTicketNo || '').substring(0, 15) // Use tenthHallTicketNo as preHallTicketNo for Inter 2
+    preHallTicketNo: preHallTicketNo // Already limited to 15 chars in mapping logic above
   };
 
   // Log for debugging
@@ -1667,4 +1726,3 @@ export const updateCollegeApplicationSale = async (applicationNo, payload) => {
     throw error;
   }
 };
-
