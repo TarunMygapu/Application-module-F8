@@ -53,7 +53,10 @@ const AnalyticsHeader = ({ onTabChange, activeTab }) => {
   // ✅ Update search box value when entity is selected
   useEffect(() => {
     if (selectedEntity && selectedEntity.name) {
-      const displayValue = `${selectedEntity.name} (${selectedEntity.type.toUpperCase()})`;
+      const typeLabel = selectedEntity.type
+        ? selectedEntity.type.charAt(0).toUpperCase() + selectedEntity.type.slice(1).toLowerCase()
+        : "";
+      const displayValue = `${selectedEntity.name} (${typeLabel})`;
       setSearchTerm(displayValue);
       setShowSuggestions(false);
       // Close the filter dropdown after selection

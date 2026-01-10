@@ -297,11 +297,11 @@ const ZoneNameDropdown = ({ activeTab }) => {
    
     if (selectedItem) {
       // Map the active tab to a proper entity type so consumers can
-      // distinguish between zone, dgm and campus selections.
+      // distinguish between zone, dgm and branch selections.
       let entityType;
       if (activeTab === "Zone") entityType = "zone";
       else if (activeTab === "DGM") entityType = "dgm";
-      else entityType = "campus";
+      else entityType = "branch";
  
       // For DGM, extract cmpsId if available (check multiple possible field names)
       const cmpsId = activeTab === "DGM"
