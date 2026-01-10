@@ -2,7 +2,7 @@
 .Application_Status_Table_application_status_table {
   width: 100%;
 }
- 
+
 /* Status badge styles - these can be used by parent components */
 .Application_Status_Table_status_badge {
   display: inline-block;
@@ -55,8 +55,24 @@
 }
 
 /* Fast Sale */
-.fastsale {
-  border: 1px solid #8B5CF6;
-  background: #EDE9FE;
-  color: #6D28D9;
+/* Fast Sold */
+.fastsold {
+  background: linear-gradient(90deg, #E6D1F2 0%, #D6D0F5 100%);
+  /* Lighter background for text readability if needed, or user's exact request */
+  /* User requested text visibility might be poor with dark bg, but following instructions first */
+  background: linear-gradient(90deg, #8317A6 0%, #3213B9 100%);
+  color: #fff;
+  /* Assuming white text for dark gradient */
+
+  border: 1px solid transparent;
+  /* Required for border-image */
+  border-image-source: linear-gradient(0deg, #3ECA72, #3ECA72),
+    linear-gradient(90deg, #8317A6 0%, #3213B9 100%);
+  border-image-slice: 1;
+  /* To simulate border radius with gradient border requires a different approach (background-clip) 
+     but border-image doesn't support radius.
+     Given "Fast Sold", let's try a safe approach for rounded corners if possible,
+     or just follow strict border-image instructions. 
+     The user asked for border: 1px solid; and border-image-source. 
+  */
 }
