@@ -52,6 +52,8 @@ const CampusForm = ({
   const prevDistrictNameRef = useRef(null);
   const prevCityNameRef = useRef(null);
   const prevCampusNameRef = useRef(null);
+  const isProcessingChangeRef = useRef(false); // Track if we're processing a dropdown change
+  const lastProcessedValuesRef = useRef({}); // Track last processed values to prevent duplicate processing
 
   // ---------------- SELECTED KEYS ----------------
   const [selectedAcademicYearId, setSelectedAcademicYearId] = useState(null);
@@ -64,22 +66,22 @@ const CampusForm = ({
 
   const employeeId = localStorage.getItem("empId");
   const category = localStorage.getItem("campusCategory");
-  const {hasRole : isUserAdmin} = useRole("ADMIN");
+  const { hasRole: isUserAdmin } = useRole("ADMIN");
   const { data: academicYear } = useGetThreeAcademicYear();
 
   const { data: dgmEmpDetails } = useGetSchoolDgmCityDistrictId(employeeId, category);
 
-  const {data : locationData,isLoading,
+  const { data: locationData, isLoading,
     isFetching,
     isSuccess: isLocationSuccess,
-    isError,} = useGetLocationOfEmployees(employeeId,category,isUserAdmin);
-    console.log("ZONAL/DGM ACCOUNTANT LOCATIONS: ",locationData);
+    isError, } = useGetLocationOfEmployees(employeeId, category, isUserAdmin);
+  console.log("ZONAL/DGM ACCOUNTANT LOCATIONS: ", locationData);
 
   // ---------------- INITIAL FORM VALUES ----------------
-   const [seedInitialValues, setSeedInitialValues] = useState({
-      ...initialValues,
-      academicYear: initialValues?.academicYear || "",
-    });
+  const [seedInitialValues, setSeedInitialValues] = useState({
+    ...initialValues,
+    academicYear: initialValues?.academicYear || "",
+  });
 
   const didSeedRef = useRef(false);
 
@@ -90,10 +92,10 @@ const CampusForm = ({
   const { data: campusesRaw = [] } =
     useGetCampuesByCityWithCategory(category, selectedCityId);
 
-    console.log("Campus Selected values: ", selectedCampusId);
+  console.log("Campus Selected values: ", selectedCampusId);
 
   const { data: employeesRaw = [] } = useGetProsByCampus(selectedCampusId);
-      console.log("Campus Selected Id : ", selectedCampusId);
+  console.log("Campus Selected Id : ", selectedCampusId);
   console.log("Employees :", employeesRaw);
   const { data: mobileNo } = useGetMobileNo(issuedToId);
 
@@ -105,7 +107,7 @@ const CampusForm = ({
 
   const { data: applicationFee = [] } =
     useGetAllFeeAmounts(employeeId, selectedAcademicYearId);
-    console.log("Application Fee:", applicationFee);
+  console.log("Application Fee:", applicationFee);
 
   const { data: applicationSeries = [] } =
     useGetApplicationSeriesForEmpId(
@@ -140,122 +142,122 @@ const CampusForm = ({
   const empMap = new Map(employees.map((e) => [empLabel(e), empId(e)]));
 
   useEffect(() => {
-  if (isUserAdmin) {
+    if (isUserAdmin) {
+      isHydratingRef.current = false;
+    }
+  }, [isUserAdmin]);
+
+  useEffect(() => {
+    if (isUpdate) return;               // 🔒 do not touch update
+    if (!academicYear?.currentYear) return;
+
+    const { academicYear: yearName, acdcYearId } =
+      academicYear.currentYear;
+
+    // ✅ set visible dropdown value
+    setSeedInitialValues(prev => ({
+      ...prev,
+      academicYear: yearName,
+    }));
+
+    // ✅ set ID for APIs
+    setSelectedAcademicYearId(acdcYearId);
+
     isHydratingRef.current = false;
-  }
-}, [isUserAdmin]);
+  }, [academicYear, isUpdate]);
 
-useEffect(() => {
-  if (isUpdate) return;               // 🔒 do not touch update
-  if (!academicYear?.currentYear) return;
 
-  const { academicYear: yearName, acdcYearId } =
-    academicYear.currentYear;
 
-  // ✅ set visible dropdown value
-  setSeedInitialValues(prev => ({
-    ...prev,
-    academicYear: yearName,
-  }));
+  const hydratedRef = useRef(false);
 
-  // ✅ set ID for APIs
-  setSelectedAcademicYearId(acdcYearId);
-
-  isHydratingRef.current = false;
-}, [academicYear, isUpdate]);
-
-  
-
-   const hydratedRef = useRef(false);
-  
   const updateHydratedRef = useRef(false);
-  
- useEffect(() => {
-  if (!isUpdate || !initialValues) return;
-  if (updateHydratedRef.current) return;
 
-  isHydratingRef.current = true;
+  useEffect(() => {
+    if (!isUpdate || !initialValues) return;
+    if (updateHydratedRef.current) return;
 
-  if (initialValues?.academicYearId) {
-  setSelectedAcademicYearId(initialValues.academicYearId);
-}
+    isHydratingRef.current = true;
 
-  // ✅ FIXED
-  if (initialValues.campaignDistrictId)
-    setSelectedDistrictId(initialValues.campaignDistrictId);
+    if (initialValues?.academicYearId) {
+      setSelectedAcademicYearId(initialValues.academicYearId);
+    }
 
-  if (initialValues.cityId)
-    setSelectedCityId(initialValues.cityId);
+    // ✅ FIXED
+    if (initialValues.campaignDistrictId)
+      setSelectedDistrictId(initialValues.campaignDistrictId);
 
-  if (initialValues.campusId)
-    setSelectedCampusId(initialValues.campusId);
+    if (initialValues.cityId)
+      setSelectedCityId(initialValues.cityId);
 
-  if (initialValues.issuedToEmpId)
-    setIssuedToId(initialValues.issuedToEmpId);
+    if (initialValues.campusId)
+      setSelectedCampusId(initialValues.campusId);
 
-  prevDistrictNameRef.current = initialValues.campaignDistrictName ?? null;
-  prevCityNameRef.current = initialValues.cityName ?? null;
-  prevCampusNameRef.current = initialValues.campusName ?? null;
+    if (initialValues.issuedToEmpId)
+      setIssuedToId(initialValues.issuedToEmpId);
 
-  setSeedInitialValues(prev => ({
-    ...prev,
-    academicYear : initialValues.academicYear ?? "",
-    campaignDistrictName: initialValues.campaignDistrictName ?? "",
-    cityName: initialValues.cityName ?? "",
-    campusName: initialValues.campusName ?? "",
-    issuedTo: initialValues.issuedToName ?? "",
-    applicationFee: initialValues.applicationFee ?? "",
-    applicationSeries: initialValues.applicationSeries ?? "",
-  }));
+    prevDistrictNameRef.current = initialValues.campaignDistrictName ?? null;
+    prevCityNameRef.current = initialValues.cityName ?? null;
+    prevCampusNameRef.current = initialValues.campusName ?? null;
 
-  updateHydratedRef.current = true;
-  isHydratingRef.current = false;
-}, [isUpdate, initialValues]);
+    setSeedInitialValues(prev => ({
+      ...prev,
+      academicYear: initialValues.academicYear ?? "",
+      campaignDistrictName: initialValues.campaignDistrictName ?? "",
+      cityName: initialValues.cityName ?? "",
+      campusName: initialValues.campusName ?? "",
+      issuedTo: initialValues.issuedToName ?? "",
+      applicationFee: initialValues.applicationFee ?? "",
+      applicationSeries: initialValues.applicationSeries ?? "",
+    }));
+
+    updateHydratedRef.current = true;
+    isHydratingRef.current = false;
+  }, [isUpdate, initialValues]);
 
 
   useEffect(() => {
     if (hydratedRef.current) return;
     if (!isLocationSuccess || !locationData) return;
     if (isUserAdmin) return;
-  
+
     const { districtId: dId, cityId: cId, districtName, cityName } = locationData;
-  
+
     // ⛔ backend returned nulls
     if (!dId || !cId) {
       hydratedRef.current = true;
       isHydratingRef.current = false;
       return;
     }
-  
+
     // 🔁 STEP 1: set city (trigger zones API)
     if (selectedDistrictId !== dId) {
       isHydratingRef.current = true;
       setSelectedDistrictId(dId);
       return;
     }
-  
+
     // ⛔ wait until city exists
     const districtExists = districts.some(d => districtId(d) === dId);
     if (!districtExists) return;
-  
+
     // ⛔ wait until zones load
     if (!cities.length) return;
-  
+
     const cityExists = cities.some(c => cityId(c) === cId);
     if (!cityExists) return;
-  
+
     // ✅ STEP 2: set zone + Formik names
     setSelectedCityId(cId);
-  
+
     // setSeedInitialValues(prev => ({
     //   ...prev,
     //   cityName,
     //   zoneName,
     // }));
-  
+
     prevDistrictNameRef.current = districtName;
     prevCityNameRef.current = cityName;
-  
+
     hydratedRef.current = true;
     isHydratingRef.current = false;
   }, [
@@ -266,113 +268,143 @@ useEffect(() => {
     cities,        // ✅ IMPORTANT
     isUserAdmin,
   ]);
-  
+
 
   // =====================================================================
   //                 RESET LOGIC
   // =====================================================================
-const handleValuesChange = (values, setFieldValue) => {
-  if (!setFieldValue) return;
+  const handleValuesChange = React.useCallback((values, setFieldValue) => {
+    if (!setFieldValue) return;
 
-  /* ================= ACADEMIC YEAR ================= */
-  if (yearMap.has(values.academicYear)) {
-    const newYearId = yearMap.get(values.academicYear);
-    if (newYearId !== selectedAcademicYearId) {
-      setSelectedAcademicYearId(newYearId);
-      setSelectedFee(null);
-    }
-  }
+    // Prevent processing if we're already processing a change (prevents infinite loops)
+    if (isProcessingChangeRef.current) return;
 
-  /* ================= DISTRICT ================= */
-  if (values.campaignDistrictName && districtMap.has(values.campaignDistrictName)) {
-    const newDistrictId = districtMap.get(values.campaignDistrictName);
+    // Create a key from current values to detect actual changes
+    const valuesKey = `${values.campaignDistrictName}-${values.cityName}-${values.campusName}-${values.academicYear}-${values.issuedTo}-${values.applicationFee}`;
 
-    if (newDistrictId !== selectedDistrictId) {
-      console.log("🔥 DISTRICT CHANGE");
-
-      // 🔥 RESET CHILDREN
-      setFieldValue("cityName", "");
-      setFieldValue("campusName", "");
-      setFieldValue("issuedTo", "");
-
-      setSelectedCityId(null);
-      setSelectedCampusId(null);
-      setIssuedToId(null);
-      setSelectedFee(null);
-
-      // ✅ SET PARENT
-      setSelectedDistrictId(newDistrictId);
-      prevDistrictNameRef.current = values.campaignDistrictName;
+    // Skip if we've already processed these exact values
+    if (lastProcessedValuesRef.current.key === valuesKey) {
       return;
     }
-  }
 
-  /* ================= CITY ================= */
-  if (values.cityName && cityMap.has(values.cityName)) {
-    const newCityId = cityMap.get(values.cityName);
+    // Update the last processed key
+    lastProcessedValuesRef.current.key = valuesKey;
 
-    if (newCityId !== selectedCityId) {
-      console.log("🔥 CITY CHANGE");
-
-      // 🔥 RESET CHILDREN
-      setFieldValue("campusName", "");
-      setFieldValue("issuedTo", "");
-
-      setSelectedCampusId(null);
-      setIssuedToId(null);
-      setSelectedFee(null);
-
-      // ✅ SET PARENT
-      setSelectedCityId(newCityId);
-      prevCityNameRef.current = values.cityName;
-      return;
+    /* ================= ACADEMIC YEAR ================= */
+    if (yearMap.has(values.academicYear)) {
+      const newYearId = yearMap.get(values.academicYear);
+      if (newYearId !== selectedAcademicYearId) {
+        isProcessingChangeRef.current = true;
+        setSelectedAcademicYearId(newYearId);
+        setSelectedFee(null);
+        setTimeout(() => { isProcessingChangeRef.current = false; }, 0);
+      }
     }
-  }
 
-  /* ================= CAMPUS ================= */
-  if (
-    values.campusName &&
-    campuses.length > 0 &&
-    campusMap.has(values.campusName)
-  ) {
-    const newCampusId = campusMap.get(values.campusName);
+    /* ================= DISTRICT ================= */
+    if (values.campaignDistrictName && districtMap.has(values.campaignDistrictName)) {
+      const newDistrictId = districtMap.get(values.campaignDistrictName);
 
-    if (newCampusId !== selectedCampusId) {
-      console.log("🔥 CAMPUS CHANGE");
+      if (newDistrictId !== selectedDistrictId && !isProcessingChangeRef.current) {
+        console.log("🔥 DISTRICT CHANGE");
+        isProcessingChangeRef.current = true;
 
-      setFieldValue("issuedTo", "");
-      setIssuedToId(null);
-      setSelectedFee(null);
+        // 🔥 RESET CHILDREN
+        setFieldValue("cityName", "", false);
+        setFieldValue("campusName", "", false);
+        setFieldValue("issuedTo", "", false);
 
-      setSelectedCampusId(newCampusId);
-      prevCampusNameRef.current = values.campusName;
-      return;
+        setSelectedCityId(null);
+        setSelectedCampusId(null);
+        setIssuedToId(null);
+        setSelectedFee(null);
+
+        // ✅ SET PARENT
+        setSelectedDistrictId(newDistrictId);
+        prevDistrictNameRef.current = values.campaignDistrictName;
+        prevCityNameRef.current = null;
+        prevCampusNameRef.current = null;
+
+        setTimeout(() => { isProcessingChangeRef.current = false; }, 100);
+        return;
+      }
     }
-  }
 
-  /* ================= ISSUED TO ================= */
-  if (values.issuedTo && empMap.has(values.issuedTo)) {
-    const newEmpId = empMap.get(values.issuedTo);
-    if (newEmpId !== issuedToId) {
-      setIssuedToId(newEmpId);
+    /* ================= CITY ================= */
+    if (values.cityName && cityMap.has(values.cityName)) {
+      const newCityId = cityMap.get(values.cityName);
+
+      if (newCityId !== selectedCityId && !isProcessingChangeRef.current) {
+        console.log("🔥 CITY CHANGE");
+        isProcessingChangeRef.current = true;
+
+        // 🔥 RESET CHILDREN
+        setFieldValue("campusName", "", false);
+        setFieldValue("issuedTo", "", false);
+
+        setSelectedCampusId(null);
+        setIssuedToId(null);
+        setSelectedFee(null);
+
+        // ✅ SET PARENT
+        setSelectedCityId(newCityId);
+        prevCityNameRef.current = values.cityName;
+        prevCampusNameRef.current = null;
+
+        setTimeout(() => { isProcessingChangeRef.current = false; }, 100);
+        return;
+      }
     }
-  }
 
-  /* ================= APPLICATION FEE ================= */
-  if (values.applicationFee && values.applicationFee !== selectedFee) {
-    setSelectedFee(values.applicationFee);
+    /* ================= CAMPUS ================= */
+    if (
+      values.campusName &&
+      campuses.length > 0 &&
+      campusMap.has(values.campusName)
+    ) {
+      const newCampusId = campusMap.get(values.campusName);
 
-    if (!isUpdate) {
-      setFieldValue("applicationSeries", "");
-      setFieldValue("applicationCount", "");
-      setFieldValue("availableAppNoFrom", "");
-      setFieldValue("availableAppNoTo", "");
-      setFieldValue("applicationNoFrom", "");
+      if (newCampusId !== selectedCampusId && !isProcessingChangeRef.current) {
+        console.log("🔥 CAMPUS CHANGE");
+        isProcessingChangeRef.current = true;
+
+        setFieldValue("issuedTo", "", false);
+        setIssuedToId(null);
+        setSelectedFee(null);
+
+        setSelectedCampusId(newCampusId);
+        prevCampusNameRef.current = values.campusName;
+
+        setTimeout(() => { isProcessingChangeRef.current = false; }, 100);
+        return;
+      }
     }
-  }
-};
 
+    /* ================= ISSUED TO ================= */
+    if (values.issuedTo && empMap.has(values.issuedTo)) {
+      const newEmpId = empMap.get(values.issuedTo);
+      if (newEmpId !== issuedToId) {
+        setIssuedToId(newEmpId);
+      }
+    }
 
+    /* ================= APPLICATION FEE ================= */
+    if (values.applicationFee && values.applicationFee !== selectedFee) {
+      setSelectedFee(values.applicationFee);
+
+      if (!isUpdate) {
+        setFieldValue("applicationSeries", "");
+        setFieldValue("applicationCount", "");
+        setFieldValue("availableAppNoFrom", "");
+        setFieldValue("availableAppNoTo", "");
+        setFieldValue("applicationNoFrom", "");
+      }
+    }
+  }, [
+    yearMap, districtMap, cityMap, campusMap, empMap,
+    selectedAcademicYearId, selectedDistrictId, selectedCityId, selectedCampusId,
+    issuedToId, selectedFee, isUpdate, campuses
+  ]);
 
   const seriesObj = useMemo(() => {
     if (!selectedSeries) return null;
@@ -385,31 +417,125 @@ const handleValuesChange = (values, setFieldValue) => {
   // =====================================================================
   //                  BACKEND VALUES
   // =====================================================================
+  // =====================================================================
+  //                  BACKEND VALUES
+  // =====================================================================
   const backendValues = useMemo(() => {
-
-     if (isUpdate && initialValues) {
-    return {
-      academicYearId: initialValues.academicYearId,
-       academicYear: initialValues.academicYear,
-      cityId: initialValues.cityId,
-      campusId: initialValues.campusId,
-      campaignDistrictId: initialValues.campaignDistrictId,
-      issuedToEmpId: initialValues.issuedToEmpId,
-      issuedTo: initialValues.issuedName,
-      cityName: initialValues.cityName,
-      campusName: initialValues.campusName,
-      campusName: initialValues.campusName,
-      applicationSeries: initialValues.applicationSeries,
-      applicationCount: initialValues.applicationCount,
-      applicationNoFrom: initialValues.applicationNoFrom,
-      availableAppNoFrom: initialValues.availableAppNoFrom,
-      availableAppNoTo: initialValues.availableAppNoTo,
-      issuedName: initialValues.issuedName,
-    };
-  }
-
     const obj = {};
 
+    if (isUpdate && initialValues) {
+      obj.academicYearId = selectedAcademicYearId ?? initialValues.academicYearId ?? null;
+      obj.academicYear = seedInitialValues.academicYear || initialValues.academicYear || "";
+
+      // 1. Resolve IDs with hierarchy checks
+      const finalDistrictId = selectedDistrictId ?? initialValues.campaignDistrictId;
+      const isDistrictChanged = finalDistrictId !== initialValues.campaignDistrictId;
+
+      const finalCityId = isDistrictChanged ? selectedCityId : (selectedCityId ?? initialValues.cityId);
+      const isCityChanged = finalCityId !== initialValues.cityId;
+
+      const finalCampusId = isCityChanged ? selectedCampusId : (selectedCampusId ?? initialValues.campusId);
+      const isCampusChanged = finalCampusId !== initialValues.campusId;
+
+      obj.campaignDistrictId = finalDistrictId;
+      obj.cityId = finalCityId;
+      obj.campusId = finalCampusId;
+
+      // 2. Resolve Names
+      let computedDistrictName = prevDistrictNameRef.current || initialValues.campaignDistrictName;
+      let computedCityName = prevCityNameRef.current || (isDistrictChanged ? "" : initialValues.cityName);
+      let computedCampusName = prevCampusNameRef.current || (isCityChanged ? "" : initialValues.campusName);
+
+      if (finalDistrictId && districts.length > 0) {
+        const dist = districts.find(d => districtId(d) === finalDistrictId);
+        if (dist) {
+          computedDistrictName = districtLabel(dist);
+          prevDistrictNameRef.current = computedDistrictName;
+        }
+      }
+
+      if (finalCityId && cities.length > 0) {
+        const city = cities.find(c => cityId(c) === finalCityId);
+        if (city) {
+          computedCityName = cityLabel(city);
+          prevCityNameRef.current = computedCityName;
+        }
+      }
+
+      if (finalCampusId && campuses.length > 0) {
+        const campus = campuses.find(c => campusId(c) === finalCampusId);
+        if (campus) {
+          computedCampusName = campusLabel(campus);
+          prevCampusNameRef.current = computedCampusName;
+        }
+      }
+
+      obj.campaignDistrictName = computedDistrictName;
+      obj.cityName = computedCityName;
+      obj.campusName = computedCampusName;
+
+      // 3. Resolve Issued To
+      let finalIssuedToId = null;
+      if (isCampusChanged) {
+        finalIssuedToId = issuedToId;
+      } else {
+        finalIssuedToId = issuedToId ?? initialValues.issuedToEmpId ?? initialValues.issuedToId;
+      }
+
+      if (finalIssuedToId && finalIssuedToId !== 0) {
+        obj.issuedToEmpId = finalIssuedToId;
+        obj.issuedToId = finalIssuedToId;
+      } else {
+        if (!isCampusChanged) {
+          obj.issuedToEmpId = initialValues.issuedToEmpId;
+          obj.issuedToId = initialValues.issuedToEmpId; // fallback
+        } else {
+          obj.issuedToEmpId = null;
+          obj.issuedToId = null;
+        }
+      }
+
+      // Resolve Issued To Name
+      let computedIssuedToName = "";
+      if (finalIssuedToId && employees.length > 0) {
+        const e = employees.find(emp => empId(emp) === finalIssuedToId);
+        if (e) computedIssuedToName = empLabel(e);
+      }
+
+      if (computedIssuedToName) {
+        obj.issuedTo = computedIssuedToName;
+        obj.issuedName = computedIssuedToName;
+      } else {
+        obj.issuedTo = isCampusChanged ? "" : initialValues.issuedName;
+        obj.issuedName = isCampusChanged ? "" : initialValues.issuedName;
+      }
+
+      // 4. Series & Fee
+      const finalApplicationFee = selectedFee ?? initialValues.applicationFee ?? seedInitialValues.applicationFee;
+      if (finalApplicationFee != null) {
+        obj.applicationFee = Number(finalApplicationFee);
+      }
+
+      if (seriesObj) {
+        obj.applicationSeries = seriesObj.displaySeries;
+        obj.applicationCount = seriesObj.availableCount;
+        obj.availableAppNoFrom = seriesObj.masterStartNo;
+        obj.availableAppNoTo = seriesObj.masterEndNo;
+        obj.applicationNoFrom = seriesObj.startNo;
+      } else {
+        obj.applicationSeries = seedInitialValues.applicationSeries || initialValues.applicationSeries;
+        obj.applicationCount = initialValues.applicationCount;
+        obj.applicationNoFrom = initialValues.applicationNoFrom;
+        obj.availableAppNoFrom = initialValues.availableAppNoFrom;
+        obj.availableAppNoTo = initialValues.availableAppNoTo;
+      }
+
+      if (mobileNo != null) obj.mobileNumber = String(mobileNo);
+
+      return obj;
+    }
+
+    // CREATE MODE
     if (mobileNo != null) obj.mobileNumber = String(mobileNo);
 
     if (seriesObj) {
@@ -421,9 +547,9 @@ const handleValuesChange = (values, setFieldValue) => {
     }
 
     if (selectedAcademicYearId != null) {
-  obj.academicYearId = Number(selectedAcademicYearId);
-  obj.academicYear = seedInitialValues.academicYear; // 🔥 REQUIRED
-}
+      obj.academicYearId = Number(selectedAcademicYearId);
+      obj.academicYear = seedInitialValues.academicYear;
+    }
     if (selectedDistrictId) obj.campaignDistrictId = selectedDistrictId;
     if (selectedCityId) obj.cityId = selectedCityId;
     if (selectedCampusId) obj.campusId = selectedCampusId;
@@ -438,6 +564,12 @@ const handleValuesChange = (values, setFieldValue) => {
 
     return obj;
   }, [
+    isUpdate,
+    initialValues,
+    seedInitialValues,
+    prevDistrictNameRef, // ensure refs are stable but access current inside
+    prevCityNameRef,
+    prevCampusNameRef,
     mobileNo,
     seriesObj,
     selectedAcademicYearId,
@@ -445,8 +577,12 @@ const handleValuesChange = (values, setFieldValue) => {
     selectedCityId,
     selectedCampusId,
     issuedToId,
-    applicationFee,
-    applicationSeries,
+    selectedFee,
+    districts,
+    cities,
+    campuses,
+    employees,
+    locationData
   ]);
 
   // =====================================================================
