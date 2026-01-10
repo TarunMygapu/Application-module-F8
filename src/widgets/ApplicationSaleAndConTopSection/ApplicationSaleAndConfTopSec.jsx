@@ -55,7 +55,10 @@ const ApplicationSaleAndConfTopSec = ({ step = 1, onBack, title, detailsObject }
 
         <div className={styles.infoItem}>
           <span className={styles.label}>Branch</span>
-          <span className={styles.value}>{detailsObject?.branch || '-'}</span>
+          <span className={styles.value} id={styles.branchValue} 
+          data-fulltext={detailsObject?.branch}
+            title={detailsObject?.branch}
+          >{detailsObject?.branch || '-'}</span>
         </div>
 
         <div className={styles.infoItem}>
