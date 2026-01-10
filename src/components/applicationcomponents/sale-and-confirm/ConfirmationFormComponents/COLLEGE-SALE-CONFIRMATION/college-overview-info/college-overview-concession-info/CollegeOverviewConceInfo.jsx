@@ -63,7 +63,7 @@ const CollegeOverviewConceInfo = ({ concessionsData = [] }) => {
         )}
 
         <div className={styles.infoItem}>
-          <span className={styles.label}>Reffered By</span>
+          <span className={styles.label}>Referred By</span>
           <span className={styles.value}>
             {concessionsData?.[0]?.concReferedByName || "-"}
           </span>
