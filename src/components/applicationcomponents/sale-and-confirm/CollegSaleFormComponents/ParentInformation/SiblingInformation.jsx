@@ -1,29 +1,30 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useFormikContext } from "formik";
 import styles from "./SiblingInformation.module.css";
- 
+import SiblingCloseIcon from "./SiblingCloseIcon";
+
 import {
   siblingsInformationFields,
   siblingFieldsLayout,
 } from "./parentInformationFields";
- 
+
 import { renderField } from "../../../../../utils/renderField";
- 
+
 // API Hooks
 import {
   useGetRelationTypes,
   useGetAllClasses
 } from "../../../../../queries/applicationqueries/saleApis/clgSaleApis";
- 
-const SiblingInformation = ({onClose, siblingIndex = 0}) => {
+
+const SiblingInformation = ({ onClose, siblingIndex = 0 }) => {
   const formik = useFormikContext();
   const { values } = formik;
- 
+
   // Initialize local values from existing sibling data if available
   const getInitialValues = () => {
     const currentSiblings = Array.isArray(formik.values.siblings) ? formik.values.siblings : [];
     const existingSibling = currentSiblings[siblingIndex];
-    
+
     if (existingSibling) {
       return {
         fullName: existingSibling.fullName || "",
@@ -34,7 +35,7 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
         schoolName: existingSibling.schoolName || "",
       };
     }
-    
+
     return {
       fullName: "",
       relationType: "",
@@ -53,15 +54,15 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
     setLocalValues(newValues);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [siblingIndex, formik.values.siblings]);
- 
+
   const setLocalFieldValue = (field, value) => {
     setLocalValues((prev) => ({ ...prev, [field]: value }));
   };
- 
+
   // Fetch dropdown values
   const { data: relationData } = useGetRelationTypes();
   const { data: classData } = useGetAllClasses();
- 
+
   // Create maps for name-to-ID conversion - Only Sister and Brother
   const relationNameToId = useMemo(() => {
     const map = new Map();
@@ -77,7 +78,7 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
     });
     return map;
   }, [relationData]);
- 
+
   const classNameToId = useMemo(() => {
     const map = new Map();
     const classArray = Array.isArray(classData?.data)
@@ -91,12 +92,12 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
     });
     return map;
   }, [classData]);
- 
+
   // Build field map with API values - memoized to prevent unnecessary recalculations
   const fieldMap = useMemo(() => {
     return siblingsInformationFields.reduce((acc, f) => {
       let field = { ...f };
- 
+
       if (f.name === "relationType") {
         // Handle different possible response structures: relationData.data or relationData
         const relationArray = Array.isArray(relationData?.data)
@@ -109,7 +110,7 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
           return nameLower === "sister" || nameLower === "brother";
         });
       }
- 
+
       if (f.name === "selectClass") {
         // Handle different possible response structures: classData.data or classData
         // Note: getAllClasses already normalizes to array, but check both for safety
@@ -118,12 +119,12 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
           : (Array.isArray(classData) ? classData : []);
         field.options = classArray.map((c) => c.name || c.className || c.label || '');
       }
- 
+
       acc[f.name] = field;
       return acc;
     }, {});
   }, [relationData, classData]);
- 
+
   // Clear sibling fields
   const handleClear = () => {
     setLocalValues({
@@ -134,7 +135,7 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
       classId: null,
       schoolName: "",
     });
-   
+
     // Remove only this specific sibling from Formik by index
     const currentSiblings = Array.isArray(formik.values.siblings) ? formik.values.siblings : [];
     if (siblingIndex < currentSiblings.length) {
@@ -142,16 +143,16 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
       formik.setFieldValue("siblings", updatedSiblings, false);
     }
   };
- 
+
   // Automatically add/update sibling in Formik when required fields are filled
   useEffect(() => {
     // Get current siblings from Formik
     const currentSiblings = Array.isArray(formik.values.siblings) ? formik.values.siblings : [];
-    
+
     // Only auto-add if required fields are filled
     const hasRequiredFields = localValues.fullName && localValues.fullName.trim() &&
-                              localValues.relationType && localValues.relationType.trim();
-   
+      localValues.relationType && localValues.relationType.trim();
+
     if (hasRequiredFields) {
       // Get IDs for relation and class
       const relationTypeId = relationNameToId.get(localValues.relationType) || null;
@@ -177,7 +178,7 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
         // Add new sibling at the end
         updatedSiblings = [...currentSiblings, siblingObject];
       }
-     
+
       // Update Formik state only if it's different to avoid infinite loops
       const currentSiblingsString = JSON.stringify(currentSiblings);
       const updatedSiblingsString = JSON.stringify(updatedSiblings);
@@ -194,17 +195,37 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localValues.fullName, localValues.relationType, localValues.selectClass, localValues.schoolName, relationNameToId, classNameToId, siblingIndex]);
- 
+
   return (
     <div className={styles.siblingInformationWrapper}>
       <div className={styles.clgAppSaleParentsInfoTop}>
         <p className={styles.clgAppSaleParentsHeading}>Sibling Information</p>
         <div className={styles.clgAppSalePersonalInfoSeperationLine}></div>
       </div>
- 
+
       <div className={styles.siblingsFieldsWrapper}>
-        <p className={styles.siblingTitle}>Sibling {siblingIndex + 1}</p>
- 
+        <div className={styles.fieldsetHeader}>
+          <p className={styles.siblingTitle}>Sibling {siblingIndex + 1}</p>
+          {/* Buttons on the right */}
+          <div className={styles.siblingButtons}>
+            <button
+              type="button"
+              className={styles.clearButton}
+              onClick={handleClear}
+            >
+              Clear
+            </button>
+
+            <button
+              type="button"
+              className={styles.siblingsCloseButton}
+              onClick={onClose}
+            >
+              <SiblingCloseIcon />
+            </button>
+          </div>
+        </div>
+
         {siblingFieldsLayout.map((row) => (
           <div key={row.id} className={styles.clgAppSalerow}>
             {row.fields.map((fname, fieldIndex) => (
@@ -215,7 +236,7 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
                     onChange: (e) => {
                       const value = e.target.value;
                       setLocalFieldValue(fname, value);
-                     
+
                       // Store IDs when dropdown values change
                       if (fname === "relationType" && relationNameToId.has(value)) {
                         setLocalFieldValue("relationTypeId", relationNameToId.get(value));
@@ -227,30 +248,11 @@ const SiblingInformation = ({onClose, siblingIndex = 0}) => {
                   })}
               </div>
             ))}
- 
-            {/* Buttons on the right */}
-            <div className={styles.siblingButtons}>
-              <button
-                type="button"
-                className={styles.clearButton}
-                onClick={handleClear}
-              >
-                Clear
-              </button>
- 
-              <button
-                type="button"
-                className={styles.siblingsCloseButton}
-                onClick={onClose}
-              >
-                X
-              </button>
-            </div>
           </div>
         ))}
       </div>
     </div>
   );
 };
- 
+
 export default SiblingInformation;

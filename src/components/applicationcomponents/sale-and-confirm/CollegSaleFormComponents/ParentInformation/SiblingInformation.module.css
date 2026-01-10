@@ -1,72 +1,114 @@
-.siblingInformationWrapper{
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.clgAppSalerow{
-    display: flex;
-    gap: 60px;
+.siblingInformationWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.clgAppSaleFieldCell{
-    width: 335px;
+.clgAppSalerow {
+  display: flex;
+  gap: 60px;
 }
 
-.clgAppSaleParentsInfoTop{
-    display: flex;
-    align-items: center;
-    gap: 7px;
+.clgAppSaleFieldCell {
+  width: 335px;
 }
 
-.clgAppSaleParentsHeading{
-    font-size: 12px;
-    font-weight: 400;
-    color:#000000;
+.clgAppSaleParentsInfoTop {
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
 
-.clgAppSalePersonalInfoSeperationLine{
-    height: 1px;
-    background: linear-gradient(90deg, #B6B6B6 0%, rgba(255, 255, 255, 0) 100%);
-    width: 40%;
-}
-
-.siblingsFieldsWrapper{
-    padding: 20px;
-    border: 1px solid black;
-    border-radius: 20px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin: 10px 0;
-}
-
-.siblingButtons{
-    position: absolute;
-    top: -20px;
-    right: 30px;
-    display: flex;
-    gap: 20px;
-}
-
-.clearButton{
-      background-color: blue;
-  padding: 10px 20px;
-  color: #fff;
-  border-radius: 20px;
-  cursor: pointer;
-}
-
-.siblingsCloseButton{
-    margin-top: 5px;
-   height: 25px;
-  width: 25px;
-  border-radius: 50%;
-  /* padding: 5px; */
-  background-color: red;
+.clgAppSaleParentsHeading {
+  font-size: 12px;
+  font-weight: 400;
   color: #000000;
-  cursor: pointer;
-  display: grid;
-  align-content: center;
 }
 
+.clgAppSalePersonalInfoSeperationLine {
+  height: 1px;
+  background: linear-gradient(90deg, #b6b6b6 0%, rgba(255, 255, 255, 0) 100%);
+  width: 40%;
+}
+
+.siblingsFieldsWrapper {
+  padding: 20px;
+  border: 1px solid black;
+  border-radius: 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 10px 0;
+  margin-top: 20px;
+  /* added margin for floating title */
+}
+
+/* New Header Container for Title + Buttons */
+.fieldsetHeader {
+  position: absolute;
+  top: -15px;
+  /* Adjust to sit on border */
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 25px;
+  /* Indent title and buttons from edge */
+  pointer-events: none;
+  /* Allow clicks to pass through empty space if needed, BUT buttons need pointer-events: auto */
+}
+
+.siblingTitle {
+  background: #3425ff;
+  /* Hide border behind text */
+  padding: 4px 12px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 23px;
+  /* Gray text similar to common fieldset legends */
+  pointer-events: auto;
+}
+
+.siblingButtons {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  pointer-events: auto;
+  background: white;
+  /* Optional: hide border behind buttons too */
+  padding-left: 10px;
+}
+
+.clearButton {
+  border-radius: 23px;
+  padding: 4px 12px;
+  border: 1px solid #bfbfbf;
+  font-size: 12px;
+  cursor: pointer;
+  color: #787800;
+  background: #FFFED8;
+  pointer-events: auto;
+  /* Re-enable clicks for the button */
+
+  /* Critical: This ensures the border line behind the tag is hidden */
+  z-index: 1;
+}
+
+.siblingsCloseButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.siblingsCloseButton svg {
+  /* Ensure svg inherits or sets size properly */
+  width: 20px;
+  height: 20px;
+}
