@@ -12,6 +12,7 @@ import {
   useGetApplicationSeriesForEmpId,
   useGetDgmWithZonalAccountant,
   useGetLocationOfEmployees,
+  useGetThreeAcademicYear,
 } from "../../../../queries/applicationqueries/application-distribution/dropdownqueries";
 import { useRole } from "../../../../hooks/useRole";
 
@@ -50,6 +51,7 @@ const DgmForm = ({
   const prevCityNameRef = useRef(null);
   const prevZoneNameRef = useRef(null);
   const prevCampusNameRef = useRef(null);
+  const initialValuesLockedRef = useRef(false);
 
   // ---------------- SELECTED VALUES ----------------
   const [selectedAcademicYearId, setSelectedAcademicYearId] = useState(null);
@@ -63,11 +65,12 @@ const DgmForm = ({
   // ---------------- INITIAL FORM VALUES ----------------
   const [seedInitialValues, setSeedInitialValues] = useState({
     ...initialValues,
-    academicYear: initialValues?.academicYear || "2025-26",
+    academicYear: initialValues?.academicYear || "",
   });
 
+  const { data: academicYear } = useGetThreeAcademicYear();
 
-    const didSeedRef = useRef(false);
+  const didSeedRef = useRef(false);
   const employeeId = localStorage.getItem("empId");
   const category = localStorage.getItem("category");
   const campusCategory = localStorage.getItem("campusCategory");
@@ -115,47 +118,78 @@ const DgmForm = ({
   const campuses = asArray(campusRaw);
   const employees = asArray(employeesRaw);
 
+  useEffect(() => {
+  if (!isUpdate) return;
+
+  // 🔁 reset hydration guards on every edit open
+  updateHydratedRef.current = false;
+  hydratedRef.current = false;
+  isHydratingRef.current = true;
+
+}, [editId]);
+
+  useEffect(() => {
+  if (isUpdate) return;               // 🔒 do not touch update
+  if (!academicYear?.currentYear) return;
+
+  const { academicYear: yearName, acdcYearId } =
+    academicYear.currentYear;
+
+  // ✅ 1. Set visible dropdown value
+  setSeedInitialValues(prev => ({
+    ...prev,
+    academicYear: yearName,
+  }));
+
+  // ✅ 2. Set ID for APIs
+  if (initialValues?.academicYearId) {
+  setSelectedAcademicYearId(initialValues.academicYearId);
+}
+
+  isHydratingRef.current = false;
+}, [academicYear, isUpdate]);
+
 const hydratedRef = useRef(false);
 
 const updateHydratedRef = useRef(false);
 
 useEffect(() => {
-  if (!isUpdate || !initialValues) return;
-  if (updateHydratedRef.current) return;
+  if (!isUpdate || !editId) return;
+  if (initialValuesLockedRef.current) return;
 
-  console.log("🟡 UPDATE HYDRATION START", initialValues);
+  console.log("🟢 HYDRATING FORM ONCE");
 
   isHydratingRef.current = true;
 
-  // ✅ STEP 1: set IDs FIRST (so APIs can load)
-  if (initialValues.cityId) setSelectedCityId(initialValues.cityId);
-  if (initialValues.zoneId) setSelectedZoneId(initialValues.zoneId);
-  if (initialValues.campusId) setSelectedCampusId(initialValues.campusId);
-  if (initialValues.issuedToEmpId) setIssuedToId(initialValues.issuedToEmpId);
+  setSelectedCityId(initialValues.cityId ?? null);
+  setSelectedZoneId(initialValues.zoneId ?? null);
+  setSelectedCampusId(initialValues.campusId ?? null);
+  setIssuedToId(initialValues.issuedToEmpId ?? null);
 
-  // ✅ store refs to prevent resets
   prevCityNameRef.current = initialValues.cityName ?? null;
   prevZoneNameRef.current = initialValues.zoneName ?? null;
   prevCampusNameRef.current = initialValues.campusName ?? null;
 
-  // ✅ STEP 2: set visible values into Formik initial values
-  setSeedInitialValues(prev => ({
-    ...prev,
+  setSeedInitialValues({
+    academicYear: initialValues.academicYear ?? "",
     cityName: initialValues.cityName ?? "",
     zoneName: initialValues.zoneName ?? "",
     campusName: initialValues.campusName ?? "",
     issuedTo: initialValues.issuedName ?? "",
     applicationFee: initialValues.applicationFee ?? "",
     applicationSeries: initialValues.applicationSeries ?? "",
-  }));
+  });
 
-  updateHydratedRef.current = true;
-  isHydratingRef.current = false;
-}, [isUpdate, initialValues]);
+  initialValuesLockedRef.current = true;
 
+  setTimeout(() => {
+    isHydratingRef.current = false;
+  }, 0);
 
+}, [editId]);
 
 useEffect(() => {
+  if (isUpdate) return; 
   if (hydratedRef.current) return;
   if (!isLocationSuccess || !locationData) return;
   if (isUserAdmin) return;
@@ -241,69 +275,73 @@ useEffect(() => {
 const handleValuesChange = (values, setFieldValue) => {
   if (!setFieldValue) return;
 
-  /* ================= CITY ================= */
-  if (values.cityName && cityMap.has(values.cityName)) {
-    const newCityId = cityMap.get(values.cityName);
+  /* ================= ACADEMIC YEAR ================= */
+if (values.academicYear && yearMap.has(values.academicYear)) {
+  const id = yearMap.get(values.academicYear);
 
-    if (newCityId !== selectedCityId) {
-      console.log("🔥 CITY CHANGE DETECTED");
-
-      // 🔥 RESET CHILDREN FIRST
-      setFieldValue("zoneName", "");
-      setFieldValue("campusName", "");
-      setFieldValue("issuedTo", "");
-
-      setSelectedZoneId(null);
-      setSelectedCampusId(null);
-      setIssuedToId(null);
-      setSelectedFee(null);
-
-      // ✅ THEN update parent
-      setSelectedCityId(newCityId);
-
-      prevCityNameRef.current = values.cityName;
-      return;
-    }
+  if (id !== selectedAcademicYearId) {
+    setSelectedAcademicYearId(id);
+    setSelectedFee(null); // reset dependent data
   }
+}
+
+ /* ================= CITY ================= */
+if (
+  !isHydratingRef.current &&
+  values.cityName &&
+  cityMap.has(values.cityName)
+) {
+  const newCityId = cityMap.get(values.cityName);
+
+  if (newCityId !== selectedCityId) {
+    setFieldValue("zoneName", "");
+    setFieldValue("campusName", "");
+    setFieldValue("issuedTo", "");
+
+    setSelectedZoneId(null);
+    setSelectedCampusId(null);
+    setIssuedToId(null);
+    setSelectedFee(null);
+
+    setSelectedCityId(newCityId);
+  }
+}
+
 
   /* ================= ZONE ================= */
-  if (values.zoneName && zoneMap.has(values.zoneName)) {
-    const newZoneId = zoneMap.get(values.zoneName);
+if (values.zoneName && zoneMap.has(values.zoneName)) {
+  const newZoneId = zoneMap.get(values.zoneName);
 
-    if (newZoneId !== selectedZoneId) {
-      console.log("🔥 ZONE CHANGE DETECTED");
+  if (newZoneId !== selectedZoneId) {
 
-      // 🔥 RESET CHILDREN FIRST
-      setFieldValue("campusName", "");
-      setFieldValue("issuedTo", "");
+    // 🔥 ONLY reset children, not parent state
+    setFieldValue("campusName", "");
+    setFieldValue("issuedTo", "");
 
-      setSelectedCampusId(null);
-      setIssuedToId(null);
-      setSelectedFee(null);
+    setSelectedCampusId(null);
+    setIssuedToId(null);
+    setSelectedFee(null);
 
-      // ✅ THEN update parent
-      setSelectedZoneId(newZoneId);
-
-      prevZoneNameRef.current = values.zoneName;
-      return;
-    }
+    // ✅ ALWAYS allow change
+    setSelectedZoneId(newZoneId);
+    prevZoneNameRef.current = values.zoneName;
   }
+}
 
   /* ================= CAMPUS ================= */
   if (values.campusName && campusMap.has(values.campusName)) {
-    const newCampusId = campusMap.get(values.campusName);
+  const newCampusId = campusMap.get(values.campusName);
 
-    if (newCampusId !== selectedCampusId) {
-      console.log("🔥 CAMPUS CHANGE DETECTED");
+  if (newCampusId !== selectedCampusId) {
+    setFieldValue("issuedTo", "");
+    setIssuedToId(null);
+    setSelectedFee(null);
 
-      setFieldValue("issuedTo", "");
-      setIssuedToId(null);
-      setSelectedFee(null);
-
-      setSelectedCampusId(newCampusId);
-      return;
-    }
+    // ✅ allow update
+    setSelectedCampusId(newCampusId);
+    prevCampusNameRef.current = values.campusName;
   }
+}
 
   /* ================= ISSUED TO ================= */
   if (values.issuedTo && empMap.has(values.issuedTo)) {
@@ -344,11 +382,12 @@ const handleValuesChange = (values, setFieldValue) => {
     if (isUpdate && initialValues) {
     return {
       academicYearId: initialValues.academicYearId,
+      academicYear: initialValues.academicYear,
       cityId: initialValues.cityId,
       zoneId: initialValues.zoneId,
       campusId: initialValues.campusId,
       issuedToEmpId: initialValues.issuedToEmpId,
-      issuedTo: initialValues.issuedName,
+      issuedTo: initialValues.issuedTo,
       cityName: initialValues.cityName,
       zoneName: initialValues.zoneName,
       campusName: initialValues.campusName,
@@ -372,7 +411,10 @@ const handleValuesChange = (values, setFieldValue) => {
       obj.applicationNoFrom = seriesObj.startNo;
     }
 
-    if (selectedAcademicYearId != null) obj.academicYearId = selectedAcademicYearId;
+   if (selectedAcademicYearId != null) {
+  obj.academicYearId = Number(selectedAcademicYearId);
+  obj.academicYear = seedInitialValues.academicYear; // 🔥 REQUIRED
+   }
     if (selectedCityId != null) obj.cityId = selectedCityId;
     if (selectedZoneId != null) obj.zoneId = selectedZoneId;
     if (selectedCampusId != null) obj.campusId = selectedCampusId;

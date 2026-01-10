@@ -26,7 +26,7 @@ const DgmTable = ({ onSelectionChange, callTable, tableTrigger }) => {
         applicationTo: String(item.appEndNo ?? ""),
         totalApplications: item.totalAppCount,
         amount: item.amount,
-        issuedName: item.issuedToName,
+        issuedTo: item.issuedToName,
         campusName: item.campusName,
          applicationFee: item.amount,
         applicationSeries: item.displaySeries,
@@ -38,8 +38,9 @@ const DgmTable = ({ onSelectionChange, callTable, tableTrigger }) => {
         zoneId: item.zone_id,
         campusId: item.cmps_id,
         issuedToEmpId: item.issued_to_emp_id,
-        issuedName : item.issuedToName,
         academicYearId : item.acdc_year_id,
+        academicYear: item.academicYear,
+        issuedName:item.issuedToName,
       })),
     [tableData]
   );

@@ -12,6 +12,7 @@ import {
   useGetApplicationSeriesForEmpId,
   useGetSchoolDgmCityDistrictId,
   useGetLocationOfEmployees,
+  useGetThreeAcademicYear,
 } from "../../../../queries/applicationqueries/application-distribution/dropdownqueries";
 import { useRole } from "../../../../hooks/useRole";
 
@@ -64,6 +65,7 @@ const CampusForm = ({
   const employeeId = localStorage.getItem("empId");
   const category = localStorage.getItem("campusCategory");
   const {hasRole : isUserAdmin} = useRole("ADMIN");
+  const { data: academicYear } = useGetThreeAcademicYear();
 
   const { data: dgmEmpDetails } = useGetSchoolDgmCityDistrictId(employeeId, category);
 
@@ -76,7 +78,7 @@ const CampusForm = ({
   // ---------------- INITIAL FORM VALUES ----------------
    const [seedInitialValues, setSeedInitialValues] = useState({
       ...initialValues,
-      academicYear: initialValues?.academicYear || "2025-26",
+      academicYear: initialValues?.academicYear || "",
     });
 
   const didSeedRef = useRef(false);
@@ -143,23 +145,25 @@ const CampusForm = ({
   }
 }, [isUserAdmin]);
 
+useEffect(() => {
+  if (isUpdate) return;               // 🔒 do not touch update
+  if (!academicYear?.currentYear) return;
 
+  const { academicYear: yearName, acdcYearId } =
+    academicYear.currentYear;
 
-  // =====================================================================
-  //            DEFAULT ACADEMIC YEAR = "2025-26"
-  // =====================================================================
+  // ✅ set visible dropdown value
+  setSeedInitialValues(prev => ({
+    ...prev,
+    academicYear: yearName,
+  }));
 
-   useEffect(() => {
-      if (didSeedRef.current) return;
-      if (!years.length) return;
-  
-      const defaultYear = years.find((y) => yearLabel(y) === "2025-26");
-  
-      if (defaultYear) {
-        setSelectedAcademicYearId(yearId(defaultYear));
-        didSeedRef.current = true;
-      }
-    }, [years]);
+  // ✅ set ID for APIs
+  setSelectedAcademicYearId(acdcYearId);
+
+  isHydratingRef.current = false;
+}, [academicYear, isUpdate]);
+
   
 
    const hydratedRef = useRef(false);
@@ -171,6 +175,10 @@ const CampusForm = ({
   if (updateHydratedRef.current) return;
 
   isHydratingRef.current = true;
+
+  if (initialValues?.academicYearId) {
+  setSelectedAcademicYearId(initialValues.academicYearId);
+}
 
   // ✅ FIXED
   if (initialValues.campaignDistrictId)
@@ -191,6 +199,7 @@ const CampusForm = ({
 
   setSeedInitialValues(prev => ({
     ...prev,
+    academicYear : initialValues.academicYear ?? "",
     campaignDistrictName: initialValues.campaignDistrictName ?? "",
     cityName: initialValues.cityName ?? "",
     campusName: initialValues.campusName ?? "",
@@ -381,6 +390,7 @@ const handleValuesChange = (values, setFieldValue) => {
      if (isUpdate && initialValues) {
     return {
       academicYearId: initialValues.academicYearId,
+       academicYear: initialValues.academicYear,
       cityId: initialValues.cityId,
       campusId: initialValues.campusId,
       campaignDistrictId: initialValues.campaignDistrictId,
@@ -410,7 +420,10 @@ const handleValuesChange = (values, setFieldValue) => {
       obj.applicationNoFrom = seriesObj.startNo;
     }
 
-    if (selectedAcademicYearId) obj.academicYearId = selectedAcademicYearId;
+    if (selectedAcademicYearId != null) {
+  obj.academicYearId = Number(selectedAcademicYearId);
+  obj.academicYear = seedInitialValues.academicYear; // 🔥 REQUIRED
+}
     if (selectedDistrictId) obj.campaignDistrictId = selectedDistrictId;
     if (selectedCityId) obj.cityId = selectedCityId;
     if (selectedCampusId) obj.campusId = selectedCampusId;
