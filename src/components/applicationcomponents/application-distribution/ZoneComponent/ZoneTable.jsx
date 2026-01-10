@@ -35,6 +35,7 @@ const ZoneTable = ({ onSelectionChange,callTable, tableTrigger}) => {
          // 🔥 Add these (needed for next API)
       issuedToEmpId: item.issued_to_emp_id,
       academicYearId: item.acdc_year_id,
+      academicYear: item.acdc_year_id,
       stateId: item.state_id,
       cityId: item.city_id,
       zoneId: item.zone_id,
