@@ -4,14 +4,14 @@
   gap: 5px;
   position: relative;
 }
-
+ 
 .phoneNumberBox_wrapper label {
   display: block;
   font-weight: 400;
   color: #344054;
   font-size: 12px;
 }
-
+ 
 .phoneNumberBox{
   width: 100%;
   padding: 11px 14px;
@@ -22,18 +22,18 @@
   background-color: #fff;
   color: #101828;
 }
-
+ 
 .phoneNumberBox::placeholder {
 color:  #101828;
 font-size: 12px;
 font-weight: 400;
 }
-
+ 
 .phoneNumberBox:focus{
   border: 1px solid #424242;
 }
-
-
+ 
+ 
 .phonenumberIcon{
   position: absolute;
   right:15px;
@@ -45,50 +45,50 @@ font-weight: 400;
 
 
 .phoneNumberBox_wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    position: relative;
 }
 
 .phoneNumberBox_wrapper label {
-  display: block;
-  font-weight: 400;
-  color: #2E2E2E;
-  font-size: 12px;
+    display: block;
+    font-weight: 400;
+    color: #2E2E2E;
+    font-size: 12px;
 }
 
 .phoneNumberBox {
-  width: 100%;
-  padding: 11px 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  box-sizing: border-box;
-  background-color: #fff;
-  color: #101828;
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background-color: #fff;
+    color: #101828;
 }
 
 .phoneNumberBox::placeholder {
-  color: #101828;
-  font-size: 12px;
-  font-weight: 400;
+    color: #101828;
+    font-size: 12px;
+    font-weight: 400;
 }
 
 .phoneNumberBox:focus {
-  border: 1px solid #424242;
+    border: 1px solid #424242;
 }
 
 
 .phonenumberIcon {
-  position: absolute;
-  right: 15px;
-  top: 30px;
+    position: absolute;
+    right: 15px;
+    top: 30px;
 }
 
 
 .validation_error {
-  color: #d32f2f;
-  font-size: 12px;
-  margin-top: 4px;
+    color: #d32f2f;
+    font-size: 12px;
+    margin-top: 4px;
 }
