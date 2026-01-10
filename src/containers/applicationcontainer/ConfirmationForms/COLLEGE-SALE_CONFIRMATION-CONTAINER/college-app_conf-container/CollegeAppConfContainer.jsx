@@ -14,6 +14,10 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
     // Academic Year Info (from widget) - will be auto-populated
     academicYear: "",
     academicYearId: "",
+    // Academic Information - Hall Ticket Numbers
+    hallTicketNo: "", // For INTER 1 or general use
+    tenthHallTicketNo: "", // For INTER 2 - 10th Hall Ticket Number
+    interFirstYearHallTicketNo: "", // For INTER 2 - Inter 1st Year Hall Ticket Number
     // Concession Info
     firstYearConcession: "",
     firstYearConcessionTypeId: "", // Concession type ID for "1st year"
@@ -67,7 +71,7 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
         'campusName': 'selectedBranchName',
         'branchId': 'branchId',
         'campusId': 'branchId',
-        'className': 'selectedClassName', 
+        'className': 'selectedClassName',
         'joiningClassName': 'selectedClassName',
         'classId': 'joiningClassId',
         'joiningClassId': 'joiningClassId',
@@ -79,7 +83,7 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
         'studentTypeId': 'studentTypeId',
         'orientationStartDate': 'courseStartDate',
         'courseStartDate': 'courseStartDate',
-        'orientationEndDate': 'courseEndDate', 
+        'orientationEndDate': 'courseEndDate',
         'courseEndDate': 'courseEndDate',
         'orientationFee': 'courseFee',
         'courseFee': 'courseFee'
@@ -88,7 +92,13 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
       generalFields: {
         'academicYear': 'academicYear',
         'academicYearId': 'academicYearId',
-        'academicYearName': 'academicYear'
+        'academicYearName': 'academicYear',
+        // Hall Ticket Numbers - map from overview to form
+        'hallTicketNo': 'hallTicketNo', // 10th Hall Ticket Number (for INTER 2, this is the 10th hall ticket)
+        'preHallTicketNo': 'interFirstYearHallTicketNo', // Inter 1st Year Hall Ticket Number (for INTER 2)
+        // Also check alternative field names
+        'tenthHallTicketNo': 'tenthHallTicketNo',
+        'interFirstYearHallTicketNo': 'interFirstYearHallTicketNo'
       }
     };
 
@@ -105,6 +115,71 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
         }
       }
     });
+   
+    // Special handling for hall ticket numbers based on joining class
+    // Overview shows: hallTicketNo (10th Hall Ticket Number) and preHallTicketNo (Inter 1st Year Hall Ticket Number)
+    const joiningClassName = overviewData?.className || overviewData?.joiningClassName || academicFormData?.selectedClassName || "";
+    const normalizedJoiningClass = String(joiningClassName).toUpperCase().trim().replace(/\s+/g, "").replace(/-/g, "").replace(/_/g, "");
+    const isInter2 = normalizedJoiningClass === "INTER2" || normalizedJoiningClass === "INTER2NDYEAR" || normalizedJoiningClass.includes("INTER2");
+   
+    console.log('🔍 Hall Ticket Auto-population Check:', {
+      joiningClassName,
+      normalizedJoiningClass,
+      isInter2,
+      overviewHallTicketNo: overviewData?.hallTicketNo,
+      overviewPreHallTicketNo: overviewData?.preHallTicketNo,
+      currentTenthHallTicketNo: updatedFormData.tenthHallTicketNo,
+      currentInterFirstYearHallTicketNo: updatedFormData.interFirstYearHallTicketNo,
+      currentHallTicketNo: updatedFormData.hallTicketNo
+    });
+   
+    // Always populate hall ticket numbers regardless of joining class check
+    // The joining class check helps determine which fields to use, but we should populate both if available
+    if (isInter2) {
+      // INTER 2: hallTicketNo from overview (10th) → tenthHallTicketNo in form
+      // preHallTicketNo from overview (Inter 1st Year) → interFirstYearHallTicketNo in form
+      if (overviewData.hallTicketNo) {
+        const hallTicketValue = String(overviewData.hallTicketNo).trim();
+        // Always update if value exists and is different
+        if (hallTicketValue && updatedFormData.tenthHallTicketNo !== hallTicketValue) {
+          updatedFormData.tenthHallTicketNo = hallTicketValue;
+          formDataChanged = true;
+          console.log(`✅ Auto-populated tenthHallTicketNo (INTER 2) from hallTicketNo:`, hallTicketValue);
+        }
+      }
+      if (overviewData.preHallTicketNo) {
+        const preHallTicketValue = String(overviewData.preHallTicketNo).trim();
+        // Always update if value exists and is different
+        if (preHallTicketValue && updatedFormData.interFirstYearHallTicketNo !== preHallTicketValue) {
+          updatedFormData.interFirstYearHallTicketNo = preHallTicketValue;
+          formDataChanged = true;
+          console.log(`✅ Auto-populated interFirstYearHallTicketNo (INTER 2) from preHallTicketNo:`, preHallTicketValue);
+        }
+      }
+    } else {
+      // INTER 1 or other: hallTicketNo from overview → hallTicketNo in form
+      if (overviewData.hallTicketNo) {
+        const hallTicketValue = String(overviewData.hallTicketNo).trim();
+        // Always update if value exists and is different
+        if (hallTicketValue && updatedFormData.hallTicketNo !== hallTicketValue) {
+          updatedFormData.hallTicketNo = hallTicketValue;
+          formDataChanged = true;
+          console.log(`✅ Auto-populated hallTicketNo (INTER 1):`, hallTicketValue);
+        }
+      }
+    }
+   
+    // Also try to populate directly from overview if fields exist there
+    if (overviewData.tenthHallTicketNo && (!updatedFormData.tenthHallTicketNo || updatedFormData.tenthHallTicketNo === "")) {
+      updatedFormData.tenthHallTicketNo = String(overviewData.tenthHallTicketNo).trim();
+      formDataChanged = true;
+      console.log(`✅ Auto-populated tenthHallTicketNo directly from overview:`, overviewData.tenthHallTicketNo);
+    }
+    if (overviewData.interFirstYearHallTicketNo && (!updatedFormData.interFirstYearHallTicketNo || updatedFormData.interFirstYearHallTicketNo === "")) {
+      updatedFormData.interFirstYearHallTicketNo = String(overviewData.interFirstYearHallTicketNo).trim();
+      formDataChanged = true;
+      console.log(`✅ Auto-populated interFirstYearHallTicketNo directly from overview:`, overviewData.interFirstYearHallTicketNo);
+    }
 
     if (formDataChanged) {
       setFormData(updatedFormData);
@@ -144,20 +219,30 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
 
   // Dynamic auto-population when overviewData is available
   useEffect(() => {
-    autoPopulateFormFields(overviewData, formData, academicFormData, setFormData, setAcademicFormData);
-  }, [overviewData]); // Only depend on overviewData to avoid infinite loops
+    if (overviewData) {
+      autoPopulateFormFields(overviewData, formData, academicFormData, setFormData, setAcademicFormData);
+    }
+  }, [overviewData, academicFormData?.selectedClassName]); // Also depend on selectedClassName to re-run when joining class is determined
+
+  // Additional useEffect to ensure hall ticket numbers are populated even if joining class is determined later
+  useEffect(() => {
+    if (overviewData && academicFormData?.selectedClassName) {
+      // Re-run auto-population when joining class becomes available
+      autoPopulateFormFields(overviewData, formData, academicFormData, setFormData, setAcademicFormData);
+    }
+  }, [academicFormData?.selectedClassName]); // Re-run when joining class is determined
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({ 
-      ...prev, 
-      [name]: type === 'checkbox' ? checked : value 
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
     }));
-    
+   
     // Clear error for the field being changed (only if it's not a concession-related field)
     // Concession-related errors are handled by useEffect above
-    if (validationErrors[name] && 
-        name !== 'firstYearConcession' && 
+    if (validationErrors[name] &&
+        name !== 'firstYearConcession' &&
         name !== 'secondYearConcession' &&
         name !== 'referredBy' &&
         name !== 'concessionReason' &&
@@ -175,7 +260,7 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
   const handleAcademicFormDataChange = useCallback((data) => {
     setAcademicFormData((prev) => {
       // Only update if data actually changed to prevent infinite loops
-      const hasChanges = 
+      const hasChanges =
         prev.cityId !== data.cityId ||
         prev.branchId !== data.branchId ||
         prev.joiningClassId !== data.joiningClassId ||
@@ -184,7 +269,7 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
         prev.courseNameId !== data.courseNameId ||
         prev.studentTypeId !== data.studentTypeId ||
         prev.courseFee !== data.courseFee;
-      
+     
       if (hasChanges) {
         return { ...prev, ...data };
       }
@@ -195,11 +280,11 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
   // Real-time validation for concession amounts
   useEffect(() => {
     const concessionErrors = validateCollegeConcessionInfo(formData, academicFormData);
-    
+   
     // Update errors for concession-related fields
     setValidationErrors((prev) => {
       const newErrors = { ...prev };
-      
+     
       // Clear previous concession-related errors
       delete newErrors.firstYearConcession;
       delete newErrors.secondYearConcession;
@@ -209,7 +294,7 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
       delete newErrors.authorizedBy;
       delete newErrors.concessionAmount;
       delete newErrors.concessionReferredBy;
-      
+     
       // Add new errors if validation fails
       if (concessionErrors.firstYearConcession) {
         newErrors.firstYearConcession = concessionErrors.firstYearConcession;
@@ -235,7 +320,7 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
       if (concessionErrors.concessionReferredBy) {
         newErrors.concessionReferredBy = concessionErrors.concessionReferredBy;
       }
-      
+     
       // Show snackbar with first error if any errors exist
       if (Object.keys(concessionErrors).length > 0) {
         const firstErrorKey = Object.keys(concessionErrors)[0];
@@ -255,7 +340,7 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
           closeSnackbar();
         }
       }
-      
+     
       return newErrors;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -268,11 +353,11 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
   const handleProceedToPaymentClick = () => {
     // Validate concession information before proceeding
     const concessionErrors = validateCollegeConcessionInfo(formData, academicFormData);
-    
+   
     if (Object.keys(concessionErrors).length > 0) {
       // Store validation errors for inline display
       setValidationErrors(concessionErrors);
-      
+     
       // Show snackbar with first error
       const firstErrorKey = Object.keys(concessionErrors)[0];
       const firstErrorMessage = concessionErrors[firstErrorKey];
@@ -281,21 +366,21 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
         message: firstErrorMessage,
         type: "error",
       });
-      
+     
       // Scroll to first error field
       const errorElement = document.querySelector(`[name="${firstErrorKey}"]`);
       if (errorElement) {
         errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         errorElement.focus();
       }
-      
+     
       return;
     }
 
     // Clear errors if validation passes
     setValidationErrors({});
     closeSnackbar();
-    
+   
     console.log("🔍 ===== PROCEEDING TO PAYMENT ======");
     console.log("Form Data (Concession Info):", formData);
     console.log("Academic Form Data (Orientation Info):", academicFormData);
@@ -307,7 +392,7 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
     console.log("  - Authorized By:", formData.authorizedById);
     console.log("  - Referred By:", formData.referredById);
     console.log("=====================================");
-    
+   
     if (onProceedToPayment) {
       // Pass form data and academic form data to parent
       console.log("Form data being sent to onProceedToPayment:", formData);
@@ -318,17 +403,17 @@ const CollegeAppConfContainer = ({ onBack, onProceedToPayment, detailsObject, ov
   return (
     <div className={styles.container}>
       <ApplicationSaleAndConfTopSec step={2} onBack={onBack}  title="Application Confirmation"  detailsObject={detailsObject}/>
-      
+     
       <div className={styles.contentContainer}>
-        <CollegeAcademicConfForms 
+        <CollegeAcademicConfForms
           academicYear={detailsObject?.academicYear}
           academicYearId={detailsObject?.academicYearId}
           onDataChange={handleAcademicFormDataChange}
           overviewData={overviewData}
           prePopulatedData={academicFormData}
         />
-        <CollegeConceInfoForms 
-          formData={formData} 
+        <CollegeConceInfoForms
+          formData={formData}
           onChange={handleChange}
           academicYear={detailsObject?.academicYear}
           academicYearId={detailsObject?.academicYearId}

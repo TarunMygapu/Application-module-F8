@@ -3291,7 +3291,7 @@ const CollegeSalePage = () => {
   const [academicFormValues, setAcademicFormValues] = useState(null);
   const [submissionResponse, setSubmissionResponse] = useState(null);
 
-  
+ 
 
   // State to store data from ApplicationSaleDetails
   const [applicationDetailsData, setApplicationDetailsData] = useState(null);
@@ -3908,25 +3908,42 @@ const CollegeSalePage = () => {
           religionId: sourceData.religionId,
         });
 
-        // Hall Ticket Number (for INTER1)
-        const hallTicketNoValue = sourceData.hallTicketNo || sourceData.tenthHallTicketNo || sourceData.hall_ticket_no || sourceData.htNo || sourceData.ht_no ;
-        if (hallTicketNoValue) {
-          formik.setFieldValue("hallTicketNo", String(hallTicketNoValue));
-          console.log("✅ Auto-populated hallTicketNo:", hallTicketNoValue);
-        }
+        // Determine joining class to map hall ticket numbers correctly
+        const joiningClassName = sourceData.joiningClassName || sourceData.className || formik.values.joiningClass || "";
+        const normalizedJoiningClass = String(joiningClassName).toUpperCase().trim().replace(/\s+/g, "").replace(/-/g, "").replace(/_/g, "");
+        const isInter2 = normalizedJoiningClass === "INTER2" || normalizedJoiningClass === "INTER2NDYEAR" || normalizedJoiningClass.includes("INTER2");
+       
+        console.log("🔍 Hall Ticket Auto-population Check (Sale Form):", {
+          joiningClassName,
+          normalizedJoiningClass,
+          isInter2,
+          sourceHallTicketNo: sourceData.hallTicketNo,
+          sourcePreHallTicketNo: sourceData.preHallTicketNo,
+          sourceTenthHallTicketNo: sourceData.tenthHallTicketNo,
+          sourceInterFirstYearHallTicketNo: sourceData.interFirstYearHallTicketNo
+        });
 
-        // 10th Hall Ticket No (for INTER2)
-        const tenthHallTicketNoValue = sourceData.tenthHallTicketNo || sourceData.tenth_hall_ticket_no || sourceData.tenthHallTicket || sourceData.tenth_hall_ticket;
-        if (tenthHallTicketNoValue) {
-          formik.setFieldValue("tenthHallTicketNo", String(tenthHallTicketNoValue));
-          console.log("✅ Auto-populated tenthHallTicketNo:", tenthHallTicketNoValue);
-        }
-
-        // Inter 1st Year Hall Ticket No (for INTER2)
-        const interFirstYearHallTicketNoValue = sourceData.interFirstYearHallTicketNo || sourceData.inter_first_year_hall_ticket_no || sourceData.interHallTicketNo || sourceData.inter_1st_year_hall_ticket_no;
-        if (interFirstYearHallTicketNoValue) {
-          formik.setFieldValue("interFirstYearHallTicketNo", String(interFirstYearHallTicketNoValue));
-          console.log("✅ Auto-populated interFirstYearHallTicketNo:", interFirstYearHallTicketNoValue);
+        if (isInter2) {
+          // INTER 2: hallTicketNo from overview (10th) → tenthHallTicketNo in form
+          // preHallTicketNo from overview (Inter 1st Year) → interFirstYearHallTicketNo in form
+          const tenthHallTicketValue = sourceData.hallTicketNo || sourceData.tenthHallTicketNo || sourceData.tenth_hall_ticket_no || sourceData.tenthHallTicket || sourceData.tenth_hall_ticket;
+          if (tenthHallTicketValue) {
+            formik.setFieldValue("tenthHallTicketNo", String(tenthHallTicketValue));
+            console.log("✅ Auto-populated tenthHallTicketNo (INTER 2) from hallTicketNo:", tenthHallTicketValue);
+          }
+         
+          const interFirstYearValue = sourceData.preHallTicketNo || sourceData.interFirstYearHallTicketNo || sourceData.inter_first_year_hall_ticket_no || sourceData.interHallTicketNo || sourceData.inter_1st_year_hall_ticket_no;
+          if (interFirstYearValue) {
+            formik.setFieldValue("interFirstYearHallTicketNo", String(interFirstYearValue));
+            console.log("✅ Auto-populated interFirstYearHallTicketNo (INTER 2) from preHallTicketNo:", interFirstYearValue);
+          }
+        } else {
+          // INTER 1 or other: hallTicketNo from overview → hallTicketNo in form
+          const hallTicketNoValue = sourceData.hallTicketNo || sourceData.tenthHallTicketNo || sourceData.hall_ticket_no || sourceData.htNo || sourceData.ht_no;
+          if (hallTicketNoValue) {
+            formik.setFieldValue("hallTicketNo", String(hallTicketNoValue));
+            console.log("✅ Auto-populated hallTicketNo (INTER 1):", hallTicketNoValue);
+          }
         }
 
         // Inter Hall Ticket No (for LONG_TERM/SHORT_TERM)
