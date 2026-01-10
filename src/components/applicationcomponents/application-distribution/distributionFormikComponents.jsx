@@ -164,9 +164,23 @@ export const BackendPatcher = ({
     }
   }
 }, [backendValues.issuedToEmpId, values.issuedToEmpId, setFieldValue]);
-  useEffect(() => patchNumber("academicYearId", backendValues.academicYearId), [
-    backendValues.academicYearId,
-  ]);
+
+useEffect(() => {
+  if (backendValues.academicYearId != null) {
+    if (values.academicYearId !== backendValues.academicYearId) {
+      setFieldValue("academicYearId", backendValues.academicYearId, false);
+    }
+  }
+}, [backendValues.academicYearId, values.academicYearId, setFieldValue]);
+
+
+  useEffect(() => {
+  if (backendValues.academicYear != null) {
+    if (values.academicYear !== backendValues.academicYear) {
+      setFieldValue("academicYear", backendValues.academicYear, false);
+    }
+  }
+}, [backendValues.academicYear, values.academicYear, setFieldValue]);
   useEffect(() => patchNumber("stateId", backendValues.stateId), [
     backendValues.stateId,
   ]);
@@ -185,6 +199,7 @@ useEffect(() => {
     }
   }
 }, [backendValues.cityName, values.cityName, setFieldValue]);
+
 
 // ------------------ ZONE NAME ------------------
 useEffect(() => {

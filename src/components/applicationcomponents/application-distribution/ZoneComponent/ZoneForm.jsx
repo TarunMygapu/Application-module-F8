@@ -11,6 +11,7 @@ import {
   useGetAllFeeAmounts,
   useGetApplicationSeriesForEmpId,
   useGetLocationOfEmployees,
+  useGetThreeAcademicYear
 } from "../../../../queries/applicationqueries/application-distribution/dropdownqueries";
 import { useRole } from "../../../../hooks/useRole";
 import { useFormikContext } from "formik";
@@ -71,11 +72,34 @@ const ZoneForm = ({
   const [customAcademicYear, setCustomAcademicYear] = useState(null);
   const [selectedSeries, setSelectedSeries] = useState(null);
 
+  const {data: academicYear } = useGetThreeAcademicYear();
+  console.log("Three Academic Year: ", academicYear);
+
   // --------------------- INITIAL FORM VALUES -------------------------
   const [seedInitialValues, setSeedInitialValues] = useState({
     ...initialValues,
-    academicYear: initialValues.academicYear || "2025-26",
+    academicYear: initialValues.academicYear || "",
   });
+
+  useEffect(() => {
+  if (isUpdate) return;               // 🔒 do not touch update
+  if (!academicYear?.currentYear) return;
+
+  const { academicYear: yearName, acdcYearId } =
+    academicYear.currentYear;
+
+  // ✅ 1. Set visible dropdown value (LABEL)
+  setSeedInitialValues(prev => ({
+    ...prev,
+    academicYear: yearName,
+  }));
+
+  // ✅ 2. Set ID for backend & dependent APIs
+  setSelectedAcademicYearId(acdcYearId);
+
+  isHydratingRef.current = false;
+}, [academicYear, isUpdate]);
+
 
 
   useEffect(() => {
@@ -83,11 +107,14 @@ const ZoneForm = ({
       isHydratingRef.current = false;
       return;
     }
-
     // initialize previous values from update data
     prevStateNameRef.current = seedInitialValues.stateName || null;
     prevCityNameRef.current = seedInitialValues.cityName || null;
     prevZoneNameRef.current = seedInitialValues.zoneName || null;
+
+    if (initialValues.academicYearId) {
+    setSelectedAcademicYearId(initialValues.academicYearId);
+  }
 
     isHydratingRef.current = false;
   }, [isUpdate, seedInitialValues]);
@@ -129,7 +156,7 @@ const ZoneForm = ({
     false
   );
 
-  console.log("Application Fee:", applicationFee.data);
+  // console.log("Application Fee:", applicationFee.data);
   console.log("Application Fee Selected:", selectApplicationFee);
   console.log("Application Series:", applicationSeries);
 
@@ -360,8 +387,10 @@ const ZoneForm = ({
     if (mobileNo != null) obj.mobileNumber = String(mobileNo);
 
     if (issuedToEmpId != null) obj.issuedToEmpId = Number(issuedToEmpId);
-    if (selectedAcademicYearId != null)
-      obj.academicYearId = Number(selectedAcademicYearId);
+    if (selectedAcademicYearId != null) {
+  obj.academicYearId = Number(selectedAcademicYearId);
+  obj.academicYear = seedInitialValues.academicYear; // 🔥 ADD THIS
+}
     if (selectedStateId != null) obj.stateId = Number(selectedStateId);
     if (selectedCityId != null) obj.cityId = Number(selectedCityId);
     if (selectedZoneId != null) obj.zoneId = Number(selectedZoneId);

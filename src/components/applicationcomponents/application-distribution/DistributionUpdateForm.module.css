@@ -42,6 +42,9 @@
 /* Close icon */
 .xicon {
   cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
  
 /* Modal heading styles */

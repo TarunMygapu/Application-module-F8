@@ -167,7 +167,7 @@ const AnalyticsHeader = ({ onTabChange, activeTab }) => {
       campusData.forEach(campus => {
         const campusName = campus.name || campus.campusName || campus.campus_name || campus.campus;
         if (campusName) {
-          items.push({ id: `campus-${campus.id}`, name: campusName, type: "Campus" });
+          items.push({ id: `campus-${campus.id}`, name: campusName, type: "Branch" });
         }
       });
     }
@@ -227,7 +227,7 @@ const AnalyticsHeader = ({ onTabChange, activeTab }) => {
     let entityType = null;
     if (item.type === "Zone") entityType = "zone";
     else if (item.type === "DGM") entityType = "dgm";
-    else if (item.type === "Campus") entityType = "branch";
+    else if (item.type === "Branch") entityType = "branch";
 
     // For DGM, we need to find the original data to get cmpsId
     let cmpsId = null;

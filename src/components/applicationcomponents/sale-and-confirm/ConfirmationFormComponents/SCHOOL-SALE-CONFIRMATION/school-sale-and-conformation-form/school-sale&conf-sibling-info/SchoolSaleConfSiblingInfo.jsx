@@ -204,14 +204,14 @@ const SchoolSaleConfSiblingInfo = ({
       <div className={styles.buttonGrid}>
         <Button
           buttonname="Upload Annexure"
-          variant="secondary"
+          variant="upload"
           onClick={onUploadAnnexure}
           lefticon={<UploadIcon />}
         />
 
         <Button
           buttonname="Add Another Sibling"
-          variant="outline"
+          variant="secondary"
           onClick={onAddSibling}
           lefticon={<PlusIcon />}
         />

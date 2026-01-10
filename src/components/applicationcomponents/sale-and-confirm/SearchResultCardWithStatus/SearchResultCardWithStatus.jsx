@@ -377,7 +377,7 @@ const SearchResultCardWithStatus = ({ data, maxResults = 5, onCardClick, categor
                   >
                   <figure className={styles.Search_Cards_recent_search__image}></figure>
                   <p className={styles.Search_Cards_recent_search__id}>
-                    {item.applicationNo}
+                    {item.applicationNo} 
                   </p>
                   <p className={styles.Search_Cards_recent_search__Campus}  data-fulltext={item.campus} title={item.campus}>
                     {item.campus}

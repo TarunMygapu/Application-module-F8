@@ -12,6 +12,7 @@ const BASE_URL = "http://localhost:8080";
  
 const DISTRIBUTION_GETS = "/distribution/gets";
 const DISTRIBUTION_TABLE = "/distribution/table";
+
  
 // ---------- low-level fetchers using axios ----------
 const getStateName = async () =>
@@ -194,6 +195,9 @@ const getDgmWithZonalAccountant = async(zoneId,category) =>
 
 const getLocationOfEmployees = async(empId,category,isUserAdmin) =>
   (await axios.get(`${BASE_URL}${DISTRIBUTION_GETS}/employee-location/${empId}?cmpsCategory=${category}&returnMessage=${isUserAdmin}`)).data;
+
+const getThreeAcademicYear = async() =>
+(await axios.get(`${BASE_URL}/api/analytics/academic-year-info`)).data;
 
 // ---------- TanStack Query v5 hooks ----------
 export const useGetStateName = () =>
@@ -457,4 +461,10 @@ export const useGetLocationOfEmployees = (empId,category,isUserAdmin) =>
     queryKey:["Get Location of Employees: ", empId,category,isUserAdmin],
     queryFn: () => getLocationOfEmployees(empId,category,isUserAdmin),
     enabled: !!empId && !!category && typeof isUserAdmin === "boolean",
+  })
+
+export const useGetThreeAcademicYear = () =>
+  useQuery({
+    queryKey:["Get Three Academic Years: "],
+    queryFn: () =>getThreeAcademicYear(),
   })

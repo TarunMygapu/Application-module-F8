@@ -323,14 +323,15 @@ const ApplicationSaleDetails = ({ saleName, onDataLoaded, applicationNo, onBack,
  
         <div className={styles.clgApplicationDetails}>
           <p className={styles.clgAppDetailsHeading}>Application No</p>
-          <p className={styles.clgAppDetailsValue}>{appNo}</p>
+          <p className={styles.clgAppDetailsValue} >{appNo}</p>
         </div>
  
         <div className={styles.clgApplicationDetails}>
           <p className={styles.clgAppDetailsHeading}>Branch</p>
           <p
             className={styles.clgAppDetailsValue}
-            data-fulltext={campusName}
+            id={styles.campus} data-fulltext={campusName}
+            title={campusName}
           >
             {campusName}
           </p>
