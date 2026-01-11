@@ -281,6 +281,7 @@ const DistributeForm = ({
     if (!cfg) return null;
     const errorMessage = touched[name] && errors[name] ? errors[name] : null;
     if (cfg.name === "range") {
+      const rangeDisabled = !values.applicationNoFrom;
       return (
         <>
           <Field
@@ -288,6 +289,7 @@ const DistributeForm = ({
             component={RangeInputBox}
             label={cfg.label}
             value={values[cfg.name] || ""}
+            disabled={rangeDisabled}
           />
           {errorMessage && <div className={styles.error}>{errorMessage}</div>}
         </>
@@ -318,6 +320,7 @@ const DistributeForm = ({
             results={options}
             value={String(values[cfg.name] ?? "")}
             searchResults={searchResults}
+            disable={isLockedonUpdate}
             onChange={(e) => {
               const val = e.target.value;
               setFieldValue(cfg.name, val);

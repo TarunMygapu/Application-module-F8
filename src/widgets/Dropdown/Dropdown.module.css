@@ -177,3 +177,11 @@
 .dropdown_arrow_open {
   transform: rotate(180deg);
 }
+
+
+.dropdown_wrapper .dropdown_button:disabled {
+  background-color: #F3F3F3;
+  /* light red */
+  /* red border */
+  cursor: none;
+}

@@ -96,9 +96,11 @@ const AnalyticsHeader = ({ onTabChange, activeTab }) => {
 
   console.log("All DGMs Query Data:", dgmsQueryStatic.data);
 
-  const dgmsForZonalQuery = useGetDgmsForZonalAccountant(empId, userCategory, {
-    enabled: !!empId && !!userCategory && !isUserAdmin && dgmPerms.isFullAccess,
+  const dgmsForZonalQuery = useGetDgmsForZonalAccountant(empId, {
+    enabled: !!empId && !isUserAdmin && dgmPerms.isFullAccess,
   });
+
+  console.log("All DGMs For Zonal Query Data:", dgmsForZonalQuery.data);
 
   const allCampusesQuery = useGetAllCampuses(userCategory, {
     enabled: !!userCategory && !!isUserAdmin && campusPerms.isFullAccess,
@@ -310,7 +312,7 @@ const AnalyticsHeader = ({ onTabChange, activeTab }) => {
           value={searchTerm}
           inputRule="alphaNumericHyphen"
           maxLength="45"
-          minLength = "3"
+          minLength="3"
         />
 
         {showSuggestions && <FilterSearch suggestions={suggestions} onItemClick={handleSearchItemClick} />}

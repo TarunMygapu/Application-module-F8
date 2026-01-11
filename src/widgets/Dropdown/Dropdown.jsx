@@ -35,7 +35,7 @@ const Dropdown = ({
   onChange,
   value,
   name,
-  disabled = false,
+  disable,
   minChars = 3,
   required = false,
   error,
@@ -73,7 +73,7 @@ const Dropdown = ({
   }, [filteredResults, useFilter, term]);
 
   const handleToggle = () => {
-    if (disabled) return;
+    if (disable) return;
     setIsOpen((prev) => {
       const next = !prev;
       if (next) {
@@ -104,7 +104,7 @@ const Dropdown = ({
 
   // Keyboard Navigation Logic
   const handleKeyDown = (e) => {
-    if (disabled) return;
+    if (disable) return;
 
     // If dropdown is closed, Enter/Space/ArrowDown opens it
     if (!isOpen) {
@@ -188,14 +188,14 @@ const Dropdown = ({
         className={`${styles.dropdown_button} ${isOpen ? styles.dropdown_button_open : ""}`}
         onClick={handleToggle}
         type="button"
-        disabled={disabled}
+        disabled={disable}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
         {value || `Select ${dropdownname}`}
-        <span className={`${styles.dropdown_arrow} ${isOpen ? styles.dropdown_arrow_open : ""}`}>
+        {!disable && <span className={`${styles.dropdown_arrow} ${isOpen ? styles.dropdown_arrow_open : ""}`}>
           {downarrow}
-        </span>
+        </span>}
       </button>
 
       {isOpen && (

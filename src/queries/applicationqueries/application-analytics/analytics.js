@@ -390,10 +390,10 @@ const getAllCampuses = async (category) =>
 // ----------------------
 // 🧾 Zonal Accountant & DGM APIs
 // ----------------------
-const getDgmsForZonalAccountant = async (empId, category) => {
+const getDgmsForZonalAccountant = async (empId) => {
   if (!empId) return [];
   const { data } = await axios.get(
-    `${DISTRIBUTION_GETS}/dgmforzonal_accountant_with_category/${empId}?category=${category}`
+    `${DISTRIBUTION_GETS}/dgm-with-campuses/${empId}`
   );
   return data;
 };
@@ -524,7 +524,7 @@ const getAnalyticsForCampus = async (campusId) => {
 // ----------------------
 // 📊 Flexible Graph API (supports zoneId, campusId, amount - all optional)
 // ----------------------
-const buildFlexibleGraphUrl = (zoneId, campusIds, campusId, amount,empId) => {
+const buildFlexibleGraphUrl = (zoneId, campusIds, campusId, amount, empId) => {
   const baseUrl = "http://localhost:8080/api/analytics/flexible-graph";
   const params = new URLSearchParams();
 
@@ -552,7 +552,7 @@ const buildFlexibleGraphUrl = (zoneId, campusIds, campusId, amount,empId) => {
   if (amount != null && amount !== "") {
     params.append("amount", String(amount));
   }
-  if(empId  != "null" && empId!==""){
+  if (empId != "null" && empId !== "") {
     params.append("empId", String(empId));
   }
 
@@ -563,7 +563,7 @@ const buildFlexibleGraphUrl = (zoneId, campusIds, campusId, amount,empId) => {
   return finalUrl;
 };
 
-const getFlexibleGraph = async (zoneId, campusIds, campusId, amount,empId) => {
+const getFlexibleGraph = async (zoneId, campusIds, campusId, amount, empId) => {
   console.log("🟣 API CALL: getFlexibleGraph with:", {
     zoneId,
     campusIds,
@@ -571,7 +571,7 @@ const getFlexibleGraph = async (zoneId, campusIds, campusId, amount,empId) => {
     amount
   });
 
-  const url = buildFlexibleGraphUrl(zoneId, campusIds, campusId, amount,empId);
+  const url = buildFlexibleGraphUrl(zoneId, campusIds, campusId, amount, empId);
   console.log("🟣 API URL:", url);
 
   try {
@@ -616,10 +616,10 @@ export const useGetAllCampuses = (category, options = {}) =>
   });
 
 // ✅ Zonal Accountant & DGM
-export const useGetDgmsForZonalAccountant = (empId, category, options = {}) =>
+export const useGetDgmsForZonalAccountant = (empId, options = {}) =>
   useQuery({
     queryKey: ["Get DGMs for Zonal Accountant", empId],
-    queryFn: () => getDgmsForZonalAccountant(empId, category),
+    queryFn: () => getDgmsForZonalAccountant(empId),
     enabled: !!empId && (options.enabled ?? true),
     ...options,
   });
@@ -722,7 +722,7 @@ export const useGetAnalyticsForDgm = (empId, options = {}) =>
   });
 
 // ✅ Flexible Graph (supports zoneId, campusId, amount - all optional)
-export const useGetFlexibleGraph = (zoneId, campusIds, campusId, amount,empId, options = {}) => {
+export const useGetFlexibleGraph = (zoneId, campusIds, campusId, amount, empId, options = {}) => {
   // Validate that at least one parameter is provided
   // Note: amount can be 0, which is a valid value
   const hasValidParams =
@@ -730,7 +730,7 @@ export const useGetFlexibleGraph = (zoneId, campusIds, campusId, amount,empId, o
     (campusIds != null && campusIds !== "" && campusIds !== undefined) ||
     (campusId != null && campusId !== "" && campusId !== undefined) ||
     (amount != null && amount !== "" && amount !== undefined) ||
-    (empId != null && empId !== "" && empId !== undefined);  
+    (empId != null && empId !== "" && empId !== undefined);
 
 
   return useQuery({

@@ -10,14 +10,14 @@
 //   useGetCampuesForDgmEmpId,
 // } from "../../../../queries/application-analytics/analytics";
 // import { useSelectedEntity } from "../../../../contexts/SelectedEntityContext";
- 
+
 // const ZoneNameDropdown = ({ activeTab }) => {
 //   const [selectedValue, setSelectedValue] = useState("");
 //   const [userCategory, setUserCategory] = useState(null);
 //   const [empId, setEmpId] = useState(null);
- 
+
 //   const { selectEntity, clearSelection } = useSelectedEntity();
- 
+
 //   // ✅ Load category & empId safely from localStorage
 //   useEffect(() => {
 //     const storedCategory = localStorage.getItem("category");
@@ -25,42 +25,42 @@
 //     if (storedCategory) setUserCategory(storedCategory.toUpperCase());
 //     if (storedEmpId) setEmpId(storedEmpId);
 //   }, []);
- 
+
 //   // ✅ Identify user type
 //   const isZonalAccountant =
 //     userCategory === "SCHOOL" || userCategory === "COLLEGE";
 //   const isAdmin = !!userCategory && !isZonalAccountant;
- 
+
 //   // ✅ Conditionally enable queries
 //   const allZonesQuery = useGetAllZones({
 //     enabled: !!userCategory && isAdmin && activeTab === "Zone",
 //   });
- 
+
 //   const allDgmsQuery = useGetAllDgms({
 //     enabled: !!userCategory && isAdmin && activeTab === "DGM",
 //   });
- 
+
 //   const allCampusesQuery = useGetAllCampuses({
 //     enabled: !!userCategory && isAdmin && activeTab === "Campus",
 //   });
- 
+
 //   const dgmsForZonalQuery = useGetDgmsForZonalAccountant(empId, {
 //     enabled: !!empId && !!userCategory && isZonalAccountant && activeTab === "DGM",
 //   });
- 
+
 //   const campusesForZonalQuery = useGetCampuesForZonalAccountant(empId, {
 //     enabled: !!empId && !!userCategory && isZonalAccountant && activeTab === "Campus",
 //   });
- 
+
 //   const campusesForDgmQuery = useGetCampuesForDgmEmpId(empId, {
 //     enabled: !!empId && !!userCategory && isZonalAccountant && activeTab === "Campus",
 //   });
- 
+
 //   // ✅ Choose which data to display dynamically
 //   let rawData = [];
 //   let isLoading = false;
 //   let isError = false;
- 
+
 //   if (isAdmin) {
 //     if (activeTab === "Zone")
 //       ({ data: rawData = [], isLoading, isError } = allZonesQuery);
@@ -77,20 +77,20 @@
 //       const dgmData = campusesForDgmQuery.data || [];
 //       rawData =
 //         Array.isArray(zonalData) && zonalData.length > 0 ? zonalData : dgmData;
- 
+
 //       isLoading =
 //         campusesForZonalQuery.isLoading || campusesForDgmQuery.isLoading;
 //       isError =
 //         campusesForZonalQuery.isError && campusesForDgmQuery.isError;
 //     }
 //   }
- 
+
 //   // ✅ Map raw data (common format: { id, name })
 //   const dropdownResults = useMemo(() => {
 //     if (!Array.isArray(rawData) || rawData.length === 0) return [];
 //     return rawData.map((item) => item.name).filter(Boolean);
 //   }, [rawData]);
- 
+
 //   // ✅ Reset dropdown value when tab changes (but DON'T clear the selected entity context)
 //   useEffect(() => {
 //     if (!isLoading) {
@@ -98,27 +98,27 @@
 //       // DON'T call clearSelection() - user wants selection to persist until they select a new item
 //     }
 //   }, [activeTab, isLoading]);
- 
+
 //   const handleChange = (event) => {
 //     const newValue = event.target?.value || event;
 //     setSelectedValue(newValue);
-   
+
 //     console.log("🎯🎯🎯 === DROPDOWN CLICKED AND CHANGED! ===");
 //     console.log("=== DROPDOWN CHANGE DEBUG ===");
 //     console.log("Selected value:", newValue);
 //     console.log("Raw data available:", rawData);
 //     console.log("Active tab:", activeTab);
-   
+
 //     // ✅ Find the selected item's ID and pass to context
 //     if (!rawData || rawData.length === 0) {
 //       console.log("❌ No raw data available");
 //       clearSelection();
 //       return;
 //     }
-   
+
 //     const selectedItem = rawData.find((item) => item.name === newValue);
 //     console.log("🔍 Found selected item:", selectedItem);
-   
+
 //     if (selectedItem) {
 //       const entityType = activeTab === "Zone" ? "zone" : "campus"; // DGM and Campus both use campus API
 //       console.log(`✅ Calling selectEntity with:`, {
@@ -133,11 +133,11 @@
 //       clearSelection();
 //     }
 //   };
- 
+
 //   const dropdownName = activeTab ? `${activeTab} Name` : "Select Category";
 //   const isDisabled =
 //     isLoading || isError || dropdownResults.length === 0;
- 
+
 //   // 🔥 Debug logs AFTER all variables are declared
 //   console.log("🔥 DROPDOWN RENDER DEBUG 🔥");
 //   console.log("Active Tab:", activeTab);
@@ -145,12 +145,12 @@
 //   console.log("Dropdown Results:", dropdownResults);
 //   console.log("Is Disabled:", isDisabled);
 //   console.log("Is Loading:", isLoading);
- 
+
 //   // 🧠 Prevent rendering until both category & empId are ready
 //   if (!userCategory || !empId) {
 //     return <div>Loading...</div>;
 //   }
- 
+
 //   return (
 //     <div id="zone_name_dropdown">
 //       <Dropdown
@@ -164,7 +164,7 @@
 //     </div>
 //   );
 // };
- 
+
 // export default ZoneNameDropdown;
 
 
@@ -181,7 +181,7 @@ import {
   useGetCampuesForDgmEmpId,
 } from "../../../../../queries/applicationqueries/application-analytics/analytics";
 import { useSelectedEntity } from "../../../../../contexts/applicationcontext/SelectedEntityContext";
- 
+
 const ZoneNameDropdown = ({ activeTab }) => {
   const [selectedValue, setSelectedValue] = useState("");
   const [userCategory, setUserCategory] = useState(null);
@@ -189,9 +189,9 @@ const ZoneNameDropdown = ({ activeTab }) => {
   const { hasRole: isUserAdmin } = useRole("ADMIN");
 
   // const category = localStorage.getItem("campusCategory");
- 
+
   const { selectEntity, clearSelection } = useSelectedEntity();
- 
+
   // ✅ Load category & empId safely from localStorage
   useEffect(() => {
     const storedCategory = localStorage.getItem("campusCategory");
@@ -199,44 +199,46 @@ const ZoneNameDropdown = ({ activeTab }) => {
     if (storedCategory) setUserCategory(storedCategory.toUpperCase());
     if (storedEmpId) setEmpId(storedEmpId);
   }, []);
- 
+
   // ✅ Identify user type
   // const isZonalAccountant =
   //   userCategory === "SCHOOL" || userCategory === "COLLEGE";
   // const isAdmin = !!userCategory && !isZonalAccountant;
- 
+
   // ✅ Conditionally enable queries
-  const allZonesQuery = useGetAllZones(userCategory,{
+  const allZonesQuery = useGetAllZones(userCategory, {
     enabled: !!userCategory && !!isUserAdmin && activeTab === "Zone",
   });
 
   console.log("All Zones Query Data:", allZonesQuery.data);
- 
-  const allDgmsQuery = useGetAllDgms(userCategory,{
+
+  const allDgmsQuery = useGetAllDgms(userCategory, {
     enabled: !!userCategory && !!isUserAdmin && activeTab === "DGM",
   });
- 
-  const allCampusesQuery = useGetAllCampuses(userCategory,{
+
+  const allCampusesQuery = useGetAllCampuses(userCategory, {
     enabled: !!userCategory && !!isUserAdmin && activeTab === "Branch",
   });
- 
+
   const dgmsForZonalQuery = useGetDgmsForZonalAccountant(empId, {
-    enabled: !!empId && !!userCategory && !isUserAdmin && activeTab === "DGM",
+    enabled: !!empId && !isUserAdmin && activeTab === "DGM",
   });
- 
+
+  console.log("DGMS for Zonal :", dgmsForZonalQuery.data);
+
   const campusesForZonalQuery = useGetCampuesForZonalAccountant(empId, {
     enabled: !!empId && !!userCategory && !isUserAdmin && activeTab === "Branch",
   });
- 
+
   const campusesForDgmQuery = useGetCampuesForDgmEmpId(empId, {
     enabled: !!empId && !!userCategory && !isUserAdmin && activeTab === "Branch",
   });
- 
+
   // ✅ Choose which data to display dynamically
   let rawData = [];
   let isLoading = false;
   let isError = false;
- 
+
   if (isUserAdmin) {
     if (activeTab === "Zone")
       ({ data: rawData = [], isLoading, isError } = allZonesQuery);
@@ -253,20 +255,20 @@ const ZoneNameDropdown = ({ activeTab }) => {
       const dgmData = campusesForDgmQuery.data || [];
       rawData =
         Array.isArray(zonalData) && zonalData.length > 0 ? zonalData : dgmData;
- 
+
       isLoading =
         campusesForZonalQuery.isLoading || campusesForDgmQuery.isLoading;
       isError =
         campusesForZonalQuery.isError && campusesForDgmQuery.isError;
     }
   }
- 
+
   // ✅ Map raw data (common format: { id, name })
   const dropdownResults = useMemo(() => {
     if (!Array.isArray(rawData) || rawData.length === 0) return [];
-    return rawData.map((item) => item.name).filter(Boolean);
+    return rawData.map((item) => item.name || item.dgmName).filter(Boolean);
   }, [rawData]);
- 
+
   // ✅ Reset dropdown value when tab changes (but DON'T clear the selected entity context)
   useEffect(() => {
     if (!isLoading) {
@@ -274,27 +276,27 @@ const ZoneNameDropdown = ({ activeTab }) => {
       // DON'T call clearSelection() - user wants selection to persist until they select a new item
     }
   }, [activeTab, isLoading]);
- 
+
   const handleChange = (event) => {
     const newValue = event.target?.value || event;
     setSelectedValue(newValue);
-   
+
     console.log("🎯🎯🎯 === DROPDOWN CLICKED AND CHANGED! ===");
     console.log("=== DROPDOWN CHANGE DEBUG ===");
     console.log("Selected value:", newValue);
     console.log("Raw data available:", rawData);
     console.log("Active tab:", activeTab);
-   
+
     // ✅ Find the selected item's ID and pass to context
     if (!rawData || rawData.length === 0) {
       console.log("❌ No raw data available");
       clearSelection();
       return;
     }
-   
+
     const selectedItem = rawData.find((item) => item.name === newValue);
     console.log("🔍 Found selected item:", selectedItem);
-   
+
     if (selectedItem) {
       // Map the active tab to a proper entity type so consumers can
       // distinguish between zone, dgm and branch selections.
@@ -302,12 +304,12 @@ const ZoneNameDropdown = ({ activeTab }) => {
       if (activeTab === "Zone") entityType = "zone";
       else if (activeTab === "DGM") entityType = "dgm";
       else entityType = "branch";
- 
+
       // For DGM, extract cmpsId if available (check multiple possible field names)
       const cmpsId = activeTab === "DGM"
         ? (selectedItem.cmpsId || selectedItem.campusId || selectedItem.cmps_id || selectedItem.campus_id || null)
         : null;
- 
+
       console.log(`✅ Calling selectEntity with:`, {
         id: selectedItem.id,
         name: selectedItem.name,
@@ -322,11 +324,11 @@ const ZoneNameDropdown = ({ activeTab }) => {
       clearSelection();
     }
   };
- 
+
   const dropdownName = activeTab ? `${activeTab} Name` : "Select Category";
   const isDisabled =
     isLoading || isError || dropdownResults.length === 0;
- 
+
   // 🔥 Debug logs AFTER all variables are declared
   console.log("🔥 DROPDOWN RENDER DEBUG 🔥");
   console.log("Active Tab:", activeTab);
@@ -334,12 +336,12 @@ const ZoneNameDropdown = ({ activeTab }) => {
   console.log("Dropdown Results:", dropdownResults);
   console.log("Is Disabled:", isDisabled);
   console.log("Is Loading:", isLoading);
- 
+
   // 🧠 Prevent rendering until both category & empId are ready
   if (!userCategory || !empId) {
     return <div>Loading...</div>;
   }
- 
+
   return (
     <div id="zone_name_dropdown">
       <Dropdown
@@ -353,5 +355,5 @@ const ZoneNameDropdown = ({ activeTab }) => {
     </div>
   );
 };
- 
+
 export default ZoneNameDropdown;

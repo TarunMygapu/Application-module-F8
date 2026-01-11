@@ -186,10 +186,10 @@ const ZoneRateContainer = ({ activeTab = "Zone" }) => {
   const canViewCampus = usePermission("DISTRIBUTE_CAMPUS").canView;
 
   const TAB_TO_API_TYPE = {
-  zone: "zone",
-  dgm: "dgm",
-  branch: "campus", // 🔑 IMPORTANT
-};
+    zone: "zone",
+    dgm: "dgm",
+    branch: "campus", // 🔑 IMPORTANT
+  };
 
   // ✅ Filtering logic based on both activeTab and permissions
   const visibleRateData = useMemo(() => {

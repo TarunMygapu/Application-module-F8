@@ -656,7 +656,7 @@ const AccordiansContainer = () => {
   const isZonalAccountant =
     userCategory === "SCHOOL" || userCategory === "COLLEGE";
   const isAdminFromCategory = !!userCategory && !isZonalAccountant;
-  
+
 
   // ✅ Conditionally fetch graph data based on role
   // Admin uses: cards_graph endpoint → returns { metricCards: [...], graphData: { graphBarData: [...] } }
