@@ -29,38 +29,20 @@ const CollegeOverviewConceInfo = ({ concessionsData = [] }) => {
 
       {/* GRID */}
       <div className={styles.infoGrid}>
-        {concessionsData && concessionsData.length > 0 ? (
-          concessionsData.map((concession, index) => (
-            <React.Fragment key={index}>
-              <div className={styles.infoItem}>
-                <span className={styles.label}>
-                  {concession?.concessionTypeName || `Year ${index + 1}`}{" "}
-                  Concession
-                </span>
-                <span className={styles.value}>
-                  {concession?.amount || "-"}
-                </span>
-              </div>
-            </React.Fragment>
-          ))
-        ) : (
-          <>
-            <div className={styles.infoItem}>
-              <span className={styles.label}>1st Year Concession</span>
-              <span className={styles.value}>-</span>
-            </div>
+        {concessionsData?.[0]?.concessionTypeId && <div className={styles.infoItem}>
+          <span className={styles.label}>1st Year Concession</span>
+          <span className={styles.value}>{concessionsData?.[1]?.amount || "-"}</span>
+        </div>}
 
-            <div className={styles.infoItem}>
-              <span className={styles.label}>2nd Year Concession</span>
-              <span className={styles.value}>-</span>
-            </div>
+        {concessionsData?.[1]?.concessionTypeId && <div className={styles.infoItem}>
+          <span className={styles.label}>2nd Year Concession</span>
+          <span className={styles.value}>{concessionsData?.[1]?.amount || "-"}</span>
+        </div>}
 
-            <div className={styles.infoItem}>
-              <span className={styles.label}>3rd Year Concession</span>
-              <span className={styles.value}>-</span>
-            </div>
-          </>
-        )}
+        {concessionsData?.[2]?.concessionTypeId && <div className={styles.infoItem}>
+          <span className={styles.label}>3rd Year Concession</span>
+          <span className={styles.value}>-</span>
+        </div>}
 
         <div className={styles.infoItem}>
           <span className={styles.label}>Referred By</span>

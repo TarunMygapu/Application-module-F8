@@ -11,14 +11,14 @@
 //   const location = useLocation();
 //   const navigate = useNavigate();
 //   const applicationData = location.state?.applicationData;
-  
+
 //   // Get applicationNo from navigation state - no hardcoded fallback
 //   const applicationNo = applicationData?.applicationNo;
-  
+
 //   const [currentStep, setCurrentStep] = useState(1); // 1 = Overview, 2 = Application Confirmation
 //   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
 //   const [showSuccessPage, setShowSuccessPage] = useState(false);
-  
+
 //   // State to store form data and academic form data for submission
 //   const [formData, setFormData] = useState(null);
 //   const [academicFormData, setAcademicFormData] = useState(null);
@@ -50,7 +50,7 @@
 //     console.log("✏️ Edit clicked - Navigating to college application sale form with data");
 //     console.log("📦 Application Data:", applicationData);
 //     console.log("📦 Overview Data:", overviewData);
-    
+
 //     // Navigate to college sale form via SaleFormRouter with proper path
 //     navigate(`/scopes/application/status/${applicationNo}/college-sale`, {
 //       state: {
@@ -83,15 +83,15 @@
 //     console.log("Details:", details);
 //     console.log("Current showSuccessPage state:", showSuccessPage);
 //     console.log("Current showPaymentPopup state:", showPaymentPopup);
-    
+
 //     // Store response and close payment popup
 //     setSubmissionResponse(response);
 //     setShowPaymentPopup(false);
-    
+
 //     // Show success page
 //     console.log("🔄 Setting showSuccessPage to TRUE");
 //     setShowSuccessPage(true);
-    
+
 //     // Log after state update
 //     setTimeout(() => {
 //       console.log("📊 State after update - showSuccessPage should be true");
@@ -177,29 +177,29 @@ import CollegePaymentPopup from "../college-payment-popup-container/CollegePayme
 import SuccessPage from "../../../../../widgets/sale-done/SuccessPage";
 import { useAdmissionSaleData, useCollegeOverviewData } from "../../../../../queries/applicationqueries/college-apis/CollegeOverviewApis";
 import styles from "./CollegeSaleConfirmationContainer.module.css";
- 
+
 const CollegeSaleConfirmationContainer = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const applicationData = location.state?.applicationData;
- 
+
   // Get applicationNo from navigation state - no hardcoded fallback
   const applicationNo = applicationData?.applicationNo;
- 
+
   const [currentStep, setCurrentStep] = useState(1); // 1 = Overview, 2 = Application Confirmation
   const [showPaymentPopup, setShowPaymentPopup] = useState(false);
   const [showSuccessPage, setShowSuccessPage] = useState(false);
- 
+
   // State to store form data and academic form data for submission
   const [formData, setFormData] = useState(null);
   console.log("Form Data State in Confirmation Container:", formData);
   const [academicFormData, setAcademicFormData] = useState(null);
   const [submissionResponse, setSubmissionResponse] = useState(null);
- 
+
   // Fetch data once at parent level - using dynamic applicationNo
   const { data: detailsObject } = useAdmissionSaleData(applicationNo);
   const { overviewData } = useCollegeOverviewData(applicationNo);
- 
+
   // Show error if applicationNo is not available
   if (!applicationNo) {
     return (
@@ -213,16 +213,16 @@ const CollegeSaleConfirmationContainer = () => {
       </div>
     );
   }
- 
+
   const handleNext = () => {
     setCurrentStep(2);
   };
- 
+
   const handleEdit = () => {
     console.log("✏️ Edit clicked - Navigating to college application sale form with data");
     console.log("📦 Application Data:", applicationData);
     console.log("📦 Overview Data:", overviewData);
-   
+
     // Navigate to college sale form via SaleFormRouter with proper path
     navigate(`/scopes/application/status/${applicationNo}/college-sale`, {
       state: {
@@ -234,11 +234,11 @@ const CollegeSaleConfirmationContainer = () => {
       }
     });
   };
- 
+
   const handleBack = () => {
     setCurrentStep(1);
   };
- 
+
   const handleProceedToPayment = (formDataFromChild, academicFormDataFromChild) => {
     // Store form data and academic form data when proceeding to payment
     console.log("📦 Proceeding to payment with form data:", formDataFromChild);
@@ -246,11 +246,11 @@ const CollegeSaleConfirmationContainer = () => {
     setAcademicFormData(academicFormDataFromChild);
     setShowPaymentPopup(true);
   };
- 
+
   const handleClosePayment = () => {
     setShowPaymentPopup(false);
   };
- 
+
   const handleSubmissionSuccess = (response, details) => {
     console.log("🎉🎉🎉 ===== SUBMISSION SUCCESS HANDLER CALLED ===== 🎉🎉🎉");
     console.log("✅ Payment submission successful, showing success page");
@@ -258,35 +258,35 @@ const CollegeSaleConfirmationContainer = () => {
     console.log("Details:", details);
     console.log("Current showSuccessPage state:", showSuccessPage);
     console.log("Current showPaymentPopup state:", showPaymentPopup);
-   
+
     // Store response and close payment popup
     setSubmissionResponse(response);
     setShowPaymentPopup(false);
-   
+
     // Show success page
     console.log("🔄 Setting showSuccessPage to TRUE");
     setShowSuccessPage(true);
-   
+
     // Log after state update
     setTimeout(() => {
       console.log("📊 State after update - showSuccessPage should be true");
     }, 100);
   };
- 
+
   const handleBackFromSuccess = () => {
     // Navigate back to application status
     navigate("/scopes/application/status");
   };
- 
+
   const handleBackToStatus = () => {
     // Navigate back to application status table from overview
     navigate("/scopes/application/status");
   };
- 
+
   console.log("🔍 RENDER - showSuccessPage:", showSuccessPage);
   console.log("🔍 RENDER - showPaymentPopup:", showPaymentPopup);
   console.log("🔍 RENDER - currentStep:", currentStep);
- 
+
   return (
     <div className={styles.collegeSaleConfirmationWrapper}>
       {!showSuccessPage ? (
@@ -301,7 +301,7 @@ const CollegeSaleConfirmationContainer = () => {
                 overviewData={overviewData}
               />
             )}
- 
+
             {currentStep === 2 && (
               <CollegeAppConfContainer
                 onBack={handleBack}
@@ -311,7 +311,7 @@ const CollegeSaleConfirmationContainer = () => {
               />
             )}
           </div>
- 
+
           {showPaymentPopup && (
             <CollegePaymentPopup
               onClose={handleClosePayment}
@@ -342,5 +342,5 @@ const CollegeSaleConfirmationContainer = () => {
     </div>
   );
 };
- 
+
 export default CollegeSaleConfirmationContainer;

@@ -514,18 +514,7 @@ const DgmForm = ({
       // obj.issuedTo = isCampusChanged ? "" : initialValues.issuedTo;
 
       // ✅ FIX: Try to resolve the name for the selected ID
-      let computedIssuedToName = "";
-      if (finalIssuedToId && employees.length > 0) {
-        const e = employees.find(emp => empId(emp) === finalIssuedToId);
-        if (e) computedIssuedToName = empLabel(e);
-      }
 
-      if (computedIssuedToName) {
-        obj.issuedTo = computedIssuedToName;
-      } else {
-        // Fallback checks
-        obj.issuedTo = isCampusChanged ? "" : initialValues.issuedTo;
-      }
 
       // ✅ CRITICAL: Add applicationFee - required for application_Amount in DTO
       const finalApplicationFee = selectedFee ?? initialValues.applicationFee ?? seedInitialValues.applicationFee;

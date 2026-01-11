@@ -4,17 +4,17 @@ import styles from "./CollegeOverviewConWrtAppl.module.css";
 const CollegeOverviewConWrtAppl = ({ data }) => {
   // Find the concession object that has pro concession data (proAmount, proReason, proGivenById)
   const concessions = data?.concessions || [];
-  const proConcessionData = concessions.find(concession => 
-    concession?.proAmount !== null && 
-    concession?.proAmount !== undefined && 
+  const proConcessionData = concessions.find(concession =>
+    concession?.proAmount !== null &&
+    concession?.proAmount !== undefined &&
     concession?.proAmount !== 0
   ) || {};
-  
+
   // Extract pro concession fields
   const concessionAmount = proConcessionData?.proAmount || '-';
   const concessionReferredBy = proConcessionData?.proGivenByName || proConcessionData?.proGivenById || '-';
   const reason = proConcessionData?.proReason || '-';
-  
+
   return (
     <div className={styles.wrapper}>
       {/* Title + Divider */}

@@ -1,22 +1,22 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useFormikContext } from "formik";
 import styles from "./ExtraConcession.module.css";
- 
+
 import { renderField } from "../../../../../utils/renderField";
 import {
   extraConcessionFeilds,
   extraConcessionFieldsLayout,
 } from "./extraConcessionFields";
- 
+
 import { useGetEmployeesForSale, useGetConcessionReasons } from "../../../../../queries/applicationqueries/saleApis/clgSaleApis";
-import {toTitleCase} from "../../../../../utils/toTitleCase";
- 
+import { toTitleCase } from "../../../../../utils/toTitleCase";
+
 const ExtraConcession = () => {
   const formik = useFormikContext();
   const { values, setFieldValue, errors, touched, submitCount } = formik;
   // Initialize from Formik value if available, otherwise default to false
   const [showConcessionFields, setShowConcessionFields] = useState(values.concessionWrittenOnApplication || false);
-  
+
   // Sync local state with Formik value when it changes externally
   useEffect(() => {
     if (values.concessionWrittenOnApplication !== undefined) {
@@ -31,17 +31,17 @@ const ExtraConcession = () => {
     // Update Formik value so API mapping can access it
     setFieldValue("concessionWrittenOnApplication", newValue);
   };
- 
+
   /* ----------------------------------
       API: Get employees for dropdown
   ---------------------------------- */
   const { data: employeesRaw = [] } = useGetEmployeesForSale();
- 
+
   /* ----------------------------------
       API: Get Concession Reasons
   ---------------------------------- */
   const { data: concessionReasonsRaw = [] } = useGetConcessionReasons();
- 
+
   // Create name-to-ID map for concession reasons
   const concessionReasonNameToId = useMemo(() => {
     const map = new Map();
@@ -56,7 +56,7 @@ const ExtraConcession = () => {
     }
     return map;
   }, [concessionReasonsRaw]);
- 
+
   // Concession reason options for dropdown
   const concessionReasonOptions = useMemo(() => {
     if (Array.isArray(concessionReasonsRaw)) {
@@ -78,12 +78,12 @@ const ExtraConcession = () => {
       }
     }
   }, [showConcessionFields]);
- 
+
   const employeeOptions = useMemo(
-    () => employeesRaw.map((e) => toTitleCase(e?.name ?? "")),  
+    () => employeesRaw.map((e) => toTitleCase(e?.name ?? "")),
     [employeesRaw]
   );
- 
+
   // Create name-to-ID map for employees (for concessionReferredBy)
   const employeeNameToId = useMemo(() => {
     const map = new Map();
@@ -98,7 +98,7 @@ const ExtraConcession = () => {
     }
     return map;
   }, [employeesRaw]);
- 
+
   /* ----------------------------------
       Handle Reason Change - Store reason ID
   ---------------------------------- */
@@ -108,7 +108,7 @@ const ExtraConcession = () => {
     // Validation schema expects `concessionReason` while our field is named `reason`.
     setFieldValue(name, value);
     setFieldValue("concessionReason", value);
-   
+
     // Store proConcessionReasonId when reason is selected
     if (value && concessionReasonNameToId.has(value)) {
       const reasonId = concessionReasonNameToId.get(value);
@@ -117,7 +117,7 @@ const ExtraConcession = () => {
       setFieldValue("proConcessionReasonId", null);
     }
   };
- 
+
   /* ----------------------------------
       Handle Concession Referred By Change - Store employee ID
   ---------------------------------- */
@@ -127,7 +127,7 @@ const ExtraConcession = () => {
     // Validation schema expects `referredBy` while our field is named `concessionReferredBy`.
     setFieldValue(name, value);
     setFieldValue("referredBy", value);
-   
+
     // Store employee ID when employee is selected
     if (value && employeeNameToId.has(value)) {
       const employeeId = employeeNameToId.get(value);
@@ -136,31 +136,31 @@ const ExtraConcession = () => {
       setFieldValue("proConcessionGivenById", null);
     }
   };
- 
+
   /* ----------------------------------
       Build field map dynamically
   ---------------------------------- */
   const fieldMap = useMemo(() => {
     const map = {};
- 
+
     extraConcessionFeilds.forEach((f) => {
       map[f.name] = { ...f };
- 
+
       // Inject API options for concessionReferredBy
       if (f.name === "concessionReferredBy") {
         map[f.name].options = employeeOptions;
       }
-     
+
       // Inject API options for reason (concession reasons)
       if (f.name === "reason") {
         map[f.name].options = concessionReasonOptions;
         map[f.name].type = "select"; // Ensure it's a select dropdown
       }
     });
- 
+
     return map;
   }, [employeeOptions, concessionReasonOptions]);
- 
+
   return (
     <div className={styles.clgAppSaleExtraConcessionWrapper}>
       <div className={styles.clgAppSaleExtraConcessionInfoTop}>
@@ -174,15 +174,15 @@ const ExtraConcession = () => {
               <div className={styles.extraSelectionOption}></div>
             )}
           </div>
- 
+
           <p className={styles.clgAppSaleExtraConcessionHeading}>
             Concession Written on Application
           </p>
         </div>
- 
+
         <div className={styles.clgAppSalePersonalInfoSeperationLine}></div>
       </div>
- 
+
       {/* Conditional Fields */}
       {showConcessionFields && (
         <div className={styles.clgAppSaleExtraConcessionInfoBottom}>
@@ -191,13 +191,13 @@ const ExtraConcession = () => {
               {row.fields.map((fname) => {
                 // Custom onChange handlers for reason and concessionReferredBy
                 let onChangeHandler = (e) => setFieldValue(fname, e.target.value);
-               
+
                 if (fname === "reason") {
                   onChangeHandler = handleReasonChange;
                 } else if (fname === "concessionReferredBy") {
                   onChangeHandler = handleConcessionReferredByChange;
                 }
-               
+
                 // Map UI field names to validation schema keys
                 const validationKeyMap = {
                   reason: "concessionReason",
@@ -213,7 +213,7 @@ const ExtraConcession = () => {
                 // Show error if field is touched/submitted OR if there are validation errors present
                 const shouldShowError = isTouched || hasError;
                 const fieldError = shouldShowError && hasError ? String(hasError) : null;
-               
+
                 return (
                   <div key={fname} className={styles.clgAppSaleFieldCell}>
                     {renderField(fname, fieldMap, {
@@ -231,5 +231,5 @@ const ExtraConcession = () => {
     </div>
   );
 };
- 
+
 export default ExtraConcession;

@@ -495,21 +495,6 @@ const CampusForm = ({
         }
       }
 
-      // Resolve Issued To Name
-      let computedIssuedToName = "";
-      if (finalIssuedToId && employees.length > 0) {
-        const e = employees.find(emp => empId(emp) === finalIssuedToId);
-        if (e) computedIssuedToName = empLabel(e);
-      }
-
-      if (computedIssuedToName) {
-        obj.issuedTo = computedIssuedToName;
-        obj.issuedName = computedIssuedToName;
-      } else {
-        obj.issuedTo = isCampusChanged ? "" : initialValues.issuedName;
-        obj.issuedName = isCampusChanged ? "" : initialValues.issuedName;
-      }
-
       // 4. Series & Fee
       const finalApplicationFee = selectedFee ?? initialValues.applicationFee ?? seedInitialValues.applicationFee;
       if (finalApplicationFee != null) {

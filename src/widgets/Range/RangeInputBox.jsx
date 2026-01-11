@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import styles from "./RangeInputBox.module.css";
 import updownicon from "../../assets/applicationassets/application-distribution/updownicon";
 
-const RangeInputBox = ({ field, form, label }) => {
+const RangeInputBox = ({ field, form, label, maxlength = ("8") }) => {
   const [rangeClicked, setRangeClicked] = useState(false);
   const rangeInputRef = useRef(null);
   const rangeOptionsRef = useRef(null);
@@ -76,6 +76,7 @@ const RangeInputBox = ({ field, form, label }) => {
           className={styles.range_input}
           placeholder="Enter Range"
           autoComplete="off"
+          maxLength={maxlength}
         />
         <button
           type="button"

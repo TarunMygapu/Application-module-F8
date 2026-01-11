@@ -6326,6 +6326,39 @@ const CollegeSalePage = () => {
               console.log("✅ Auto-populated description:", description);
             }
           }
+
+          // -----------------------------------------------------------
+          // EXTRA CONCESSION (Pro Concession) from Array
+          // -----------------------------------------------------------
+          const extraConcession = sourceData.concessions.find(c => c.proAmount || c.proGivenById || c.proReason);
+          if (extraConcession) {
+            console.log("✅ Found Extra Concession in array:", extraConcession);
+            formik.setFieldValue("concessionWrittenOnApplication", true);
+
+            if (extraConcession.proAmount) {
+              formik.setFieldValue("concessionAmount", String(extraConcession.proAmount));
+              console.log("✅ Set concessionAmount:", extraConcession.proAmount);
+            }
+
+            // Reason
+            if (extraConcession.proReason) {
+              formik.setFieldValue("reason", String(extraConcession.proReason));
+              // Also set concessionReason if not set? No, that's for Y1/Y2. 
+              // ExtraConcession component keys off 'reason'.
+              console.log("✅ Set reason (extra):", extraConcession.proReason);
+            }
+
+            // Referred By (Given By)
+            if (extraConcession.proGivenByName) {
+              formik.setFieldValue("concessionReferredBy", String(extraConcession.proGivenByName));
+              console.log("✅ Set concessionReferredBy:", extraConcession.proGivenByName);
+            }
+
+            if (extraConcession.proGivenById) {
+              formik.setFieldValue("proConcessionGivenById", extraConcession.proGivenById);
+              console.log("✅ Set proConcessionGivenById:", extraConcession.proGivenById);
+            }
+          }
         } else {
           // Handle flat format (fields at root level)
           // First Year Concession
@@ -6365,14 +6398,14 @@ const CollegeSalePage = () => {
           }
 
           // Referred By
-          const referredByValue = sourceData.referredById;
+          const referredByValue = sourceData.referredById || sourceData.referredBy || sourceData.referred_by || sourceData.concReferedBy || sourceData.concessionReferredBy;
           if (referredByValue) {
             formik.setFieldValue("referredBy", String(referredByValue));
             console.log("✅ Auto-populated referredBy (flat):", referredByValue);
           }
 
           // Authorized By
-          const authorizedByValue = sourceData.authorizedById;
+          const authorizedByValue = sourceData.authorizedById || sourceData.authorizedBy || sourceData.authorized_by;
           if (authorizedByValue) {
             formik.setFieldValue("authorizedBy", String(authorizedByValue));
             console.log("✅ Auto-populated authorizedBy (flat):", authorizedByValue);
@@ -6385,6 +6418,68 @@ const CollegeSalePage = () => {
             console.log("✅ Auto-populated description (flat):", descriptionValue);
           }
         }
+
+        // -----------------------------------------------------------------------
+        // EXTRA CONCESSION FIELDS (Syncing for ExtraConcession.jsx)
+        // -----------------------------------------------------------------------
+
+        // 1. Concession Written On Application (Toggle)
+        const writtenOnApp = sourceData.concessionWrittenOnApplication ?? sourceData.concession_written_on_application;
+        if (writtenOnApp !== undefined && writtenOnApp !== null) {
+          const boolValue = String(writtenOnApp) === "true" || writtenOnApp === true || writtenOnApp === 1;
+          formik.setFieldValue("concessionWrittenOnApplication", boolValue);
+          console.log("✅ Auto-populated concessionWrittenOnApplication:", boolValue);
+        }
+
+        // 2. Reason (UI field: 'reason' <-> Backend: 'concessionReason')
+        // If we populated 'concessionReason', sync it to 'reason'
+        setTimeout(() => {
+          const currentVals = formik.values;
+
+          if (currentVals.concessionReason && !currentVals.reason) {
+            formik.setFieldValue("reason", currentVals.concessionReason);
+            console.log("✅ Synced concessionReason to reason:", currentVals.concessionReason);
+          }
+
+          if (currentVals.concessionReasonId && !currentVals.proConcessionReasonId) {
+            formik.setFieldValue("proConcessionReasonId", currentVals.concessionReasonId);
+            console.log("✅ Synced concessionReasonId to proConcessionReasonId:", currentVals.concessionReasonId);
+          }
+
+          // 3. Referred By (UI field: 'concessionReferredBy' <-> Backend: 'referredBy')
+          if (currentVals.referredBy && !currentVals.concessionReferredBy) {
+            formik.setFieldValue("concessionReferredBy", currentVals.referredBy);
+            console.log("✅ Synced referredBy to concessionReferredBy:", currentVals.referredBy);
+          }
+
+          // 4. Pro Concession Given By ID (UI field: 'proConcessionGivenById' <-> Backend: 'referredById' or 'authorizedById')
+          // This field is for the ID of the person who 'gave' the concession, often the 'referredBy' person's ID.
+          // It can also be the 'authorizedBy' person's ID if that's how the backend expects it.
+          // We prioritize `referredById` from sourceData if available, then `authorizedById`.
+          // If `referredBy` (name) is set, we try to sync its ID.
+          const proConcessionGivenByIdFromSource = sourceData.proConcessionGivenById || sourceData.pro_concession_given_by_id || sourceData.referredById || sourceData.authorizedById;
+          if (proConcessionGivenByIdFromSource && !currentVals.proConcessionGivenById) {
+            formik.setFieldValue("proConcessionGivenById", proConcessionGivenByIdFromSource);
+            console.log("✅ Auto-populated proConcessionGivenById from source:", proConcessionGivenByIdFromSource);
+          } else if (currentVals.referredById && !currentVals.proConcessionGivenById) {
+            // Fallback: if referredById is set in formik, use it
+            formik.setFieldValue("proConcessionGivenById", currentVals.referredById);
+            console.log("✅ Synced referredById to proConcessionGivenById:", currentVals.referredById);
+          } else if (currentVals.authorizedById && !currentVals.proConcessionGivenById) {
+            // Further fallback: if authorizedById is set in formik, use it
+            formik.setFieldValue("proConcessionGivenById", currentVals.authorizedById);
+            console.log("✅ Synced authorizedById to proConcessionGivenById:", currentVals.authorizedById);
+          }
+
+          // Also check if we have IDs directly in sourceData that weren't caught
+          if (sourceData.proConcessionReasonId || sourceData.pro_concession_reason_id) {
+            formik.setFieldValue("proConcessionReasonId", sourceData.proConcessionReasonId || sourceData.pro_concession_reason_id);
+          }
+          if (sourceData.proConcessionGivenById || sourceData.pro_concession_given_by_id) {
+            formik.setFieldValue("proConcessionGivenById", sourceData.proConcessionGivenById || sourceData.pro_concession_given_by_id);
+          }
+
+        }, 100);
 
         console.log(`✅ College form auto-populated from ${isFastSold ? 'fast sale' : 'overview'} data`);
         console.log("---------------------------------------------------");
@@ -6815,56 +6910,27 @@ const CollegeSalePage = () => {
                         type="button"
                         onClick={async () => {
                           try {
-                            // Validate form - but for update, we'll be more lenient
-                            // Only check critical fields that are absolutely required
+                            // ✅ STRICT VALIDATION: Check for ANY validation errors
                             const errors = await formik.validateForm();
 
-                            // Filter out non-critical errors for update operation
-                            // Critical fields that must be present for update
-                            const criticalFields = ['firstName', 'gender', 'dob', 'admissionType'];
-                            const criticalErrors = {};
+                            if (Object.keys(errors).length > 0) {
+                              console.error("❌ Validation errors:", errors);
 
-                            // Check if any critical fields have errors
-                            for (const field of criticalFields) {
-                              if (errors[field]) {
-                                criticalErrors[field] = errors[field];
-                              }
-                            }
-
-                            // Also check if critical fields are empty
-                            const formValues = formik.values;
-                            if (!formValues.firstName || formValues.firstName.trim() === '') {
-                              criticalErrors.firstName = 'First name is required';
-                            }
-                            if (!formValues.gender || formValues.gender === '') {
-                              criticalErrors.gender = 'Gender is required';
-                            }
-                            if (!formValues.dob || formValues.dob === '') {
-                              criticalErrors.dob = 'Date of birth is required';
-                            }
-                            if (!formValues.admissionType || formValues.admissionType === '') {
-                              criticalErrors.admissionType = 'Admission type is required';
-                            }
-
-                            if (Object.keys(criticalErrors).length > 0) {
-                              console.error("❌ Critical form validation errors:", criticalErrors);
-                              console.error("📋 All validation errors:", errors);
-
-                              // Show detailed error message
-                              const errorMessages = Object.values(criticalErrors).join('\n');
-                              alert(`Please fill in the following required fields:\n\n${errorMessages}`);
-                              return;
-                            }
-
-                            // Log non-critical errors but don't block update
-                            const nonCriticalErrors = Object.keys(errors).filter(key => !criticalFields.includes(key));
-                            if (nonCriticalErrors.length > 0) {
-                              console.warn("⚠️ Non-critical validation errors (will proceed with update):",
-                                nonCriticalErrors.reduce((acc, key) => {
-                                  acc[key] = errors[key];
+                              // Touch all fields so inline errors appear
+                              formik.setTouched(
+                                Object.keys(formik.values).reduce((acc, key) => {
+                                  acc[key] = true;
                                   return acc;
                                 }, {})
                               );
+
+                              // Show alert
+                              const errorList = Object.entries(errors)
+                                .map(([key, msg]) => `• ${msg}`)
+                                .join('\n');
+
+                              // alert(`Please fix the following validation errors before updating:\n\n${errorList.substring(0, 500)}${errorList.length > 500 ? '...' : ''}`);
+                              return;
                             }
 
                             // Get application number (student admission number) for update API

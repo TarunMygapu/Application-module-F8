@@ -223,7 +223,16 @@ const DistributeForm = ({
 
         onSubmit?.({ ...values, id: editId, _mode: "update" });
         setIsInsertClicked?.(false);
-        setTableTrigger(prev => prev + 1); // ✅ Trigger table refresh after update
+
+        console.log("🔥 CALLING setTableTrigger FROM UPDATE", typeof setTableTrigger);
+        if (typeof setTableTrigger === 'function') {
+          setTableTrigger(prev => {
+            console.log("🔥 UPDATING TABLE TRIGGER PREV:", prev);
+            return prev + 1;
+          });
+        } else {
+          console.error("❌ setTableTrigger is NOT a function");
+        }
       } else {
         console.log("🆕 CREATE API CALL INITIATED...");
 
