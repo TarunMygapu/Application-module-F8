@@ -5,7 +5,6 @@ import {
   useGetStateName,
   useGetCityByStateId,
   useGetZoneByCity,
-  useGetAcademicYears,
   useGetEmployeesByZone,
   useGetMobileNo,
   useGetAllFeeAmounts,
@@ -50,7 +49,7 @@ const ZoneForm = ({
   isUpdate = false,
   editId,
   setCallTable,
-   setTableTrigger,
+  setTableTrigger,
 }) => {
 
   // const {setFieldValue} = useFormikContext();
@@ -72,7 +71,7 @@ const ZoneForm = ({
   const [customAcademicYear, setCustomAcademicYear] = useState(null);
   const [selectedSeries, setSelectedSeries] = useState(null);
 
-  const {data: academicYear } = useGetThreeAcademicYear();
+  const { data: academicYear } = useGetThreeAcademicYear();
   console.log("Three Academic Year: ", academicYear);
 
   // --------------------- INITIAL FORM VALUES -------------------------
@@ -82,23 +81,23 @@ const ZoneForm = ({
   });
 
   useEffect(() => {
-  if (isUpdate) return;               // 🔒 do not touch update
-  if (!academicYear?.currentYear) return;
+    if (isUpdate) return;               // 🔒 do not touch update
+    if (!academicYear?.currentYear) return;
 
-  const { academicYear: yearName, acdcYearId } =
-    academicYear.currentYear;
+    const { academicYear: yearName, acdcYearId } =
+      academicYear.currentYear;
 
-  // ✅ 1. Set visible dropdown value (LABEL)
-  setSeedInitialValues(prev => ({
-    ...prev,
-    academicYear: yearName,
-  }));
+    // ✅ 1. Set visible dropdown value (LABEL)
+    setSeedInitialValues(prev => ({
+      ...prev,
+      academicYear: yearName,
+    }));
 
-  // ✅ 2. Set ID for backend & dependent APIs
-  setSelectedAcademicYearId(acdcYearId);
+    // ✅ 2. Set ID for backend & dependent APIs
+    setSelectedAcademicYearId(acdcYearId);
 
-  isHydratingRef.current = false;
-}, [academicYear, isUpdate]);
+    isHydratingRef.current = false;
+  }, [academicYear, isUpdate]);
 
 
 
@@ -113,8 +112,8 @@ const ZoneForm = ({
     prevZoneNameRef.current = seedInitialValues.zoneName || null;
 
     if (initialValues.academicYearId) {
-    setSelectedAcademicYearId(initialValues.academicYearId);
-  }
+      setSelectedAcademicYearId(initialValues.academicYearId);
+    }
 
     isHydratingRef.current = false;
   }, [isUpdate, seedInitialValues]);
@@ -127,7 +126,6 @@ const ZoneForm = ({
 
   // --------------------- BASIC DROPDOWNS ----------------------------
   const { data: statesRaw = [] } = useGetStateName();
-  const { data: yearsRaw = [] } = useGetAcademicYears();
 
   const { data: citiesRaw = [] } = useGetCityByStateId(selectedStateId);
   const { data: zonesRaw = [] } = useGetZoneByCity(selectedCityId);
@@ -145,7 +143,7 @@ const ZoneForm = ({
 
   console.log("------------------ ZONE FORM ---------------------")
 
-    const {data} = useGetLocationOfEmployees(employeeId, campusCategory, isUserAdmin);
+  const { data } = useGetLocationOfEmployees(employeeId, campusCategory, isUserAdmin);
   console.log("Location of Employees Data:", data);
 
   // -------------------- APPLICATION SERIES -------------------------
@@ -162,7 +160,17 @@ const ZoneForm = ({
 
   // --------------------- NORMALIZE ARRAYS --------------------------
   const statesData = useMemo(() => asArray(statesRaw), [statesRaw]);
-  const yearsData = useMemo(() => asArray(yearsRaw), [yearsRaw]);
+
+  // Construct years array from useGetThreeAcademicYear data
+  const yearsData = useMemo(() => {
+    if (!academicYear) return [];
+    return [
+      academicYear.currentYear,
+      academicYear.nextYear,
+      academicYear.previousYear
+    ].filter(Boolean);
+  }, [academicYear]);
+
   const citiesData = useMemo(() => asArray(citiesRaw), [citiesRaw]);
   const zonesData = useMemo(() => asArray(zonesRaw), [zonesRaw]);
   const employeesData = useMemo(() => asArray(employeesRaw), [employeesRaw]);
@@ -173,20 +181,7 @@ const ZoneForm = ({
     [statesData]
   );
 
-  const academicYearNames = useMemo(() => {
-    const allowed = ["2026-27", "2025-26", "2024-25"];
-    const apiYears = yearsData.map(yearLabel).filter(Boolean);
-
-    const filtered = allowed
-      .filter((y) => apiYears.includes(y))
-      .sort((a, b) => Number(b.split("-")[0]) - Number(a.split("-")[0]));
-
-    if (customAcademicYear && !filtered.includes(customAcademicYear)) {
-      return [customAcademicYear, ...filtered];
-    }
-
-    return filtered;
-  }, [yearsData, customAcademicYear]);
+  const academicYearNames = useMemo(() => yearsData.map(yearLabel), [yearsData]);
 
   const academicYearSearchOptions = useMemo(
     () => yearsData.map(yearLabel),
@@ -228,24 +223,47 @@ const ZoneForm = ({
     return m;
   }, [employeesData]);
 
+  const isProcessingChangeRef = useRef(false);
+  const lastProcessedValuesRef = useRef({});
+
   // -----------------------------------------------------------------------
   //      WHEN PARENT DROPDOWN CHANGES → RESET CHILD DROPDOWNS
   // -----------------------------------------------------------------------
-  const handleValuesChange = (values, setFieldValue) => {
+  const handleValuesChange = React.useCallback((values, setFieldValue) => {
 
     if (!setFieldValue) return; // Safety check
+
+    // Prevent processing if we're already processing a change (prevents infinite loops)
+    if (isProcessingChangeRef.current) return;
+
+    // Create a key from current values to detect actual changes
+    const valuesKey = `${values.stateName}-${values.cityName}-${values.zoneName}-${values.academicYear}-${values.issuedTo}-${values.applicationFee}`;
+
+    // Skip if we've already processed these exact values
+    if (lastProcessedValuesRef.current.key === valuesKey) {
+      return;
+    }
+    // Update the last processed key
+    lastProcessedValuesRef.current.key = valuesKey;
+
+
     // Academic Year
     if (values.academicYear) {
       if (yearNameToId.has(values.academicYear)) {
         const id = yearNameToId.get(values.academicYear);
         if (id !== selectedAcademicYearId) {
+          isProcessingChangeRef.current = true;
           setSelectedAcademicYearId(id);
           setSelectedApplicationFee(null); // reset fee
+          setTimeout(() => { isProcessingChangeRef.current = false; }, 0);
         }
       } else {
-        setCustomAcademicYear(values.academicYear);
-        setSelectedAcademicYearId(null);
-        setSelectedApplicationFee(null);
+        // Custom year logic
+        if (values.academicYear !== customAcademicYear) {
+          setCustomAcademicYear(values.academicYear);
+          setSelectedAcademicYearId(null);
+          setSelectedApplicationFee(null);
+        }
       }
     }
 
@@ -253,25 +271,17 @@ const ZoneForm = ({
     if (values.stateName && stateNameToId.has(values.stateName)) {
       const id = stateNameToId.get(values.stateName);
       const prev = prevStateNameRef.current;
-      //       if (id !== selectedStateId) {
-      //         setSelectedStateId(id);
 
-      //         if(!isUpdate) {
-      //             setFieldValue("cityName", "");
-      //             setFieldValue("zoneName", "");
-      //             setFieldValue("issuedTo", "");
-      //         }
-      //  // ✅ Now this will work because setFieldValue is passed from the Bridge
-
-      //         setSelectedCityId(null);
-      //         setSelectedZoneId(null);
-      //         setIssuedToEmpId(null);
-      //       }
+      // Only process if ID changed or we are not hydrating/checking duplicates
+      // Note: checking `id !== selectedStateId` helps, but we also rely on the valuesKey guard now.
 
       if (id !== selectedStateId) {
         setSelectedStateId(id);
-      }
+      } // We usually want to set this even if hydrating ? 
+
+      // The logic below was: if (!isHydratingRef.current && values.stateName !== prev)
       if (!isHydratingRef.current && values.stateName !== prev) {
+        isProcessingChangeRef.current = true;
         setSelectedStateId(id);
 
         // 🔥 Reset children in BOTH create & update
@@ -282,6 +292,7 @@ const ZoneForm = ({
         setSelectedCityId(null);
         setSelectedZoneId(null);
         setIssuedToEmpId(null);
+        setTimeout(() => { isProcessingChangeRef.current = false; }, 100);
       }
 
       prevStateNameRef.current = values.stateName;
@@ -290,25 +301,14 @@ const ZoneForm = ({
     // ---------------- CITY → RESET ZONE, EMPLOYEE ----------------
     if (values.cityName && cityNameToId.has(values.cityName)) {
       const id = cityNameToId.get(values.cityName);
-      //   if (id !== selectedCityId) {
-      //   setSelectedCityId(id);
-      //   if(!isUpdate) {
-      //             setFieldValue("zoneName", "");
-      //   setFieldValue("issuedTo", "");
-      //   }
-      //   setSelectedZoneId(null);
-      //   setIssuedToEmpId(null);
-      //   setSelectedApplicationFee(null);
-      // }
-
-      // 🚫 Skip reset during first load
       const prev = prevCityNameRef.current;
+
       if (id !== selectedCityId) {
         setSelectedCityId(id);
       }
 
-
       if (!isHydratingRef.current && values.cityName !== prev) {
+        isProcessingChangeRef.current = true;
         setSelectedCityId(id);
 
         setFieldValue("zoneName", "");
@@ -317,6 +317,7 @@ const ZoneForm = ({
         setSelectedZoneId(null);
         setIssuedToEmpId(null);
         setSelectedApplicationFee(null);
+        setTimeout(() => { isProcessingChangeRef.current = false; }, 100);
       }
 
       prevCityNameRef.current = values.cityName;
@@ -325,26 +326,20 @@ const ZoneForm = ({
     // ---------------- ZONE → RESET EMPLOYEE ----------------
     if (values.zoneName && zoneNameToId.has(values.zoneName)) {
       const id = zoneNameToId.get(values.zoneName);
-      // if (id !== selectedZoneId) {
-      //   setSelectedZoneId(id);
-      //   if(!isUpdate) {
-      //   setFieldValue("issuedTo", "");
-      //   }
-      //   setIssuedToEmpId(null);
-      //   setSelectedApplicationFee(null);
-      // }
-
       const prev = prevZoneNameRef.current;
+
       if (id !== selectedZoneId) {
         setSelectedZoneId(id);
       }
 
       if (!isHydratingRef.current && values.zoneName !== prev) {
+        isProcessingChangeRef.current = true;
         setSelectedZoneId(id);
 
         setFieldValue("issuedTo", "");
         setIssuedToEmpId(null);
         setSelectedApplicationFee(null);
+        setTimeout(() => { isProcessingChangeRef.current = false; }, 100);
       }
 
       prevZoneNameRef.current = values.zoneName;
@@ -369,7 +364,11 @@ const ZoneForm = ({
         setFieldValue("applicationNoFrom", "");
       }
     }
-  };
+  }, [
+    yearNameToId, stateNameToId, cityNameToId, zoneNameToId, empNameToId,
+    selectedAcademicYearId, selectedStateId, selectedCityId, selectedZoneId,
+    issuedToEmpId, selectApplicationFee, isUpdate, customAcademicYear
+  ]);
 
   const seriesObj = useMemo(() => {
     if (!selectedSeries) return null;
@@ -388,9 +387,11 @@ const ZoneForm = ({
 
     if (issuedToEmpId != null) obj.issuedToEmpId = Number(issuedToEmpId);
     if (selectedAcademicYearId != null) {
-  obj.academicYearId = Number(selectedAcademicYearId);
-  obj.academicYear = seedInitialValues.academicYear; // 🔥 ADD THIS
-}
+      obj.academicYearId = Number(selectedAcademicYearId);
+      // ✅ FIX: Find the label for the selected ID
+      const selectedYearObj = yearsData.find(y => yearId(y) === Number(selectedAcademicYearId));
+      obj.academicYear = selectedYearObj ? yearLabel(selectedYearObj) : seedInitialValues.academicYear;
+    }
     if (selectedStateId != null) obj.stateId = Number(selectedStateId);
     if (selectedCityId != null) obj.cityId = Number(selectedCityId);
     if (selectedZoneId != null) obj.zoneId = Number(selectedZoneId);
@@ -416,6 +417,8 @@ const ZoneForm = ({
     selectedCityId,
     selectedZoneId,
     selectApplicationFee,
+    yearsData, // ✅ Added yearsData dependency
+    seedInitialValues
   ]);
 
   // ---------------------------------------------------------------------
@@ -464,7 +467,7 @@ const ZoneForm = ({
       isUpdate={isUpdate}
       editId={editId}
       setCallTable={setCallTable}
-       setTableTrigger={setTableTrigger}
+      setTableTrigger={setTableTrigger}
     />
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "./DistributeTab.module.css";
 import {
   NavLink,
@@ -35,6 +35,7 @@ const DistributeTab = () => {
   const [tableTrigger, setTableTrigger] = useState(0);
   const [isFilterApplied, setIsFilterApplied] = useState(false);
   const isIcon = isFilterApplied ? blueFilterIcon : filterIcon;
+  const filterButtonRef = useRef(null);
 
   // 🔑 Use the literal string keys for permission checks, matching the keys in your SCREENS object
   const canViewZone = usePermission("DISTRIBUTE_ZONE").canView;
@@ -125,9 +126,7 @@ const DistributeTab = () => {
   }
 
   const displayFilterOptions = () => {
-    if (!clickedFilterButton) {
-      setClickedFilterButton(true);
-    }
+    setClickedFilterButton((prev) => !prev);
   }
 
   const closeFilterOptions = () => {
@@ -244,7 +243,7 @@ const DistributeTab = () => {
                   </figure>
                   <h6 className={styles.header_text}>Previous Year Graph</h6>
                 </div>
-                <div className={styles.graphFilterButton}>
+                <div className={styles.graphFilterButton} ref={filterButtonRef}>
                   <Button
                     buttonname={"Filter"}
                     variant={isFilterApplied ? "filterApplied" : "filterButton"}
@@ -255,6 +254,8 @@ const DistributeTab = () => {
                     <CostSelectionForGraph onClose={closeFilterOptions}
                       onApply={() => setIsFilterApplied(true)}
                       onClear={() => setIsFilterApplied(false)}
+                      type={false}
+                      excludeRef={filterButtonRef}
                     />
                   )}
                 </div>

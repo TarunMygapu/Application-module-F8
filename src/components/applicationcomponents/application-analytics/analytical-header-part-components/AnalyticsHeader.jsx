@@ -150,8 +150,11 @@ const AnalyticsHeader = ({ onTabChange, activeTab }) => {
 
       dgmData.forEach(dgm => {
         const dgmName = dgm.name || dgm.dgmName || dgm.dgm_name;
-        if (dgmName) {
-          items.push({ id: `dgm-${dgm.id}`, name: dgmName, type: "DGM" });
+        // Zonal accountant API returns empId, Admin API returns id
+        const dgmId = dgm.id || dgm.empId;
+
+        if (dgmName && dgmId) {
+          items.push({ id: `dgm-${dgmId}`, name: dgmName, type: "DGM" });
         }
       });
     }
@@ -244,9 +247,32 @@ const AnalyticsHeader = ({ onTabChange, activeTab }) => {
       } else {
         dgmData = dgmsForZonalQuery.data || [];
       }
-      const dgmItem = dgmData.find(dgm => String(dgm.id) === String(actualId));
+
+      console.log("🔍 [AnalyticsHeader] Looking for DGM...", {
+        actualId,
+        dgmDataSize: dgmData.length,
+        firstFewDgMs: dgmData.slice(0, 3)
+      });
+
+      const dgmItem = dgmData.find(dgm => String(dgm.id || dgm.empId) === String(actualId));
+
+      console.log("🔍 [AnalyticsHeader] Found DGM Item:", dgmItem);
+
       if (dgmItem) {
-        cmpsId = dgmItem.cmpsId || dgmItem.campusId || dgmItem.cmps_id || dgmItem.campus_id || null;
+        // Check for array of campuses (from dgm-with-campuses endpoint)
+        if (dgmItem.campuses && Array.isArray(dgmItem.campuses)) {
+          // Extract IDs from campus objects
+          cmpsId = dgmItem.campuses.map(c => c.campusId || c.id || c.cmps_id || c.cmpsId).filter(id => id);
+          console.log("🔍 [AnalyticsHeader] Extracted via .campuses:", cmpsId);
+        } else if (dgmItem.campusIds) {
+          // If it already has a list of IDs
+          cmpsId = dgmItem.campusIds;
+          console.log("🔍 [AnalyticsHeader] Extracted via .campusIds:", cmpsId);
+        } else {
+          // Fallback to singular properties
+          cmpsId = dgmItem.cmpsId || dgmItem.campusId || dgmItem.cmps_id || dgmItem.campus_id || null;
+          console.log("🔍 [AnalyticsHeader] Extracted via singular:", cmpsId);
+        }
       }
     }
 
@@ -257,8 +283,15 @@ const AnalyticsHeader = ({ onTabChange, activeTab }) => {
         name: item.name,
         type: entityType,
         cmpsId: cmpsId,
+        originalItem: item
       });
       selectEntity(actualId, item.name, entityType, cmpsId);
+    } else {
+      console.error("❌ Failed to call selectEntity - missing actualId or entityType", {
+        actualId,
+        entityType,
+        item
+      });
     }
 
     // Close suggestions and filter dropdown after selection
@@ -278,8 +311,15 @@ const AnalyticsHeader = ({ onTabChange, activeTab }) => {
     return () => document.removeEventListener("mousedown", handleOutside);
   }, []);
 
-  // ✅ Generate dynamic placeholder based on user's FULL ACCESS permissions (clickable tabs)
+  // ✅ Generate dynamic placeholder based on ACTIVE TAB
   const getSearchPlaceholder = () => {
+    // If there is an active tab chosen by the user, show that specific placeholder
+    // if (activeTab === "Zone") return "Search for Zone";
+    // if (activeTab === "DGM") return "Search for DGM";
+    // if (activeTab === "Branch") return "Search for Branch";
+
+    // Fallback logic if no tab is active (or on initial load before sync)
+    // We can keep the old logic as a fallback or just return "Search"
     const allowedTypes = [];
     if (zonePerms.isFullAccess) allowedTypes.push("Zone");
     if (dgmPerms.isFullAccess) allowedTypes.push("DGM");

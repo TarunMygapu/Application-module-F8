@@ -354,6 +354,7 @@ import axios from "axios";
 const ANALYTICS_GET_ADMIN = "http://localhost:8080/api/applications";
 const DISTRIBUTION_GETS = "http://localhost:8080/distribution/gets";
 const DISTRIBUTION = "http://localhost:8080/api/dashboard/CO";
+const ANALYTICS = "http://localhost:8080/api/analytics";
 
 // ----------------------
 // 💰 Amount APIs
@@ -374,6 +375,23 @@ const getAllAmounts = async (empId, academicYearId) => {
     throw error;
   }
 };
+
+const amountMaster = async () => {
+  console.log("💰 API CALL: getAllAmounts");
+
+  const url = `${ANALYTICS}/admin-app-amounts`;
+  console.log("💰 API URL:", url);
+
+  try {
+    const { data } = await axios.get(url);
+    console.log("💰 API RESPONSE: getAllAmounts data:", data);
+    console.log("💰 API RESPONSE type:", typeof data, "isArray:", Array.isArray(data));
+    return data;
+  } catch (error) {
+    console.error("💰 API ERROR: getAllAmounts failed", error);
+    throw error;
+  }
+}
 
 // ----------------------
 // 📊 Admin APIs
@@ -747,5 +765,13 @@ export const useGetAllAmounts = (empId, academicYearId = 26, options = {}) =>
     queryKey: ["Get All Amounts", empId, academicYearId],
     queryFn: () => getAllAmounts(empId, academicYearId),
     enabled: !!empId && (options.enabled ?? true),
+    ...options,
+  });
+
+export const useGetAmountMaster = (options = {}) =>
+  useQuery({
+    queryKey: ["Get Amount Master"],
+    queryFn: () => amountMaster(),
+    enabled: options.enabled ?? true,
     ...options,
   });

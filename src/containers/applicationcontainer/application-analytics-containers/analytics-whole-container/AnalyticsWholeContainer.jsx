@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AccordiansContainer from "../../application-analytics-containers/accordians-container/AccordiansContainer";
 import AnalyticsHeaderContainer from "../analytics-header-container/AnalyticsHeaderContainer";
 import ZoneRateContainer from "../zone-rate-container/ZoneRateContainer";
@@ -22,6 +22,7 @@ const AnalyticsWholeContainer = () => {
   const [clickedFilterButton, setClickedFilterButton] = useState(false);
   const [isFilterApplied, setIsFilterApplied] = useState(false);
   const isIcon = isFilterApplied ? blueFilterIcon : filterIcon;
+  const filterButtonRef = useRef(null);
 
   // ✅ Lift active tab state to parent
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -34,9 +35,7 @@ const AnalyticsWholeContainer = () => {
   }, [initialTab]);
 
   const displayFilterOptions = () => {
-    if (!clickedFilterButton) {
-      setClickedFilterButton(true);
-    }
+    setClickedFilterButton((prev) => !prev);
   }
 
   const closeFilter = () => {
@@ -65,7 +64,7 @@ const AnalyticsWholeContainer = () => {
             </figure>
             <h6 className={styles.header_text}>Previous Year Graph</h6>
           </div>
-          <div className={styles.graphFilterButton}>
+          <div className={styles.graphFilterButton} ref={filterButtonRef}>
             <Button
               buttonname={"Filter"}
               variant={isFilterApplied ? "filterApplied" : "filterButton"}
@@ -76,6 +75,8 @@ const AnalyticsWholeContainer = () => {
               <CostSelectionForGraph onClose={closeFilter}
                 onApply={() => setIsFilterApplied(true)}
                 onClear={() => setIsFilterApplied(false)}
+                type={false}
+                excludeRef={filterButtonRef}
               />
             )}
           </div>

@@ -5,7 +5,6 @@ import {
   useGetAllDistricts,
   useGetCitiesByDistrict,
   useGetProsByCampus,
-  useGetAcademicYears,
   useGetMobileNo,
   useGetCampuesByCityWithCategory,
   useGetAllFeeAmounts,
@@ -86,7 +85,7 @@ const CampusForm = ({
   const didSeedRef = useRef(false);
 
   // ---------------- API CALLS ----------------
-  const { data: yearsRaw = [] } = useGetAcademicYears();
+  // const { data: yearsRaw = [] } = useGetAcademicYears(); // REMOVED
   const { data: districtsRaw = [] } = useGetAllDistricts();
   const { data: citiesRaw = [] } = useGetCitiesByDistrict(selectedDistrictId);
   const { data: campusesRaw = [] } =
@@ -119,7 +118,17 @@ const CampusForm = ({
 
 
   // ---------------- NORMALIZATION ----------------
-  const years = asArray(yearsRaw);
+  // Construct years array from useGetThreeAcademicYear data
+  const years = useMemo(() => {
+    if (!academicYear) return [];
+    return [
+      academicYear.currentYear,
+      academicYear.nextYear,
+      academicYear.previousYear
+    ].filter(Boolean);
+  }, [academicYear]);
+
+  // const years = asArray(yearsRaw); // REMOVED
   const districts = asArray(districtsRaw);
   const cities = asArray(citiesRaw);
   const campuses = asArray(campusesRaw);
@@ -160,7 +169,7 @@ const CampusForm = ({
       academicYear: yearName,
     }));
 
-    // ✅ set ID for APIs
+    // ✅ set ID for APIs - Auto-select current year
     setSelectedAcademicYearId(acdcYearId);
 
     isHydratingRef.current = false;
@@ -533,7 +542,9 @@ const CampusForm = ({
 
     if (selectedAcademicYearId != null) {
       obj.academicYearId = Number(selectedAcademicYearId);
-      obj.academicYear = seedInitialValues.academicYear;
+      // ✅ FIX: Find the label for the selected ID (don't force seed value)
+      const selectedYearObj = years.find(y => yearId(y) === Number(selectedAcademicYearId));
+      obj.academicYear = selectedYearObj ? yearLabel(selectedYearObj) : seedInitialValues.academicYear;
     }
     if (selectedDistrictId) obj.campaignDistrictId = selectedDistrictId;
     if (selectedCityId) obj.cityId = selectedCityId;
@@ -567,7 +578,8 @@ const CampusForm = ({
     cities,
     campuses,
     employees,
-    locationData
+    locationData,
+    years // ✅ Added years dependency
   ]);
 
   // =====================================================================

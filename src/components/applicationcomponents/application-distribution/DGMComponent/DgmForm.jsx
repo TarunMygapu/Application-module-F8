@@ -2,7 +2,6 @@ import React, { useMemo, useState, useEffect, useRef } from "react";
 import DistributeForm from "../DistributeForm";
 
 import {
-  useGetAcademicYears,
   useGetCities,
   useGetZoneByCity,
   useGetCampusByZone,
@@ -78,7 +77,7 @@ const DgmForm = ({
   const campusCategory = localStorage.getItem("campusCategory");
 
   // ---------------- API CALLS ----------------
-  const { data: yearsRaw = [] } = useGetAcademicYears();
+  // const { data: yearsRaw = [] } = useGetAcademicYears(); // REMOVED
   const { data: citiesRaw = [] } = useGetCities();
   const { data: zonesRaw = [] } = useGetZoneByCity(selectedCityId);
   const { data: campusRaw = [] } = useGetDgmWithZonalAccountant(selectedZoneId, campusCategory);
@@ -114,7 +113,17 @@ const DgmForm = ({
   console.log("Application Series: ", applicationSeries);
 
   // ---------------- NORMALIZE ARRAYS ----------------
-  const years = asArray(yearsRaw);
+  // Construct years array from useGetThreeAcademicYear data
+  const years = useMemo(() => {
+    if (!academicYear) return [];
+    return [
+      academicYear.currentYear,
+      academicYear.nextYear,
+      academicYear.previousYear
+    ].filter(Boolean);
+  }, [academicYear]);
+
+  // const years = asArray(yearsRaw); // REMOVED
   const cities = asArray(citiesRaw);
   const zones = asArray(zonesRaw);
   const campuses = asArray(campusRaw);
@@ -146,10 +155,8 @@ const DgmForm = ({
       academicYear: yearName,
     }));
 
-    // ✅ 2. Set ID for APIs
-    if (initialValues?.academicYearId) {
-      setSelectedAcademicYearId(initialValues.academicYearId);
-    }
+    // ✅ 2. Set ID for APIs - Auto-select current year
+    setSelectedAcademicYearId(acdcYearId);
 
     isHydratingRef.current = false;
   }, [academicYear, isUpdate]);
@@ -595,7 +602,9 @@ const DgmForm = ({
 
     if (selectedAcademicYearId != null) {
       obj.academicYearId = Number(selectedAcademicYearId);
-      obj.academicYear = seedInitialValues.academicYear; // 🔥 REQUIRED
+      // ✅ FIX: Find the label for the selected ID (don't force seed value)
+      const selectedYearObj = years.find(y => yearId(y) === Number(selectedAcademicYearId));
+      obj.academicYear = selectedYearObj ? yearLabel(selectedYearObj) : seedInitialValues.academicYear;
     }
     if (selectedCityId != null) obj.cityId = selectedCityId;
     if (selectedZoneId != null) obj.zoneId = selectedZoneId;
@@ -633,6 +642,7 @@ const DgmForm = ({
     zones, // Needed for name lookup but changes are controlled
     campuses, // Needed for name lookup but changes are controlled
     employees, // ✅ Needed for name lookup
+    years, // ✅ Added years dependency
   ]);
 
   // ---------------- DYNAMIC OPTIONS ----------------
