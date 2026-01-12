@@ -310,7 +310,7 @@ const AnalyticsHeader = ({ onTabChange, activeTab }) => {
           onClick={handleSearchBarClick}
           onChange={handleInputChange}
           value={searchTerm}
-          inputRule="alphaNumericHyphen"
+          inputRule="none"
           maxLength="45"
           minLength="3"
         />
